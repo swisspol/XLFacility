@@ -31,8 +31,8 @@
 
 @implementation AppDelegate
 
-- (void)_timer:(NSTimer*)timer {
-  XLOG_VERBOSE(@"HIT ME!");
+- (void)_tap:(id)sender {
+  XLOG_INFO(@"%s", __FUNCTION__);
 }
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
@@ -42,11 +42,17 @@
   _window.rootViewController.view = [[UIView alloc] init];
   [_window makeKeyAndVisible];
   
-  [[XLFacility sharedFacility] addLogger:[[XLUIKitOverlayLogger alloc] init]];
+  UIButton* button = [UIButton buttonWithType:UIButtonTypeSystem];
+  [button setTitle:@"Tap Me!" forState:UIControlStateNormal];
+  [button addTarget:self action:@selector(_tap:) forControlEvents:UIControlEventTouchDown];
+  button.frame = CGRectMake(100, 100, 200, 50);
+  [button sizeToFit];
+  [_window.rootViewController.view addSubview:button];
+  
+  [[XLUIKitOverlayLogger sharedLogger] setOverlayOpacity:0.66];
+  [[XLFacility sharedFacility] addLogger:[XLUIKitOverlayLogger sharedLogger]];
   
   XLOG_INFO(@"%s", __FUNCTION__);
-  
-  [NSTimer scheduledTimerWithTimeInterval:6.0 target:self selector:@selector(_timer:) userInfo:nil repeats:YES];
   
   return YES;
 }
@@ -57,10 +63,6 @@
 
 - (void)applicationWillResignActive:(UIApplication*)application {
   XLOG_INFO(@"%s", __FUNCTION__);
-}
-
-- (void)applicationDidReceiveMemoryWarning:(UIApplication*)application {
-  XLOG_WARNING(@"%s", __FUNCTION__);
 }
 
 @end

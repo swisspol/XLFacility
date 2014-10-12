@@ -34,10 +34,8 @@
 #import "XLUIKitOverlayLogger.h"
 
 #define kOverlayWindowLevel 100.0
-#define kOverlayOpacity 0.75
 #define kOverlayMargin 25.0
 #define kOverlayCornerRadius 6.0
-#define kOverlayDisplayDuration 5.0
 #define kFontName @"Courier"
 #define kFontSize 13.0
 
@@ -60,6 +58,20 @@
   return logger;
 }
 
+- (id)init {
+  if ((self = [super init])) {
+    _overlayOpacity = 0.75;
+    _overlayDuration = 5.0;
+  }
+  return self;
+}
+
+- (void)setOverlayOpacity:(float)opacity {
+  _overlayOpacity = opacity;
+  
+  _textView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:_overlayOpacity];
+}
+
 - (BOOL)open {
   _overlayWindow = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
   _overlayWindow.screen = [UIScreen mainScreen];
@@ -76,16 +88,21 @@
   _textView = [[UITextView alloc] initWithFrame:bounds];
   _textView.layer.cornerRadius = kOverlayCornerRadius;
   _textView.opaque = NO;
-  _textView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:kOverlayOpacity];
+  _textView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:_overlayOpacity];
   _textView.textColor = [UIColor whiteColor];
   _textView.font = [UIFont fontWithName:kFontName size:kFontSize];
   _textView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [_overlayWindow.rootViewController.view addSubview:_textView];
-  _textView.alpha = 0.0;
   _textView.text = @"";
   
   _overlayTimer = [[NSTimer alloc] initWithFireDate:[NSDate distantFuture] interval:HUGE_VALF target:self selector:@selector(_overlayTimer:) userInfo:nil repeats:YES];
   [[NSRunLoop mainRunLoop] addTimer:_overlayTimer forMode:NSRunLoopCommonModes];
+  
+  if (_overlayDuration <= 0.0) {
+    _overlayWindow.hidden = NO;
+  } else {
+    _textView.alpha = 0.0;
+  }
   
   return YES;
 }
@@ -113,12 +130,17 @@
     }
     
     _overlayWindow.hidden = NO;
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationBeginsFromCurrentState:YES];
-    _textView.alpha = 1.0;
-    [UIView commitAnimations];
-    
-    [_overlayTimer setFireDate:[NSDate dateWithTimeIntervalSinceNow:kOverlayDisplayDuration]];
+    if (_overlayDuration > 0.0) {
+      if (_textView.alpha < 1.0) {
+        [UIView beginAnimations:nil context:NULL];
+        [UIView setAnimationBeginsFromCurrentState:YES];
+        _textView.alpha = 1.0;
+        [UIView commitAnimations];
+      }
+      [_overlayTimer setFireDate:[NSDate dateWithTimeIntervalSinceNow:_overlayDuration]];
+    } else {
+      _textView.alpha = 1.0;
+    }
   });
 }
 
