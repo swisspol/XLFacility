@@ -50,7 +50,7 @@
 		E2B3CF1D19E91825003ED065 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B3CF1A19E91825003ED065 /* main.m */; };
 		E2B3CF2D19E91990003ED065 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E2B3CF2C19E91990003ED065 /* libsqlite3.dylib */; };
 		E2B3CF3019E919DD003ED065 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2B3CF2F19E919DD003ED065 /* UIKit.framework */; };
-		E2BBC7F819EA6EB70082CB48 /* XLUIKitOverlayLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E2BBC7F719EA6EB70082CB48 /* XLUIKitOverlayLogger.m */; };
+		E2BBC7FE19EAF0E90082CB48 /* XLUIKitOverlayLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E2BBC7FD19EAF0E90082CB48 /* XLUIKitOverlayLogger.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,8 +106,8 @@
 		E2B3CF1A19E91825003ED065 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E2B3CF2C19E91990003ED065 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/usr/lib/libsqlite3.dylib; sourceTree = DEVELOPER_DIR; };
 		E2B3CF2F19E919DD003ED065 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		E2BBC7F619EA6EB70082CB48 /* XLUIKitOverlayLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLUIKitOverlayLogger.h; sourceTree = "<group>"; };
-		E2BBC7F719EA6EB70082CB48 /* XLUIKitOverlayLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLUIKitOverlayLogger.m; sourceTree = "<group>"; };
+		E2BBC7FC19EAF0E90082CB48 /* XLUIKitOverlayLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLUIKitOverlayLogger.h; sourceTree = "<group>"; };
+		E2BBC7FD19EAF0E90082CB48 /* XLUIKitOverlayLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLUIKitOverlayLogger.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -177,6 +177,7 @@
 			children = (
 				E29DC89E19EA425700A1B39F /* Core */,
 				E29DC8AF19EA425700A1B39F /* Extensions */,
+				E2BBC7FB19EAF0E90082CB48 /* UserInterface */,
 			);
 			path = XLFacility;
 			sourceTree = "<group>";
@@ -213,8 +214,6 @@
 				E29DC8B319EA425700A1B39F /* XLHTTPServerLogger.m */,
 				E29DC8B419EA425700A1B39F /* XLTelnetServerLogger.h */,
 				E29DC8B519EA425700A1B39F /* XLTelnetServerLogger.m */,
-				E2BBC7F619EA6EB70082CB48 /* XLUIKitOverlayLogger.h */,
-				E2BBC7F719EA6EB70082CB48 /* XLUIKitOverlayLogger.m */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -238,6 +237,15 @@
 				E2B3CF2C19E91990003ED065 /* libsqlite3.dylib */,
 			);
 			name = "iOS Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		E2BBC7FB19EAF0E90082CB48 /* UserInterface */ = {
+			isa = PBXGroup;
+			children = (
+				E2BBC7FC19EAF0E90082CB48 /* XLUIKitOverlayLogger.h */,
+				E2BBC7FD19EAF0E90082CB48 /* XLUIKitOverlayLogger.m */,
+			);
+			path = UserInterface;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -361,7 +369,7 @@
 				E29DC8C119EA425700A1B39F /* XLRecord.m in Sources */,
 				E29DC8BD19EA425700A1B39F /* XLFileLogger.m in Sources */,
 				E29DC8B719EA425700A1B39F /* XLASLLogger.m in Sources */,
-				E2BBC7F819EA6EB70082CB48 /* XLUIKitOverlayLogger.m in Sources */,
+				E2BBC7FE19EAF0E90082CB48 /* XLUIKitOverlayLogger.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
