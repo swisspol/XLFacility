@@ -108,6 +108,7 @@
 		E2B3CF2F19E919DD003ED065 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		E2BBC7FC19EAF0E90082CB48 /* XLUIKitOverlayLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLUIKitOverlayLogger.h; sourceTree = "<group>"; };
 		E2BBC7FD19EAF0E90082CB48 /* XLUIKitOverlayLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLUIKitOverlayLogger.m; sourceTree = "<group>"; };
+		E2BBC7FF19EB1C320082CB48 /* XLFacility.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = XLFacility.podspec; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +138,7 @@
 			isa = PBXGroup;
 			children = (
 				E280BF0E19E9F3DF00D85595 /* README.md */,
+				E2BBC7FF19EB1C320082CB48 /* XLFacility.podspec */,
 				E29DC89D19EA425700A1B39F /* XLFacility */,
 				E26DC18C19E85DA300C68DDC /* Mac */,
 				E2B3CF1619E91825003ED065 /* iOS */,
