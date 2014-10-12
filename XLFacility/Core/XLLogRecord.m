@@ -67,4 +67,8 @@
                           callstack:callstack];
 }
 
+- (NSString*)description {
+  return [[NSString alloc] initWithFormat:@"(%@) %@", [NSDate dateWithTimeIntervalSinceReferenceDate:_absoluteTime], _message];
+}
+
 @end
