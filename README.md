@@ -4,11 +4,11 @@ Overview
 [![Build Status](https://travis-ci.org/swisspol/XLFacility.svg?branch=master)](https://travis-ci.org/swisspol/XLFacility)
 
 XLFacility, which stands for *Extensive Logging Facility*, is an elegant and powerful logging facility for OS X & iOS. It was written from scratch with the following goals in mind:
-* Making it trivial to log messages from anywhere the source code while maintaining app performance
-* Providing several built-in loggers to save log messages to `stderr`, files, databases, remote connections like Telnet, UI overlays and more
+* Making it trivial to log messages from anywhere in your app source code without impacting performance
+* Built-in loggers to save log messages to `stderr`, files, databases, remote connections like Telnet, UI overlays and more
 * Customizable logging formats
 * Modern and clean codebase fully taking advantage of the latest Obj-C runtime and Grand Central Dispatch
-* Easy to understand architecture and ability to write write custom loggers in a few lines of code
+* Easy to understand architecture with the ability to write write custom loggers in a few lines of code
 * No dependencies on third-party source code
 * Available under a friendly [New BSD License](LICENSE)
 
@@ -30,13 +30,13 @@ pod "XLFacility", "~> 1.0"
 Drop-in NSLog Replacement
 =========================
 
-**Step 1:** In the precompiled header file for your Xcode project, insert the following:
+In the precompiled header file for your Xcode project, insert the following:
 ```objectivec
 #import "XLFacilityMacros.h"
 #define NSLog(...) XLOG_INFO(__VA_ARGS__)
 ```
 
-**There's not even a step 2:** From this point on, any call to `NSLog()` in your app source code will be replaced by one to XLFacility. Note that this will **not** affect any calls to `NSLog()` done by Apple frameworks or third-party libraries in your app (see below for a solution to this).
+From this point on, any call to `NSLog()` in your app source code will be replaced by one to XLFacility. Note that this will **not** affect calls to `NSLog()` done by Apple frameworks or third-party libraries in your app (see "Capturing Stderr or Stdout" later for a potential solution).
 
 Test-Driving Your (Modified) App
 ================================
@@ -207,32 +207,64 @@ For iOS apps, you can easily have an overlay logging window that appears wheneve
 Archiving Log Messages
 ======================
 
-TBD
+There are a couple ways to save persistently across app launches the log messages sent to XLFacility:
 
-Muting XLFacility
-=================
+The simplest solution is to use `XLFileLogger` to save log message to a plain text file like this:
+```objectivec
+XLFileLogger* fileLogger = [[XLFileLogger alloc] initWithFilePath:@"my-file.log" append:YES];
+fileLogger.minLogLevel = kXLLogLevel_Error;
+fileLogger.format = @"%d\t%m\n";
+[[XLFacility sharedFacility] addLogger:fileLogger];
+```
 
-Log levels
-env var
+The more powerful solution is to use `XLDatabaseLogger` which uses a [SQLite](http://www.sqlite.org/) database under the hood:
+```objectivec
+XLFileLogger* databaseLogger = [[XLFileLogger alloc] initWithFilePath:@"my-database.db" appVersion:0];
+[[XLFacility sharedFacility] addLogger:databaseLogger];
+```
 
-Configuring Loggers
-===================
+Note that `XLDatabaseLogger` serializes the log messages to the database as-is and does not format them i.e. its `format` property has no effect.
 
-format, min / max levels, custom filter
+You can easily "replay" later the saved log messages for instance to display them in a log window in your application interface or to send them to a server:
+```objectivec
+[databaseLogger enumerateRecordsAfterAbsoluteTime:0.0
+                                         backward:NO
+                                       maxRecords:0
+                                       usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+  // Do something with each log record
+  printf("%s\n", [record.message UTF8String]);
+}];
+```
+
+Filtering XLFacility Log Messages
+=================================
+
+Use the `minLogLevel` property on the `XLFacility` shared instance to have XLFacility ignore all log messages below a certain level. If you want to "mute" entirely XLFacility, simply set the `minLogLevel` property to very a high value like `INT_MAX`.
+
+You can also control the minimum and maximum log level on each logger using their `minLogLevel` and `maxLogLevel` properties. You can set a fully custom log record filter on a logger like this:
+```objectivec
+myLogger.logRecordFilter = ^BOOL(XLLogger* logger, XLLogRecord* record) {
+  // Examine "record" properties and return YES to continue processing this record
+  // or NO to drop it from the logger
+  return YES;
+};
+```
 
 Capturing Exceptions
 ====================
 
-TBD
+Call `+[XLFacility enableLoggingOfUncaughtExceptions]` early enough in your app (typically from `main()` before `UIApplication` or `NSApplication` gets called) to have XLFacility install an uncaught exception handler to automatically call `XLOG_EXCEPTION()` passing the exception before the app terminates.
+
+If you want instead to capture *all* exceptions, as they are created and wether or not they are caught, use `+[XLFacility enableLoggingOfInitializedExceptions]` instead. Note that this will also capture exceptions that are not thrown either.
+
+In both cases, XLFacility will capture the current callstack as part of the log message.
 
 Capturing Stderr or Stdout
 ==========================
 
-```objectivec
-[[XLFacility sharedFacility] enableCapturingOfStdErr];
-```
+`[[XLFacility sharedFacility] enableCapturingOfStdErr]` or `[[XLFacility sharedFacility] enableCapturingOfStdOut]`
 
-no infinite loop
+Note that you can still use `[XLStandardLogger sharedStdOutLogger]` or `[XLStandardLogger sharedStdErrLogger]` as XLFacility will prevent infinite loops.
 
 Writing Custom Loggers
 ======================
