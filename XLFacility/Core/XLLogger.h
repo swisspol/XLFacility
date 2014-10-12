@@ -38,7 +38,7 @@
  %r: thread ID
  %q: queue label (or "(null)" if not available)
  %t: relative timestamp since process started in "HH:mm:ss.SSS" format
- %d: date-time formatted using the "datetimeFormatter" property
+ %d: absolute date-time formatted using the "datetimeFormatter" property
  %e: errno as an integer
  %E: errno as a string
  %c: Callstack (or nothing if not available)
