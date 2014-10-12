@@ -28,6 +28,6 @@
 #import "XLFileLogger.h"
 
 @interface XLStandardLogger : XLFileLogger
-+ (XLStandardLogger*)sharedStdOutLogger;
-+ (XLStandardLogger*)sharedStdErrLogger;
++ (XLStandardLogger*)sharedOutputLogger;
++ (XLStandardLogger*)sharedErrorLogger;
 @end

@@ -292,14 +292,14 @@ static void _ExitHandler() {
 
 - (void)setLogsToStandardError:(BOOL)flag {
   if (flag) {
-    [self addLogger:[XLStandardLogger sharedStdErrLogger]];
+    [self addLogger:[XLStandardLogger sharedErrorLogger]];
   } else {
-    [self removeLogger:[XLStandardLogger sharedStdErrLogger]];
+    [self removeLogger:[XLStandardLogger sharedErrorLogger]];
   }
 }
 
 - (BOOL)logsToStandardError {
-  return [self containsLogger:[XLStandardLogger sharedStdErrLogger]];
+  return [self containsLogger:[XLStandardLogger sharedErrorLogger]];
 }
 
 static void _UncaughtExceptionHandler(NSException* exception) {

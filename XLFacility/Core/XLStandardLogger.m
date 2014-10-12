@@ -42,7 +42,7 @@ static int _duplicateStdErr = 0;
   _duplicateStdErr = dup(STDERR_FILENO);
 }
 
-+ (XLStandardLogger*)sharedStdOutLogger {
++ (XLStandardLogger*)sharedOutputLogger {
   static XLStandardLogger* logger = nil;
   static dispatch_once_t onceToken = 0;
   dispatch_once(&onceToken, ^{
@@ -51,7 +51,7 @@ static int _duplicateStdErr = 0;
   return logger;
 }
 
-+ (XLStandardLogger*)sharedStdErrLogger {
++ (XLStandardLogger*)sharedErrorLogger {
   static XLStandardLogger* logger = nil;
   static dispatch_once_t onceToken = 0;
   dispatch_once(&onceToken, ^{
