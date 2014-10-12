@@ -300,6 +300,7 @@ static void _ExitHandler() {
 
 static void _UncaughtExceptionHandler(NSException* exception) {
   [XLSharedFacility logException:exception];
+  [XLSharedFacility removeAllLoggers];
   if (_originalExceptionHandler) {
     (*_originalExceptionHandler)(exception);
   }
