@@ -52,13 +52,13 @@ Where previously they would look like that:
 
 That's the first big difference between XLFacility and `NSLog()`: you can customize the output to fit your taste. Try adding `#import "XLStandardLogger.h"` to the top of the `main.m` file of your app and then insert this line inside `main()` before `UIApplication` or `NSApplication` gets called:
 ```objectivec
-[[XLStandardLogger sharedStdErrLogger] setFormat:XLLoggerFormatString_NSLog];
+[[XLStandardLogger sharedErrorLogger] setFormat:XLLoggerFormatString_NSLog];
 ```
 Run your app again and notice how messages in the console now look exactly like when using `NSLog()`.
 
 Let's use a custom compact format instead:
 ```objectivec
-[[XLStandardLogger sharedStdErrLogger] setFormat:@"[%l | %q] %m\n"];
+[[XLStandardLogger sharedErrorLogger] setFormat:@"[%l | %q] %m\n"];
 ```
 Run your app again and messages in the Xcode console should now look like this:
 ```
@@ -266,7 +266,7 @@ If you use XLFacility functions exclusively in your app to log messages, then ev
 
 XLFacility has a powerful feature that allows to capture the standard output and standard error from your app. Just call `[[XLFacility sharedFacility] enableCapturingOfStandardError]` (respectively `[[XLFacility sharedFacility] enableCapturingOfStandardOutput]`) and from this point on anything written to the standard output (respectively standard error) will be split on newlines boundaries and automatically become separate log messages in XLFacility with the `INFO` (respectively `ERROR`) level.
 
-Note that you can still use `[XLStandardLogger sharedStdOutLogger]` or `[XLStandardLogger sharedStdErrLogger]` as XLFacility will prevent infinite loops.
+Note that you can still use `[XLStandardLogger sharedOutputLogger]` or `[XLStandardLogger sharedErrorLogger]` as XLFacility will prevent infinite loops.
 
 Writing Custom Loggers
 ======================
