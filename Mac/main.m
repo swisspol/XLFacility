@@ -10,7 +10,7 @@ int main(int argc, const char* argv[]) {
   @autoreleasepool {
     [XLFacility enableLoggingOfUncaughtExceptions];
     [XLFacility enableLoggingOfInitializedExceptions];
-    [XLFacility enableCapturingOfStdErr];
+    [XLFacility enableCapturingOfStandardError];
     
     [[XLFacility sharedFacility] addLogger:[[XLFileLogger alloc] initWithFilePath:@"temp.log" append:NO]];
     XLDatabaseLogger* databaseLogger = [[XLDatabaseLogger alloc] initWithDatabasePath:@"temp.db" appVersion:1];

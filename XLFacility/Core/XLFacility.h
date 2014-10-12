@@ -73,8 +73,8 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @property(nonatomic) BOOL logsToStandardError;  // Convenience method that adds or removes [XLStandardLogger sharedStdErrLogger] - Default is YES
 + (void)enableLoggingOfUncaughtExceptions;
 + (void)enableLoggingOfInitializedExceptions;
-+ (void)enableCapturingOfStdOut;  // Redirects stdout to INFO and breaks automatically on newlines
-+ (void)enableCapturingOfStdErr;  // Redirects stderr to ERROR and breaks automatically on newlines
++ (void)enableCapturingOfStandardOutput;  // Redirects stdout to INFO and breaks automatically on newlines
++ (void)enableCapturingOfStandardError;  // Redirects stderr to ERROR and breaks automatically on newlines
 @end
 
 extern XLFacility* XLSharedFacility;  // Same as +[XLFacility sharedFacility]

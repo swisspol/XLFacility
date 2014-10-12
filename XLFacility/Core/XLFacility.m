@@ -376,13 +376,13 @@ static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel leve
   return source;
 }
 
-+ (void)enableCapturingOfStdOut {
++ (void)enableCapturingOfStandardOutput {
   if (!_stdOutCaptureSource) {
     _stdOutCaptureSource = _CaptureWritingToFileDescriptor(STDOUT_FILENO, kXLLogLevel_Info);
   }
 }
 
-+ (void)enableCapturingOfStdErr {
++ (void)enableCapturingOfStandardError {
   if (!_stdErrCaptureSource) {
     _stdErrCaptureSource = _CaptureWritingToFileDescriptor(STDERR_FILENO, kXLLogLevel_Error);
   }
