@@ -36,7 +36,7 @@ In the precompiled header file for your Xcode project, insert the following:
 #define NSLog(...) XLOG_INFO(__VA_ARGS__)
 ```
 
-From this point on, any call to `NSLog()` in your app source code will be replaced by one to XLFacility. Note that this will **not** affect calls to `NSLog()` done by Apple frameworks or third-party libraries in your app (see "Capturing Stderr or Stdout" later for a potential solution).
+From this point on, any calls to `NSLog()` in your app source code to log a message will be replaced by ones to XLFacility. Note that this will **not** affect calls to `NSLog()` done by Apple frameworks or third-party libraries in your app (see "Capturing Stderr or Stdout" further in this document for a potential solution).
 
 Test-Driving Your (Modified) App
 ================================
@@ -262,23 +262,38 @@ In both cases, XLFacility will capture the current callstack as part of the log 
 Capturing Stderr or Stdout
 ==========================
 
-`[[XLFacility sharedFacility] enableCapturingOfStdErr]` or `[[XLFacility sharedFacility] enableCapturingOfStdOut]`
+If you use XLFacility functions exclusively in your app to log messages, then everything you log from your source code will go to XLFacility. If you use third-party source code, you might be able to patch or override its calls to `NSLog()`, `printf()` or equivalent as demonstrated at the beginning of this document. However this will not work for Apple or third-party libraries or frameworks.
+
+XLFacility has a powerful feature that allows to capture the standard output and standard error from your app. Just call `[[XLFacility sharedFacility] enableCapturingOfStandardError]` (respectively `[[XLFacility sharedFacility] enableCapturingOfStandardOutput]`) and from this point on anything written to the standard output (respectively standard error) will be split on newlines boundaries and automatically become separate log messages in XLFacility with the `INFO` (respectively `ERROR`) level.
 
 Note that you can still use `[XLStandardLogger sharedStdOutLogger]` or `[XLStandardLogger sharedStdErrLogger]` as XLFacility will prevent infinite loops.
 
 Writing Custom Loggers
 ======================
 
-* Blocks
-* Subclasses
+You can write a custom logger in a few lines of code by using `XLCallbackLogger` like this:
+```objectivec
+[[XLFacility sharedFacility] addLogger:[XLCallbackLogger loggerWithCallback:^(XLCallbackLogger* logger, XLLogRecord* record) {
+  // Do something with the log record
+  printf("%s\n", [record.message UTF8String]);
+}]];
+```
 
-Examples
-========
+To implement more complex loggers, you will need to subclass `XLLogger` and implement at least the `-logRecord:` method:
+```objectivec
+@interface MyLogger : XLLogger
+@end
 
-* Logging to files
-* Log to server e.g. Mixpanel
+@implementation XLLogger
 
-Architecture
-============
-* thread-safety / reentrancy
-* write buffering
+- (void)logRecord:(XLLogRecord*)record {
+  // Do something with the log record
+  NSString* formattedMessage = [self formatRecord:record];
+  printf("%s", [formattedMessage UTF8String]);
+}
+
+@end
+```
+If you need to perform specific setup and cleanup operations when an instance of your logger is added or removed from XLFacility, implement the `-open` and `-close` methods.
+
+**IMPORTANT:** Due to the way XLFacility works, logger instances do not need to be reentrant, but they need to be able to run on arbitrary threads.
