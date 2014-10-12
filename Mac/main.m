@@ -43,7 +43,7 @@ int main(int argc, const char* argv[]) {
     }
     @catch (NSException* exception) {
 #pragma unused(exception)
-//      LOG_EXCEPTION(exception);
+//      XLOG_EXCEPTION(exception);
 //      [exception raise];
     }
     
@@ -52,12 +52,18 @@ int main(int argc, const char* argv[]) {
       NSLog(@"%i = %@", (int)appVersion, record.message);
     }];
     
-    for (int i = 1; i <= 10; ++i) {
+    for (int i = 1; i <= 5; ++i) {
       [XLSharedFacility logMessageWithLevel:(kXLLogLevel_Verbose + i % 4) format:@"PING %i", (int)i];
       CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, false);
     }
     
-    [[XLFacility sharedFacility] removeAllLoggers];
+    XLOG_INFO(@"Waiting 3 seconds...");
+    CFRunLoopRunInMode(kCFRunLoopDefaultMode, 3.0, false);
+    
+    for (int i = 6; i <= 10; ++i) {
+      [XLSharedFacility logMessageWithLevel:(kXLLogLevel_Verbose + i % 4) format:@"PING %i", (int)i];
+      CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, false);
+    }
   }
   return 0;
 }

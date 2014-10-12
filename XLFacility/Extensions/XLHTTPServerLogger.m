@@ -38,13 +38,41 @@
 #define kDefaultPort 8080
 #define kMaxPendingConnections 4
 #define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
-#define kRefreshDelay 3
+#define kMinRefreshDelay 500  // In milliseconds
+#define kMaxLongPollDuration 30  // In seconds
+
+@interface XLHTTPServerConnection : NSObject
+@property(nonatomic, readonly) int socket;
+@property(nonatomic, readonly) dispatch_semaphore_t semaphore;
+@property(nonatomic) BOOL longPolling;
+@end
+
+@implementation XLHTTPServerConnection
+
+- (id)initWithSocket:(int)socket {
+  if ((self = [super init])) {
+    _socket = socket;
+    _semaphore = dispatch_semaphore_create(0);
+  }
+  return self;
+}
+
+- (void)dealloc {
+#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+  dispatch_release(_semaphore);
+#endif
+  close(_socket);
+}
+
+@end
 
 @interface XLHTTPServerLogger () {
 @private
   NSDateFormatter* _dateFormatterRFC822;
   dispatch_semaphore_t _sourceSemaphore;
   dispatch_source_t _source;
+  dispatch_queue_t _lockQueue;
+  NSMutableSet* _connections;
 }
 @end
 
@@ -64,6 +92,8 @@
     _dateFormatterRFC822.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
     _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     _sourceSemaphore = dispatch_semaphore_create(0);
+    _lockQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
+    _connections = [[NSMutableSet alloc] init];
     
     self.format = @"<td>%t</td><td>%l</td><td>%m%c</td>";
   }
@@ -73,6 +103,7 @@
 - (void)dealloc {
   [[NSFileManager defaultManager] removeItemAtPath:self.databasePath error:NULL];
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+  dispatch_release(_lockQueue);
   dispatch_release(_sourceSemaphore);
 #endif
 }
@@ -92,18 +123,33 @@
   return callstack;
 }
 
-- (BOOL)_writeHTTPResponse:(CFHTTPMessageRef)response onSocket:(int)socket {
+- (XLHTTPServerConnection*)_openConnectionOnSocket:(int)socket {
+  __block XLHTTPServerConnection* connection;
+  dispatch_sync(_lockQueue, ^{
+    connection = [[XLHTTPServerConnection alloc] initWithSocket:socket];
+    [_connections addObject:connection];
+  });
+  return connection;
+}
+
+- (void)_closeConnection:(XLHTTPServerConnection*)connection {
+  dispatch_sync(_lockQueue, ^{
+    [_connections removeObject:connection];
+  });
+}
+
+- (BOOL)_writeHTTPResponse:(CFHTTPMessageRef)response forConnection:(XLHTTPServerConnection*)connection {
   BOOL success = NO;
   CFDataRef data = CFHTTPMessageCopySerializedMessage(response);
   if (data) {
     dispatch_data_t responseData = dispatch_data_create(CFDataGetBytePtr(data), CFDataGetLength(data), kDispatchQueue, ^{
       CFRelease(data);
     });
-    dispatch_write(socket, responseData, kDispatchQueue, ^(dispatch_data_t remainingData, int error) {
+    dispatch_write(connection.socket, responseData, kDispatchQueue, ^(dispatch_data_t remainingData, int error) {
       if (error) {
         XLOG_INTERNAL(@"Failed writing HTTP response: %s", strerror(error));
       }
-      close(socket);
+      [self _closeConnection:connection];
     });
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
     dispatch_release(responseData);
@@ -115,7 +161,7 @@
   return success;
 }
 
-- (BOOL)_writeHTMLResponse:(NSString*)htmlString onSocket:(int)socket {
+- (BOOL)_writeHTMLResponse:(NSString*)htmlString forConnection:(XLHTTPServerConnection*)connection {
   BOOL success = NO;
   NSData* htmlData = [htmlString dataUsingEncoding:NSUTF8StringEncoding];
   if (htmlData) {
@@ -126,7 +172,7 @@
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Type"), CFSTR("text/html; charset=utf-8"));
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Length"), (__bridge CFStringRef)[NSString stringWithFormat:@"%lu", (unsigned long)htmlData.length]);
     CFHTTPMessageSetBody(response, (__bridge CFDataRef)htmlData);
-    success = [self _writeHTTPResponse:response onSocket:socket];
+    success = [self _writeHTTPResponse:response forConnection:connection];
     CFRelease(response);
   } else {
     XLOG_INTERNAL(@"%@", @"Failed generating HTML response");
@@ -154,7 +200,7 @@
   [string appendFormat:@"<tr id=\"maxTime\" data-value=\"%f\"></tr>", maxTime];
 }
 
-- (BOOL)_processHTTPRequest:(CFHTTPMessageRef)request onSocket:(int)socket {
+- (BOOL)_processHTTPRequest:(CFHTTPMessageRef)request forConnection:(XLHTTPServerConnection*)connection {
   BOOL success = NO;
   NSString* method = CFBridgingRelease(CFHTTPMessageCopyRequestMethod(request));
   if ([method isEqualToString:@"GET"]) {
@@ -190,15 +236,21 @@
         #footer {\n\
           text-align: center;\n\
           margin: 20px 0px;\n\
+          color: darkgray;\n\
+        }\n\
+        .error {\n\
           color: red;\n\
           font-weight: bold;\n\
         }\n\
       </style>"];
       [string appendFormat:@"<script type=\"text/javascript\">\n\
         var refreshDelay = %i;\n\
+        var footerElement = null;\n\
+        function updateTimestamp() {\n\
+          var now = new Date();\n\
+          footerElement.innerHTML = \"Last updated on \" + now.toLocaleDateString() + \" \" + now.toLocaleTimeString();\n\
+        }\n\
         function refresh() {\n\
-          var footerElement = document.getElementById(\"footer\");\n\
-          \n\
           var timeElement = document.getElementById(\"maxTime\");\n\
           var maxTime = timeElement.getAttribute(\"data-value\");\n\
           timeElement.parentNode.removeChild(timeElement);\n\
@@ -209,9 +261,10 @@
               if (xmlhttp.status == 200) {\n\
                 var contentElement = document.getElementById(\"content\");\n\
                 contentElement.innerHTML = contentElement.innerHTML + xmlhttp.responseText;\n\
+                updateTimestamp();\n\
                 setTimeout(refresh, refreshDelay);\n\
               } else {\n\
-                footerElement.innerHTML = \"Connection failed! Reload page to try again.\";\n\
+                footerElement.innerHTML = \"<span class=\\\"error\\\">Connection failed! Reload page to try again.</span>\";\n\
               }\n\
             }\n\
           }\n\
@@ -219,9 +272,11 @@
           xmlhttp.send();\n\
         }\n\
         window.onload = function() {\n\
+          footerElement = document.getElementById(\"footer\");\n\
+          updateTimestamp();\n\
           setTimeout(refresh, refreshDelay);\n\
         }\n\
-      </script>", kRefreshDelay * 1000];
+      </script>", kMinRefreshDelay];
       [string appendString:@"</head>"];
       [string appendString:@"<body>"];
       [string appendString:@"<table><tbody id=\"content\">"];
@@ -231,14 +286,19 @@
       [string appendString:@"</body>"];
       [string appendString:@"</html>"];
       
-      success = [self _writeHTMLResponse:string onSocket:socket];
+      success = [self _writeHTMLResponse:string forConnection:connection];
     } else if ([path isEqualToString:@"/log"] && [query hasPrefix:@"after="]) {
       NSMutableString* string = [[NSMutableString alloc] init];
       CFAbsoluteTime time = [[query substringFromIndex:6] doubleValue];
       
+      dispatch_sync(_lockQueue, ^{
+        connection.longPolling = YES;
+      });
+      dispatch_semaphore_wait(connection.semaphore, dispatch_time(DISPATCH_TIME_NOW, kMaxLongPollDuration * NSEC_PER_SEC));
+      
       [self _appendLogRecordsToString:string afterAbsoluteTime:time];
       
-      success = [self _writeHTMLResponse:string onSocket:socket];
+      success = [self _writeHTMLResponse:string forConnection:connection];
     }
     
   } else {
@@ -247,8 +307,8 @@
   return success;
 }
 
-- (void)_readHTTPRequestOnSocket:(int)socket {
-  dispatch_read(socket, SIZE_MAX, kDispatchQueue, ^(dispatch_data_t data, int error) {
+- (void)_readHTTPRequestForConnection:(XLHTTPServerConnection*)connection {
+  dispatch_read(connection.socket, SIZE_MAX, kDispatchQueue, ^(dispatch_data_t data, int error) {
     @autoreleasepool {
       BOOL success = NO;
       if (error == 0) {
@@ -258,7 +318,7 @@
           return true;
         });
         if (CFHTTPMessageIsHeaderComplete(message)) {
-          success = [self _processHTTPRequest:message onSocket:socket];
+          success = [self _processHTTPRequest:message forConnection:connection];
         } else {
           XLOG_INTERNAL(@"%@", @"Failed parsing HTTP request headers");
         }
@@ -267,7 +327,7 @@
         XLOG_INTERNAL(@"Failed reading socket: %s", strerror(error));
       }
       if (!success) {
-        close(socket);
+        [self _closeConnection:connection];
       }
     }
   });
@@ -304,7 +364,8 @@
               if (socket > 0) {
                 int noSigPipe = 1;
                 setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
-                [self _readHTTPRequestOnSocket:socket];
+                XLHTTPServerConnection* connection = [self _openConnectionOnSocket:socket];
+                [self _readHTTPRequestForConnection:connection];
               } else {
                 XLOG_INTERNAL(@"Failed accepting socket: %s", strerror(errno));
               }
@@ -326,6 +387,19 @@
     }
   }
   return success;
+}
+
+- (void)logRecord:(XLRecord*)record {
+  [super logRecord:record];
+  
+  dispatch_sync(_lockQueue, ^{
+    for (XLHTTPServerConnection* connection in _connections) {
+      if (connection.longPolling) {
+        dispatch_semaphore_signal(connection.semaphore);
+        connection.longPolling = NO;
+      }
+    }
+  });
 }
 
 - (void)close {
