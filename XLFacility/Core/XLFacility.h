@@ -44,6 +44,7 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @class XLLogger;
 
 // By default XLFacility has one logger pre-installed: [XLStandardLogger sharedStdErrLogger]
+// To remove it simply call [[XLFacility sharedFacility] setLogsToStdErr:NO]
 @interface XLFacility : NSObject
 @property(nonatomic) XLLogLevel minLogLevel;  // Default is INFO (or DEBUG if the preprocessor constant "DEBUG" is non-zero at build time)
 @property(nonatomic) XLLogLevel minCaptureCallstackLevel;  // Default is EXCEPTION
@@ -51,6 +52,7 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @property(nonatomic, readonly) NSSet* loggers;
 + (XLFacility*)sharedFacility;
 
+- (BOOL)containsLogger:(XLLogger*)logger;
 - (XLLogger*)addLogger:(XLLogger*)logger;  // Returns the logger if added successfully
 - (BOOL)removeLogger:(XLLogger*)logger;  // Return YES if the logger was found (and therefore removed)
 - (void)removeAllLoggers;
@@ -67,6 +69,7 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @end
 
 @interface XLFacility (Extensions)
+@property(nonatomic) BOOL logsToStandardError;  // Convenience method that adds or removes [XLStandardLogger sharedStdErrLogger] - Default is YES
 + (void)enableLoggingOfUncaughtExceptions;
 + (void)enableLoggingOfInitializedExceptions;
 + (void)enableCapturingOfStdOut;  // Redirects stdout to INFO and breaks automatically on newlines

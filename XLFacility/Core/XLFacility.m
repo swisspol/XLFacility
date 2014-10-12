@@ -127,7 +127,7 @@ static void _ExitHandler() {
     _loggers = [[NSMutableSet alloc] init];
     _callsLoggersConcurrently = YES;
     
-    [self addLogger:[XLStandardLogger sharedStdErrLogger]];
+    self.logsToStandardError = YES;
   }
   return self;
 }
@@ -138,6 +138,14 @@ static void _ExitHandler() {
     loggers = [_loggers copy];
   });
   return loggers;
+}
+
+- (BOOL)containsLogger:(XLLogger*)logger {
+  __block BOOL found;
+  dispatch_sync(_lockQueue, ^{
+    found = [_loggers containsObject:logger];
+  });
+  return found;
 }
 
 - (XLLogger*)addLogger:(XLLogger*)logger {
@@ -277,6 +285,18 @@ static void _ExitHandler() {
 @end
 
 @implementation XLFacility (Extensions)
+
+- (void)setLogsToStandardError:(BOOL)flag {
+  if (flag) {
+    [self addLogger:[XLStandardLogger sharedStdErrLogger]];
+  } else {
+    [self removeLogger:[XLStandardLogger sharedStdErrLogger]];
+  }
+}
+
+- (BOOL)logsToStandardError {
+  return [self containsLogger:[XLStandardLogger sharedStdErrLogger]];
+}
 
 static void _UncaughtExceptionHandler(NSException* exception) {
   [XLSharedFacility logException:exception];
