@@ -60,6 +60,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
 @property(nonatomic) XLLogLevel maxLogLevel;  // Default is ABORT
 @property(nonatomic, copy) XLLogRecordFilterBlock logRecordFilter;  // Default is NULL
 - (BOOL)open;  // May be implemeted by subclasses - Default implementation does nothing
+- (BOOL)shouldLogRecord:(XLLogRecord*)record;  // Default implementation checks record against min & max log levels and applies record filter if defined
 - (void)logRecord:(XLLogRecord*)record;  // Must be implemented by subclasses
 - (void)close;  // May be implemeted by subclasses - Default implementation does nothing
 
@@ -69,8 +70,6 @@ extern NSString* const XLLoggerFormatString_NSLog;
 @property(nonatomic, copy) NSString* callstackFooter;  // Default is nil
 @property(nonatomic, copy) NSString* multilinesPrefix;  // Default is nil
 - (NSString*)formatRecord:(XLLogRecord*)record;
-
-- (BOOL)shouldLogRecord:(XLLogRecord*)record;  // Default implementation checks record against min & max log levels and applies record filter if defined
 @end
 
 @interface XLLogger (Extensions)
