@@ -90,16 +90,16 @@ Here's the full list of format specifiers supported by XLFacility:
 Logging Messages With XLFacility
 ================================
 
-Like pretty much all logging systems, XLFacility defines various logging levels, which are by order of importance: `DEBUG`, `VERBOSE`, `INFO`, `WARNING`, `ERROR`, `EXCEPTION` and `ABORT`. The idea is that when logging messages, you provide the appropriate log level: for instance `VERBOSE` to trace and help debug what is happening in the code, versus `ERROR` and above to report actual issues. The logging system can then be configured to "drop" messages that are below a certain leveln allowing the user to control the "signal-to-noise" ratio.
+Like pretty much all logging systems, XLFacility defines various logging levels, which are by order of importance: `DEBUG`, `VERBOSE`, `INFO`, `WARNING`, `ERROR`, `EXCEPTION` and `ABORT`. The idea is that when logging messages, you provide the appropriate importance level: for instance `VERBOSE` to trace and help debug what is happening in the code, versus `WARNING` and above to report actual issues. The logging system can then be configured to "drop" messages that are below a certain level, allowing the user to control the "signal-to-noise" ratio.
 
-By default, when building your app in `Release` coniguration XLFacility ignores messages at the `DEBUG` and `VERBOSE` levels. When building in `Debug` configuration, it keeps everything.
+By default, when building your app in `Release` coniguration XLFacility ignores messages at the `DEBUG` and `VERBOSE` levels. When building in `Debug` configuration (requires the `DEBUG` preprocessor constant evaluating to non-zero), it keeps everything.
 
 **IMPORTANT:** So far you've seen how to "override" `NSLog()` calls in your source code to redirect messages to FLFacility at the `INFO` level but this is not the best approach. Instead don't use `NSLog()` at all but call directly XLFacility functions to log messages.
 
-You can log messages in XLFacility by calling the `-log...` methods on the shared `XLFacility` instance or by using the macros from `XLFacilityMacros.h`. The latter is highly recommended as macros produce the exact same logging results but are quite easier to the eye and faster to type, and most importantly they avoid evaluating their arguments unless necessary. For instance, if the log level for XLFacility is set to `ERROR`, `XLOG_WARNING(@"Unexpected value: %@", value)` will almost be a no-op while `[[XLFacility sharedFacility] logWarning:@"Unexpected value: %@", value]` will still evaluate all the arguments (which can be quite expensive), compute the format string, and finally pass everything to the `XLFacility` shared instance where it will be ignored anyway.
+You can log messages in XLFacility by calling the `-log...` methods on the shared `XLFacility` instance or by using the macros from `XLFacilityMacros.h`. The latter is highly recommended as macros produce the exact same logging results but are quite easier to the eye, faster to type, and most importantly they avoid evaluating their arguments unless necessary. (*)
 
 The following macros are available to log messages at various levels:
-* `XLOG_DEBUG(...)`: Becomes a no-op if building `Release` (i.e. if the "DEBUG" preprocessor constant evaluates to zero)
+* `XLOG_DEBUG(...)`: Becomes a no-op if building `Release` (i.e. if the `DEBUG` preprocessor constant evaluates to zero)
 * `XLOG_VERBOSE(...)`
 * `XLOG_INFO(...)`
 * `XLOG_WARNING(...)`
@@ -115,8 +115,8 @@ XLOG_WARNING(@"Unable to load URL \"%@\": %@", myURL, myError);
 Other useful macros available to use in your source code:
 * `XLOG_CHECK(__CONDITION__)`: Checks a condition and if false calls `XLOG_ABORT()` with an automatically generated message
 * `XLOG_UNREACHABLE()`: Calls `XLOG_ABORT()` with an automatically generated message if the app reaches this point
-* `XLOG_DEBUG_CHECK(__CONDITION__)`: Same as `XLOG_CHECK()` but becomes a no-op if building `Release` (i.e. if the "DEBUG" preprocessor constant evaluates to zero)
-* `XLOG_DEBUG_UNREACHABLE()`: Same as `XLOG_UNREACHABLE()` but becomes a no-op if building `Release` (i.e. if the "DEBUG" preprocessor constant evaluates to zero)
+* `XLOG_DEBUG_CHECK(__CONDITION__)`: Same as `XLOG_CHECK()` but becomes a no-op if building `Release` (i.e. if the `DEBUG` preprocessor constant evaluates to zero)
+* `XLOG_DEBUG_UNREACHABLE()`: Same as `XLOG_UNREACHABLE()` but becomes a no-op if building `Release` (i.e. if the `DEBUG` preprocessor constant evaluates to zero)
 
 Here are some example use cases:
 ```objectivec
@@ -135,6 +135,8 @@ Here are some example use cases:
   }
 }
 ```
+
+(*) For instance, if the log level for XLFacility is set to `ERROR`, `XLOG_WARNING(@"Unexpected value: %@", value)` will almost be a no-op while `[[XLFacility sharedFacility] logWarning:@"Unexpected value: %@", value]` will still evaluate all the arguments (which can be quite expensive), compute the format string, and finally pass everything to the `XLFacility` shared instance where it will be ignored anyway.
 
 Fun With Remote Logging
 =======================
