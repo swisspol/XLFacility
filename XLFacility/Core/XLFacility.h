@@ -51,12 +51,13 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @property(nonatomic) BOOL callsLoggersConcurrently;  // Default is YES
 @property(nonatomic, readonly) NSSet* loggers;
 + (XLFacility*)sharedFacility;
-
 - (BOOL)containsLogger:(XLLogger*)logger;
 - (XLLogger*)addLogger:(XLLogger*)logger;  // Returns the logger if added successfully
 - (BOOL)removeLogger:(XLLogger*)logger;  // Return YES if the logger was found (and therefore removed)
 - (void)removeAllLoggers;
+@end
 
+@interface XLFacility (Logging)
 - (void)logMessage:(NSString*)message withLevel:(XLLogLevel)level;
 - (void)logMessageWithLevel:(XLLogLevel)level format:(NSString*)format, ... NS_FORMAT_FUNCTION(2, 3);
 - (void)logDebug:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);

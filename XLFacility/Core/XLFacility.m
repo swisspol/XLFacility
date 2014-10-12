@@ -180,6 +180,10 @@ static void _ExitHandler() {
   });
 }
 
+@end
+
+@implementation XLFacility (Logging)
+
 - (void)_logMessage:(NSString*)message withLevel:(XLLogLevel)level callstack:(NSArray*)callstack {
   CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
   if (level < kXLMinLogLevel) {
