@@ -38,6 +38,7 @@
 #define kDefaultPort 8080
 #define kMaxPendingConnections 4
 #define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
+#define kRefreshDelay 3
 
 @interface XLHTTPServerLogger () {
 @private
@@ -193,8 +194,8 @@
           font-weight: bold;\n\
         }\n\
       </style>"];
-      [string appendString:@"<script type=\"text/javascript\">\n\
-        var refreshDelay = 1000;\n\
+      [string appendFormat:@"<script type=\"text/javascript\">\n\
+        var refreshDelay = %i;\n\
         function refresh() {\n\
           var footerElement = document.getElementById(\"footer\");\n\
           \n\
@@ -220,7 +221,7 @@
         window.onload = function() {\n\
           setTimeout(refresh, refreshDelay);\n\
         }\n\
-      </script>"];
+      </script>", kRefreshDelay * 1000];
       [string appendString:@"</head>"];
       [string appendString:@"<body>"];
       [string appendString:@"<table><tbody id=\"content\">"];
