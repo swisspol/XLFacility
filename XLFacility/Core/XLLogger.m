@@ -67,6 +67,9 @@ typedef NS_ENUM(unsigned char, FormatToken) {
 }
 @end
 
+NSString* const XLLoggerFormatString_Default = @"%t [%L]> %m%c\n";
+NSString* const XLLoggerFormatString_NSLog = @"%d %P[%p:%r] %m\n";
+
 static NSString* _logLevelNames[] = {@"DEBUG", @"VERBOSE", @"INFO", @"WARNING", @"ERROR", @"EXCEPTION", @"ABORT"};
 static NSString* _paddedLogLevelNames[] = {@"DEBUG    ", @"VERBOSE  ", @"INFO     ", @"WARNING  ", @"ERROR    ", @"EXCEPTION", @"ABORT    "};
 
@@ -94,7 +97,7 @@ static NSString* _uid = nil;
     _datetimeFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     _callstackHeader = @"\n\n>>> Captured call stack:\n";
     
-    self.format = @"%t [%L]> %m%c\n";
+    self.format = XLLoggerFormatString_Default;
   }
   return self;
 }

@@ -52,6 +52,9 @@
 
 typedef BOOL (^XLRecordFilterBlock)(XLRecord* record);
 
+extern NSString* const XLLoggerFormatString_Default;
+extern NSString* const XLLoggerFormatString_NSLog;
+
 @interface XLLogger : NSObject
 @property(nonatomic) XLLogLevel minLogLevel;  // Default is DEBUG
 @property(nonatomic) XLLogLevel maxLogLevel;  // Default is ABORT
