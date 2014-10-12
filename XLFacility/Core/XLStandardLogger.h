@@ -27,7 +27,7 @@
 
 #import "XLFileLogger.h"
 
-@interface XLStandardIOLogger : XLFileLogger
-+ (XLStandardIOLogger*)sharedStdOutLogger;
-+ (XLStandardIOLogger*)sharedStdErrLogger;
+@interface XLStandardLogger : XLFileLogger
++ (XLStandardLogger*)sharedStdOutLogger;
++ (XLStandardLogger*)sharedStdErrLogger;
 @end

@@ -29,12 +29,12 @@
 #error XLFacility requires ARC
 #endif
 
-#import "XLStandardIOLogger.h"
+#import "XLStandardLogger.h"
 
 static int _duplicateStdOut = 0;
 static int _duplicateStdErr = 0;
 
-@implementation XLStandardIOLogger
+@implementation XLStandardLogger
 
 // Keep around copies of the original stdout and stderr file descriptors from when process starts in cases they are replaced later on
 + (void)load {
@@ -42,20 +42,20 @@ static int _duplicateStdErr = 0;
   _duplicateStdErr = dup(STDERR_FILENO);
 }
 
-+ (XLStandardIOLogger*)sharedStdOutLogger {
-  static XLStandardIOLogger* logger = nil;
++ (XLStandardLogger*)sharedStdOutLogger {
+  static XLStandardLogger* logger = nil;
   static dispatch_once_t onceToken = 0;
   dispatch_once(&onceToken, ^{
-    logger = [[XLStandardIOLogger alloc] initWithFileDescriptor:_duplicateStdOut closeOnDealloc:NO];
+    logger = [[XLStandardLogger alloc] initWithFileDescriptor:_duplicateStdOut closeOnDealloc:NO];
   });
   return logger;
 }
 
-+ (XLStandardIOLogger*)sharedStdErrLogger {
-  static XLStandardIOLogger* logger = nil;
++ (XLStandardLogger*)sharedStdErrLogger {
+  static XLStandardLogger* logger = nil;
   static dispatch_once_t onceToken = 0;
   dispatch_once(&onceToken, ^{
-    logger = [[XLStandardIOLogger alloc] initWithFileDescriptor:_duplicateStdErr closeOnDealloc:NO];
+    logger = [[XLStandardLogger alloc] initWithFileDescriptor:_duplicateStdErr closeOnDealloc:NO];
   });
   return logger;
 }

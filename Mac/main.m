@@ -1,6 +1,6 @@
 #import "XLFacilityMacros.h"
 #import "XLFileLogger.h"
-#import "XLStandardIOLogger.h"
+#import "XLStandardLogger.h"
 #import "XLDatabaseLogger.h"
 #import "XLCallbackLogger.h"
 #import "XLASLLogger.h"
@@ -13,7 +13,7 @@ int main(int argc, const char* argv[]) {
     [XLFacility enableLoggingOfInitializedExceptions];
     [XLFacility enableCapturingOfStdErr];
     
-    [[XLFacility sharedFacility] addLogger:[XLStandardIOLogger sharedStdErrLogger]];
+    [[XLFacility sharedFacility] addLogger:[XLStandardLogger sharedStdErrLogger]];
     [[XLFacility sharedFacility] addLogger:[[XLFileLogger alloc] initWithFilePath:@"temp.log" append:NO]];
     XLDatabaseLogger* databaseLogger = [[XLDatabaseLogger alloc] initWithDatabasePath:@"temp.db" appVersion:1];
     databaseLogger.recordFilter = ^BOOL(XLRecord* record) {
