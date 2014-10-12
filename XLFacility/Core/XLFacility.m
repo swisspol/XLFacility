@@ -137,21 +137,27 @@ static void _ExitHandler() {
   return loggers;
 }
 
-- (void)addLogger:(XLLogger*)logger {
+- (XLLogger*)addLogger:(XLLogger*)logger {
+  __block XLLogger* addedLogger = nil;
   dispatch_sync(_lockQueue, ^{
     if (![_loggers containsObject:logger] && [logger open]) {
-      [_loggers  addObject:logger];
+      [_loggers addObject:logger];
+      addedLogger = logger;
     }
   });
+  return addedLogger;
 }
 
-- (void)removeLogger:(XLLogger*)logger {
+- (BOOL)removeLogger:(XLLogger*)logger {
+  __block BOOL success = NO;
   dispatch_sync(_lockQueue, ^{
     if ([_loggers containsObject:logger]) {
       [logger close];
       [_loggers removeObject:logger];
+      success = YES;
     }
   });
+  return success;
 }
 
 - (void)removeAllLoggers {
