@@ -135,7 +135,7 @@
 }
 
 - (void)_appendLogRecordsToString:(NSMutableString*)string afterAbsoluteTime:(CFAbsoluteTime)time {
-  __block CFAbsoluteTime maxTime = 0.0;
+  __block CFAbsoluteTime maxTime = time;
   [self enumerateRecordsAfterAbsoluteTime:time backward:NO maxRecords:0 usingBlock:^(int appVersion, XLRecord* record, BOOL* stop) {
     const char* style = "color: dimgray;";
     if (record.logLevel == kXLLogLevel_Warning) {
