@@ -3,7 +3,14 @@ Overview
 
 [![Build Status](https://travis-ci.org/swisspol/XLFacility.svg?branch=master)](https://travis-ci.org/swisspol/XLFacility)
 
-XLFacility is an elegant and extensive logging facility for OS X & iOS.
+XLFacility, which stands for *Extensive Logging Facility*, is an elegant and powerful logging facility for OS X & iOS. It was written from scratch with the following goals in mind:
+* Making it trivial to log messages from anywhere the source code while maintaining app performance
+* Providing several built-in loggers to save log messages to `stderr`, files, databases, remote connections like Telnet, UI overlays and more
+* Customizable logging formats
+* Modern and clean codebase fully taking advantage of the latest Obj-C runtime and Grand Central Dispatch
+* Easy to understand architecture and ability to write write custom loggers in a few lines of code
+* No dependencies on third-party source code
+* Available under a friendly [New BSD License](LICENSE)
 
 Requirements:
 * OS X 10.7 or later (x86_64)
@@ -29,36 +36,31 @@ Drop-in NSLog Replacement
 #define NSLog(...) XLOG_INFO(__VA_ARGS__)
 ```
 
-**Step 2:** Then in the `main.m` file of your app, add `#import "XLStandardIOLogger.h"` to the top of the file, and insert this line inside `main()` before UIApplication or NSApplication starts:
-```objectivec
-[[XLFacility sharedFacility] addLogger:[XLStandardIOLogger sharedStdErrLogger]];
-```
-
-**You're done:** From this point on, any call to `NSLog()` in your app source code will be replaced by one to XLFacility. Note that this will **not** affect any calls to `NSLog()` done by Apple frameworks or third-party libraries in your app (see below for a solution to this).
+**There's not even a step 2:** From this point on, any call to `NSLog()` in your app source code will be replaced by one to XLFacility. Note that this will **not** affect any calls to `NSLog()` done by Apple frameworks or third-party libraries in your app (see below for a solution to this).
 
 Test-Driving Your (Modified) App
 ================================
 
-So far nothing has really changed on the surface except that when running your app from Xcode, `NSLog()` output in the console now looks like this:
+So far nothing has really changed on the surface except that when running your app from Xcode, messages logged with `NSLog()` now appear in the console like this:
 ```
 00:00:00.248 [INFO     ]> Hello World!
 ```
-Instead of the previous:
+Where previously they would look like that:
 ```
 2014-10-12 02:41:29.842 TestApp[37006:2455985] Hello World!
 ```
 
-That's the first big difference between XLFacility and `NSLog()`: you can customize the output to fit your taste. Try adding this line inside `main()`:
+That's the first big difference between XLFacility and `NSLog()`: you can customize the output to fit your taste. Try adding `#import "XLStandardLogger.h"` to the top of the `main.m` file of your app and then insert this line inside `main()` before `UIApplication` or `NSApplication` gets called:
 ```objectivec
-[[XLStandardIOLogger sharedStdErrLogger] setFormat:XLLoggerFormatString_NSLog];
+[[XLStandardLogger sharedStdErrLogger] setFormat:XLLoggerFormatString_NSLog];
 ```
-Run your app again and notice how messages in the console look exactly like when using `NSLog()`.
+Run your app again and notice how messages in the console now look exactly like when using `NSLog()`.
 
 Let's use a custom compact format instead:
 ```objectivec
-[[XLStandardIOLogger sharedStdErrLogger] setFormat:@"[%l | %q] %m\n"];
+[[XLStandardLogger sharedStdErrLogger] setFormat:@"[%l | %q] %m\n"];
 ```
-Run your app again and check for messages in the console which should now look like this:
+Run your app again and messages in the Xcode console should now look like this:
 ```
 [INFO | com.apple.main-thread] Hello World!
 ```
@@ -86,6 +88,8 @@ Here's the full list of format specifiers supported by XLFacility:
 \%: percent character
 \\: backslash character
 ```
+
+Note that specifiers like the date-time, GCD queue label or `errno` value all reflect the state of the app at the time the message was sent to XLFacility, not when it is actually displayed in the Xcode console for instance.
 
 Logging Messages With XLFacility
 ================================
@@ -122,7 +126,7 @@ Here are some example use cases:
 ```objectivec
 - (void)processString:(NSString*)string {
   XLOG_CHECK(string);  // Passing a nil string is a serious programming error and we can't continue
-  // Do something with "string"
+  // Do something
 }
 
 - (void)checkString:(NSString*)string {
@@ -141,11 +145,11 @@ Here are some example use cases:
 Fun With Remote Logging
 =======================
 
-Still in the `main.m` file, add `#import "XLTelnetServerLogger.h"` to the top, and insert this other line above or below the one you inserted at the previous step:
+Going back to the `main.m` file of your app, add `#import "XLTelnetServerLogger.h"` to the top, and insert this line before `UIApplication` or `NSApplication` gets called:
 ```objectivec
 [[XLFacility sharedFacility] addLogger:[[XLTelnetServerLogger alloc] init]];
 ```
-What we are doing here is adding a secondary "logger" to XLFacility so that log messages are distributed to two places simultaneously.
+What we are doing here is adding a secondary "logger" to XLFacility so that log messages are sent to two destinations simultaneously.
 
 Run your app locally on your computer (use the iOS Simulator for an iOS app) then enter his command in Terminal app:
 ```sh
@@ -165,9 +169,9 @@ You are connected to TestApp[37006] (in color!)
 
 Any call to `NSLog()` in your app's source code is now being sent live to your Terminal window. And when you connect to your app, as a convenience to make sure you haven't missed anything,  `XLTelnetServerLogger` will immediately replay all messages logged since the app was launched (this behavior can be changed).
 
-What's really interesting and useful however is connecting to your app while it's running on another Mac or on a real iPhone / iPad. As long as your home / office / WiFi network doesn't block communication on port `2323` (the default port used by `XLTelnetServerLogger`), you should be able to remotely connect by simply entering `telnet {YOUR_DEVICE_IP_ADDRESS} 2323` in Terminal on your computer. Note that connecting to your iOS app will not work while if it has been suspended by iOS while in background.
+What's really interesting and useful however is connecting to your app while it's running on another Mac or on a real iPhone / iPad. As long as your home / office / WiFi network doesn't block communication on port `2323` (the default port used by `XLTelnetServerLogger`), you should be able to remotely connect by simply entering `telnet YOUR_DEVICE_IP_ADDRESS 2323` in Terminal on your computer. Note that connecting to your iOS app will not work while if it has been suspended by iOS while in background.
 
-Of course, like you've already done above with `XLStandardIOLogger`, you can customize the format used by `XLTelnetServerLogger`, for instance like this:
+Of course, like you've already done above with `XLStandardLogger`, you can customize the format used by `XLTelnetServerLogger`, for instance like this:
 ```objectivec
 XLLogger* logger = [[XLFacility sharedFacility] addLogger:[[XLTelnetServerLogger alloc] init]];
 logger.format = @"[%l | %q] %m\n";
@@ -180,12 +184,25 @@ You can even add multiples instances of `XLTelnetServerLogger` to XLFacility, ea
 Log Monitoring From Your Web Browser
 ====================================
 
-TBD
+Do the same modification as you've done above to add suport for `XLTelnetServerLogger` but use `XLHTTPServerLogger` instead. When your app is running go to `http://127.0.0.1:8080/` or `http://YOUR_DEVICE_IP_ADDRESS:8080/` in your web browser. You should be able to see all the XLFacility log messages from your app since it started. The web page will even automatically refresh when new log messages are available.
 
 Onscreen Logging Overlay (iOS only)
 ===================================
 
-TBD
+For iOS apps, you can easily have an overlay logging window that appears whenever log messagesy are sent to XLFacility. Simply take advantage of `XLUIKitOverlayLogger` like this:
+```objectivec
+#import "XLUIKitOverlayLogger.h"
+
+@implementation MyAppDelegate
+
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
+  [[XLFacility sharedFacility] addLogger:[XLUIKitOverlayLogger sharedLogger]];
+  
+  // Rest of your app initialization code goes here
+}
+
+@end
+```
 
 Archiving Log Messages
 ======================
@@ -203,6 +220,11 @@ Configuring Loggers
 
 format, min / max levels, custom filter
 
+Capturing Exceptions
+====================
+
+TBD
+
 Capturing Stderr or Stdout
 ==========================
 
@@ -212,13 +234,19 @@ Capturing Stderr or Stdout
 
 no infinite loop
 
-Exceptions
-==========
+Writing Custom Loggers
+======================
 
-TBD
+* Blocks
+* Subclasses
 
-Notes
-=====
+Examples
+========
+
+* Logging to files
+* Log to server e.g. Mixpanel
+
+Architecture
+============
 * thread-safety / reentrancy
 * write buffering
-
