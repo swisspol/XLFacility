@@ -27,7 +27,6 @@
 
 #import "AppDelegate.h"
 #import "XLFacilityMacros.h"
-#import "XLStandardLogger.h"
 #import "XLUIKitOverlayLogger.h"
 
 @implementation AppDelegate
@@ -43,7 +42,6 @@
   _window.rootViewController.view = [[UIView alloc] init];
   [_window makeKeyAndVisible];
   
-  [[XLFacility sharedFacility] addLogger:[XLStandardLogger sharedStdErrLogger]];
   [[XLFacility sharedFacility] addLogger:[[XLUIKitOverlayLogger alloc] init]];
   
   XLOG_INFO(@"%s", __FUNCTION__);

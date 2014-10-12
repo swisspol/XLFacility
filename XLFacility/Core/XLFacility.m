@@ -33,6 +33,7 @@
 #import <execinfo.h>
 #import <asl.h>
 
+#import "XLStandardLogger.h"
 #import "XLPrivate.h"
 
 #define kMinLogLevelEnvironmentVariable "XLFacilityMinLogLevel"
@@ -125,6 +126,8 @@ static void _ExitHandler() {
     _destinationGroup = dispatch_group_create();
     _loggers = [[NSMutableSet alloc] init];
     _callsLoggersConcurrently = YES;
+    
+    [self addLogger:[XLStandardLogger sharedStdErrLogger]];
   }
   return self;
 }

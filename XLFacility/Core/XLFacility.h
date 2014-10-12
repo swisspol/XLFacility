@@ -43,6 +43,7 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 
 @class XLLogger;
 
+// By default XLFacility has one logger pre-installed: [XLStandardLogger sharedStdErrLogger]
 @interface XLFacility : NSObject
 @property(nonatomic) XLLogLevel minLogLevel;  // Default is INFO (or DEBUG if the preprocessor constant "DEBUG" is non-zero at build time)
 @property(nonatomic) XLLogLevel minCaptureCallstackLevel;  // Default is EXCEPTION
