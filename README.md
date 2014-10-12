@@ -87,8 +87,8 @@ Here's the full list of format specifiers supported by XLFacility:
 \\: backslash character
 ```
 
-Fun With Loggers
-================
+Fun With Remote Logging
+=======================
 
 Still in the `main.m` file, add `#import "XLTelnetServerLogger.h"` to the top, and insert this other line above or below the one you inserted at the previous step:
 ```objectivec
@@ -125,6 +125,16 @@ logger.format = @"[%l | %q] %m\n";
 You can even add multiples instances of `XLTelnetServerLogger` to XLFacility, each listening on a unique port and configured differently.
 
 **IMPORTANT:** It's not recommended that you ship your app on the App Store with `XLTelnetServerLogger` active by default as this could be a security and / or privacy issue for your users. Since you can add and remove loggers at any point during the lifecyle of your app, you can instead expose a user interface setting that will dynamically add or remove `XLTelnetServerLogger` from XLFacility.
+
+Log Monitoring From Your Web Browser
+====================================
+
+TBD
+
+Onscreen Logging Overlay (iOS only)
+===================================
+
+TBD
 
 Muting XLFacility
 =================
