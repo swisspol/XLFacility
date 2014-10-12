@@ -29,6 +29,9 @@
 
 #define XLOG_INTERNAL(__FORMAT__, ...) XLLogInternalError(@"%s " __FORMAT__, __FUNCTION__, __VA_ARGS__)
 
+extern int XLOriginalStdOut;
+extern int XLOriginalStdErr;
+
 extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
 
 @interface XLLogRecord ()

@@ -41,6 +41,8 @@
 #define kFileDescriptorCaptureBufferSize 1024
 
 XLFacility* XLSharedFacility = nil;
+int XLOriginalStdOut = 0;
+int XLOriginalStdErr = 0;
 
 static NSUncaughtExceptionHandler* _originalExceptionHandler = NULL;
 static IMP _originalExceptionInitializerIMP = NULL;
@@ -100,8 +102,13 @@ static void _ExitHandler() {
   }
 }
 
+// Keep around copies of the original stdout and stderr file descriptors from when process starts in cases they are replaced later on
 + (void)load {
+  XLOriginalStdOut = dup(STDOUT_FILENO);
+  XLOriginalStdErr = dup(STDERR_FILENO);
+  
   XLSharedFacility = [[XLFacility alloc] init];
+  
   atexit(_ExitHandler);
 }
 

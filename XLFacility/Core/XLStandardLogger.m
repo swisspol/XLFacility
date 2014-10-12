@@ -30,23 +30,15 @@
 #endif
 
 #import "XLStandardLogger.h"
-
-static int _duplicateStdOut = 0;
-static int _duplicateStdErr = 0;
+#import "XLPrivate.h"
 
 @implementation XLStandardLogger
-
-// Keep around copies of the original stdout and stderr file descriptors from when process starts in cases they are replaced later on
-+ (void)load {
-  _duplicateStdOut = dup(STDOUT_FILENO);
-  _duplicateStdErr = dup(STDERR_FILENO);
-}
 
 + (XLStandardLogger*)sharedOutputLogger {
   static XLStandardLogger* logger = nil;
   static dispatch_once_t onceToken = 0;
   dispatch_once(&onceToken, ^{
-    logger = [[XLStandardLogger alloc] initWithFileDescriptor:_duplicateStdOut closeOnDealloc:NO];
+    logger = [[XLStandardLogger alloc] initWithFileDescriptor:XLOriginalStdOut closeOnDealloc:NO];
   });
   return logger;
 }
@@ -55,7 +47,7 @@ static int _duplicateStdErr = 0;
   static XLStandardLogger* logger = nil;
   static dispatch_once_t onceToken = 0;
   dispatch_once(&onceToken, ^{
-    logger = [[XLStandardLogger alloc] initWithFileDescriptor:_duplicateStdErr closeOnDealloc:NO];
+    logger = [[XLStandardLogger alloc] initWithFileDescriptor:XLOriginalStdErr closeOnDealloc:NO];
   });
   return logger;
 }
