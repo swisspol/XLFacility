@@ -31,7 +31,7 @@
 
 extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
 
-@interface XLRecord ()
+@interface XLLogRecord ()
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
                   logLevel:(XLLogLevel)logLevel
                    message:(NSString*)message

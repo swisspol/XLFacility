@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLRecord.h"
+#import "XLLogRecord.h"
 
 /*
  %l: level name
@@ -50,7 +50,7 @@
  \\: backslash character
 */
 
-typedef BOOL (^XLRecordFilterBlock)(XLRecord* record);
+typedef BOOL (^XLLogRecordFilterBlock)(XLLogger* logger, XLLogRecord* record);
 
 extern NSString* const XLLoggerFormatString_Default;
 extern NSString* const XLLoggerFormatString_NSLog;
@@ -58,9 +58,9 @@ extern NSString* const XLLoggerFormatString_NSLog;
 @interface XLLogger : NSObject
 @property(nonatomic) XLLogLevel minLogLevel;  // Default is DEBUG
 @property(nonatomic) XLLogLevel maxLogLevel;  // Default is ABORT
-@property(nonatomic, copy) XLRecordFilterBlock recordFilter;  // Default is NULL
+@property(nonatomic, copy) XLLogRecordFilterBlock logRecordFilter;  // Default is NULL
 - (BOOL)open;  // May be implemeted by subclasses - Default implementation does nothing
-- (void)logRecord:(XLRecord*)record;  // Must be implemented by subclasses
+- (void)logRecord:(XLLogRecord*)record;  // Must be implemented by subclasses
 - (void)close;  // May be implemeted by subclasses - Default implementation does nothing
 
 @property(nonatomic, copy) NSString* format;  // Default is "%t [%L]> %m%c\n"
@@ -68,12 +68,12 @@ extern NSString* const XLLoggerFormatString_NSLog;
 @property(nonatomic, copy) NSString* callstackHeader;  // Default is "\n\n>>> Captured call stack:\n"
 @property(nonatomic, copy) NSString* callstackFooter;  // Default is nil
 @property(nonatomic, copy) NSString* multilinesPrefix;  // Default is nil
-- (NSString*)formatRecord:(XLRecord*)record;
+- (NSString*)formatRecord:(XLLogRecord*)record;
 
-- (BOOL)shouldLogRecord:(XLRecord*)record;  // Default implementation checks record against min & max log levels and applies record filter if defined
+- (BOOL)shouldLogRecord:(XLLogRecord*)record;  // Default implementation checks record against min & max log levels and applies record filter if defined
 @end
 
 @interface XLLogger (Extensions)
-- (NSString*)sanitizeMessageFromRecord:(XLRecord*)record;  // Normalizes all newline characters
-- (NSString*)formatCallstackFromRecord:(XLRecord*)record;  // Returns nil if record has no callstack
+- (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record;  // Normalizes all newline characters
+- (NSString*)formatCallstackFromRecord:(XLLogRecord*)record;  // Returns nil if record has no callstack
 @end

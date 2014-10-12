@@ -25,14 +25,46 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLFacility.h"
+#if !__has_feature(objc_arc)
+#error XLFacility requires ARC
+#endif
 
-@interface XLRecord : NSObject
-@property(nonatomic, readonly) CFAbsoluteTime absoluteTime;
-@property(nonatomic, readonly) XLLogLevel logLevel;
-@property(nonatomic, readonly) NSString* message;
-@property(nonatomic, readonly) int capturedErrno;
-@property(nonatomic, readonly) int capturedThreadID;
-@property(nonatomic, readonly) NSString* capturedQueueLabel;  // May be nil
-@property(nonatomic, readonly) NSArray* callstack;  // May be nil
+#import <pthread.h>
+
+#import "XLLogRecord.h"
+
+@implementation XLLogRecord
+
+- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
+                  logLevel:(XLLogLevel)logLevel
+                   message:(NSString*)message
+             capturedErrno:(int)capturedErrno
+          capturedThreadID:(int)capturedThreadID
+        capturedQueueLabel:(NSString*)capturedQueueLabel
+                 callstack:(NSArray*)callstack {
+  if ((self = [super init])) {
+    _absoluteTime = absoluteTime;
+    _logLevel = logLevel;
+    _message = message;
+    _capturedErrno = capturedErrno;
+    _capturedThreadID = capturedThreadID;
+    _capturedQueueLabel = capturedQueueLabel;
+    _callstack = callstack;
+  }
+  return self;
+}
+
+- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime logLevel:(XLLogLevel)logLevel message:(NSString*)message callstack:(NSArray*)callstack {
+  const char* label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
+  uint64_t threadID = 0;
+  pthread_threadid_np(pthread_self(), &threadID);
+  return [self initWithAbsoluteTime:absoluteTime
+                           logLevel:logLevel
+                            message:message
+                      capturedErrno:errno
+                   capturedThreadID:(int)threadID
+                 capturedQueueLabel:(label[0] ? [NSString stringWithUTF8String:label] : nil)
+                          callstack:callstack];
+}
+
 @end

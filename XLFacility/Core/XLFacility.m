@@ -201,7 +201,7 @@ static void _ExitHandler() {
     }
   }
   
-  XLRecord* record = [[XLRecord alloc] initWithAbsoluteTime:time logLevel:level message:message callstack:callstack];
+  XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time logLevel:level message:message callstack:callstack];
   dispatch_sync(_lockQueue, ^{
     dispatch_queue_t concurrentQueue = _loggers.count > 1 && _callsLoggersConcurrently ? dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) : NULL;
     for (XLLogger* logger in _loggers) {

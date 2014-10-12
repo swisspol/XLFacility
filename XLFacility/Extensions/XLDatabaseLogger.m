@@ -78,7 +78,7 @@
   return YES;
 }
 
-- (void)logRecord:(XLRecord*)record {
+- (void)logRecord:(XLLogRecord*)record {
   const char* message = XLConvertNSStringToUTF8CString(record.message);
   const char* callstack = XLConvertNSStringToUTF8CString([record.callstack componentsJoinedByString:@"\n"]);
   const char* label = XLConvertNSStringToUTF8CString(record.capturedQueueLabel);
@@ -138,7 +138,7 @@
 - (void)enumerateRecordsAfterAbsoluteTime:(CFAbsoluteTime)time
                                  backward:(BOOL)backward
                                maxRecords:(NSUInteger)limit
-                               usingBlock:(void (^)(int appVersion, XLRecord* record, BOOL* stop))block {
+                               usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block {
   sqlite3* database = NULL;
   int result = sqlite3_open([_databasePath fileSystemRepresentation], &database);
   if (result == SQLITE_OK) {
@@ -169,7 +169,7 @@
         NSString* capturedQueueLabel = capturedQueueLabelUTF8 ? [NSString stringWithUTF8String:(char*)capturedQueueLabelUTF8] : nil;
         NSArray* callstack = [(callstackUTF8 ? [NSString stringWithUTF8String:(char*)callstackUTF8] : nil) componentsSeparatedByString:@"\n"];
         if (message) {
-          XLRecord* record = [[XLRecord alloc] initWithAbsoluteTime:absoluteTime
+          XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:absoluteTime
                                                            logLevel:logLevel
                                                             message:message
                                                       capturedErrno:capturedErrno

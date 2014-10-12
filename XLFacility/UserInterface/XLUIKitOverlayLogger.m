@@ -121,7 +121,7 @@
   [UIView commitAnimations];
 }
 
-- (void)logRecord:(XLRecord*)record {
+- (void)logRecord:(XLLogRecord*)record {
   NSString* formattedMessage = [self formatRecord:record];
   dispatch_async(dispatch_get_main_queue(), ^{
     _textView.text = [_textView.text stringByAppendingString:formattedMessage];

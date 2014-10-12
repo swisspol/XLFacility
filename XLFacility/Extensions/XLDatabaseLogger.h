@@ -35,5 +35,5 @@
 - (void)enumerateRecordsAfterAbsoluteTime:(CFAbsoluteTime)time
                                  backward:(BOOL)backward  // Pass <= 0.0 to enumerate all records
                                maxRecords:(NSUInteger)limit  // Pass 0 for no limit
-                               usingBlock:(void (^)(int appVersion, XLRecord* record, BOOL* stop))block;
+                               usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block;
 @end

@@ -94,7 +94,7 @@
 }
 
 // We are using write() which is not buffered contrary to fwrite() so no flushing is needed
-- (void)logRecord:(XLRecord*)record {
+- (void)logRecord:(XLLogRecord*)record {
   if (_fd > 0) {
     NSString* formattedMessage = [self formatRecord:record];
     if (_writeInBackground) {

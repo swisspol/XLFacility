@@ -29,7 +29,7 @@
 
 @class XLCallbackLogger;
 
-typedef void (^XLCallbackLoggerBlock)(XLCallbackLogger* logger, XLRecord* record);
+typedef void (^XLCallbackLoggerBlock)(XLCallbackLogger* logger, XLLogRecord* record);
 
 @interface XLCallbackLogger : XLLogger
 + (instancetype)loggerWithCallback:(XLCallbackLoggerBlock)callback;

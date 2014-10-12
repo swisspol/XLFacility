@@ -61,7 +61,7 @@
   return YES;
 }
 
-- (void)logRecord:(XLRecord*)record {
+- (void)logRecord:(XLLogRecord*)record {
   int levelMapping[] = {ASL_LEVEL_DEBUG, ASL_LEVEL_INFO, ASL_LEVEL_NOTICE, ASL_LEVEL_WARNING, ASL_LEVEL_ERR, ASL_LEVEL_CRIT, ASL_LEVEL_ALERT};
   const char* string = XLConvertNSStringToUTF8CString(record.message);
   if (string) {

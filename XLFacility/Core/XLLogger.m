@@ -163,7 +163,7 @@ static NSString* _uid = nil;
   }
 }
 
-- (NSString*)formatRecord:(XLRecord*)record {
+- (NSString*)formatRecord:(XLLogRecord*)record {
   NSMutableString* string = [[NSMutableString alloc] initWithCapacity:(2 * record.message.length)];  // Should be quite enough
   
   FormatToken* token = (FormatToken*)_tokens.bytes;
@@ -310,17 +310,17 @@ static NSString* _uid = nil;
   return YES;
 }
 
-- (BOOL)shouldLogRecord:(XLRecord*)record {
+- (BOOL)shouldLogRecord:(XLLogRecord*)record {
   if ((record.logLevel < _minLogLevel) || (record.logLevel > _maxLogLevel)) {
     return NO;
   }
-  if (_recordFilter && !_recordFilter(record)) {
+  if (_logRecordFilter && !_logRecordFilter(self, record)) {
     return NO;
   }
   return YES;
 }
 
-- (void)logRecord:(XLRecord*)record {
+- (void)logRecord:(XLLogRecord*)record {
   [self doesNotRecognizeSelector:_cmd];
 }
 
@@ -332,12 +332,12 @@ static NSString* _uid = nil;
 
 @implementation XLLogger (Extensions)
 
-- (NSString*)sanitizeMessageFromRecord:(XLRecord*)record {
+- (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record {
   NSArray* components = [record.message componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
   return [components componentsJoinedByString:@"\n"];
 }
 
-- (NSString*)formatCallstackFromRecord:(XLRecord*)record {
+- (NSString*)formatCallstackFromRecord:(XLLogRecord*)record {
   NSMutableString* string = nil;
   if (record.callstack) {
     string = [[NSMutableString alloc] initWithCapacity:1024];

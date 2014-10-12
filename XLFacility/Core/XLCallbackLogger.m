@@ -50,7 +50,7 @@
   return self;
 }
 
-- (void)logRecord:(XLRecord*)record {
+- (void)logRecord:(XLLogRecord*)record {
   _block(self, record);
 }
 

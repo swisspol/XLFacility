@@ -108,7 +108,7 @@
 #endif
 }
 
-- (NSString*)sanitizeMessageFromRecord:(XLRecord*)record {
+- (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record {
   NSString* message = [super sanitizeMessageFromRecord:record];
   message = [message stringByReplacingOccurrencesOfString:@"<" withString:@"&lt;"];
   message = [message stringByReplacingOccurrencesOfString:@">" withString:@"&gt;"];
@@ -117,7 +117,7 @@
   return message;
 }
 
-- (NSString*)formatCallstackFromRecord:(XLRecord*)record {
+- (NSString*)formatCallstackFromRecord:(XLLogRecord*)record {
   NSString* callstack = [super formatCallstackFromRecord:record];
   callstack = [callstack stringByReplacingOccurrencesOfString:@"\n" withString:@"<br>"];
   return callstack;
@@ -182,7 +182,7 @@
 
 - (void)_appendLogRecordsToString:(NSMutableString*)string afterAbsoluteTime:(CFAbsoluteTime)time {
   __block CFAbsoluteTime maxTime = time;
-  [self enumerateRecordsAfterAbsoluteTime:time backward:NO maxRecords:0 usingBlock:^(int appVersion, XLRecord* record, BOOL* stop) {
+  [self enumerateRecordsAfterAbsoluteTime:time backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
     const char* style = "color: dimgray;";
     if (record.logLevel == kXLLogLevel_Warning) {
       style = "color: orange;";
@@ -389,7 +389,7 @@
   return success;
 }
 
-- (void)logRecord:(XLRecord*)record {
+- (void)logRecord:(XLLogRecord*)record {
   [super logRecord:record];
   
   dispatch_sync(_lockQueue, ^{

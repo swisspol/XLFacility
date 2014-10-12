@@ -14,11 +14,11 @@ int main(int argc, const char* argv[]) {
     
     [[XLFacility sharedFacility] addLogger:[[XLFileLogger alloc] initWithFilePath:@"temp.log" append:NO]];
     XLDatabaseLogger* databaseLogger = [[XLDatabaseLogger alloc] initWithDatabasePath:@"temp.db" appVersion:1];
-    databaseLogger.recordFilter = ^BOOL(XLRecord* record) {
+    databaseLogger.logRecordFilter = ^BOOL(XLLogger* logger, XLLogRecord* record) {
       return record.logLevel >= kXLLogLevel_Error;
     };
     [[XLFacility sharedFacility] addLogger:databaseLogger];
-    [[XLFacility sharedFacility] addLogger:[XLCallbackLogger loggerWithCallback:^(XLCallbackLogger* logger, XLRecord* record) {
+    [[XLFacility sharedFacility] addLogger:[XLCallbackLogger loggerWithCallback:^(XLCallbackLogger* logger, XLLogRecord* record) {
       fprintf(stdout, "-> %s\n", XLConvertNSStringToUTF8CString(record.message));
       fflush(stdout);
     }]];
@@ -48,7 +48,7 @@ int main(int argc, const char* argv[]) {
     }
     
     [databaseLogger purgeRecordsBeforeAbsoluteTime:(CFAbsoluteTimeGetCurrent() - 10.0)];
-    [databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:YES maxRecords:2 usingBlock:^(int appVersion, XLRecord* record, BOOL* stop) {
+    [databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:YES maxRecords:2 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
       NSLog(@"%i = %@", (int)appVersion, record.message);
     }];
     

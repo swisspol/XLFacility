@@ -80,7 +80,7 @@
 }
 
 // https://en.wikipedia.org/wiki/ANSI_escape_code
-- (NSString*)_formatRecord:(XLRecord*)record {
+- (NSString*)_formatRecord:(XLLogRecord*)record {
   NSString* formattedMessage = [self formatRecord:record];
   if (_colorize) {
     const char* code = NULL;
@@ -167,7 +167,7 @@
                   
                   if (_preserveHistory) {
                     NSMutableString* history = [[NSMutableString alloc] init];
-                    [self enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLRecord* record, BOOL* stop) {
+                    [self enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
                       [history appendString:[self _formatRecord:record]];
                     }];
                     const char* message = XLConvertNSStringToUTF8CString(history);
@@ -199,7 +199,7 @@
   return success;
 }
 
-- (void)logRecord:(XLRecord*)record {
+- (void)logRecord:(XLLogRecord*)record {
   if (_preserveHistory) {
     [super logRecord:record];
   }
