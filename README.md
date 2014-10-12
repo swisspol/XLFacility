@@ -48,13 +48,13 @@ Instead of the previous:
 2014-10-12 02:41:29.842 TestApp[37006:2455985] Hello World!
 ```
 
-That's the first big difference with `NSLog()`: you can customize the output to fit your taste. Try adding this line in `main()`:
+That's the first big difference between XLFacility and `NSLog()`: you can customize the output to fit your taste. Try adding this line inside `main()`:
 ```objectivec
 [[XLStandardIOLogger sharedStdErrLogger] setFormat:XLLoggerFormatString_NSLog];
 ```
-Run your app again and notice how messages in the console look like `NSLog()` ones again.
+Run your app again and notice how messages in the console look exactly like when using `NSLog()`.
 
-Let's use a custom compact format now:
+Let's use a custom compact format instead:
 ```objectivec
 [[XLStandardIOLogger sharedStdErrLogger] setFormat:@"[%l | %q] %m\n"];
 ```
@@ -75,7 +75,7 @@ Here's the full list of format specifiers supported by XLFacility:
 %r: thread ID
 %q: queue label (or "(null)" if not available)
 %t: relative timestamp since process started in "HH:mm:ss.SSS" format
-%d: date-time formatted using the "datetimeFormatter" property
+%d: absolute date-time formatted using the "datetimeFormatter" property
 %e: errno as an integer
 %E: errno as a string
 %c: Callstack (or nothing if not available)
@@ -94,6 +94,7 @@ Still in the `main.m` file, add `#import "XLTelnetServerLogger.h"` to the top, a
 ```objectivec
 [[XLFacility sharedFacility] addLogger:[[XLTelnetServerLogger alloc] init]];
 ```
+What we are doing here is adding a secondary "logger" to XLFacility so that log messages are distributed to two places simultaneously.
 
 Run your app locally on your computer (use the iOS Simulator for an iOS app) then enter his command in Terminal app:
 ```sh
@@ -111,11 +112,30 @@ You are connected to TestApp[37006] (in color!)
 
 ```
 
+Any call to `NSLog()` in your app's source code is now being sent live to your Terminal window. And when you connect to your app, as a convenience to make sure you haven't missed anything,  `XLTelnetServerLogger` will immediately replay all messages logged since the app was launched (this behavior can be changed).
 
-, then find the IP address of the OS X computer or iOS device on which your app is running (e.g. `192.168.1.132`) and finally enter t replacing `{IP_ADDRESS}` with the actual IP address (or `localhost` if you:
+What's really interesting and useful however is connecting to your app while it's running on another Mac or on a real iPhone / iPad. As long as your home / office / WiFi network doesn't block communication on port `2323` (the default port used by `XLTelnetServerLogger`), you should be able to remotely connect by simply entering `telnet {YOUR_DEVICE_IP_ADDRESS} 2323` in Terminal on your computer. Note that connecting to your iOS app will not work while if it has been suspended by iOS while in background.
 
-Assuming your home / office / WiFi network doesn't block communication on port `2323`
+Of course, like you've already done above with `XLStandardIOLogger`, you can customize the format used by `XLTelnetServerLogger`, for instance like this:
+```objectivec
+XLLogger* logger = [[XLFacility sharedFacility] addLogger:[[XLTelnetServerLogger alloc] init]];
+logger.format = @"[%l | %q] %m\n";
+```
 
+You can even add multiples instances of `XLTelnetServerLogger` to XLFacility, each listening on a unique port and configured differently.
+
+**IMPORTANT:** It's not recommended that you ship your app on the App Store with `XLTelnetServerLogger` active by default as this could be a security and / or privacy issue for your users. Since you can add and remove loggers at any point during the lifecyle of your app, you can instead expose a user interface setting that will dynamically add or remove `XLTelnetServerLogger` from XLFacility.
+
+Muting XLFacility
+=================
+
+Log levels
+env var
+
+Configuring Loggers
+===================
+
+format, min / max levels, custom filter
 
 Capturing Stderr or Stdout
 ==========================
