@@ -35,11 +35,7 @@
 #import "XLHTTPServerLogger.h"
 #import "XLPrivate.h"
 
-#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
-#define kDefaultPort 80
-#else
 #define kDefaultPort 8080
-#endif
 #define kMaxPendingConnections 4
 #define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 

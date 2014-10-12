@@ -30,6 +30,6 @@
 @interface XLTelnetServerLogger : XLDatabaseLogger
 @property(nonatomic, readonly) NSUInteger port;
 @property(nonatomic) BOOL colorize;  // Default is YES
-- (id)init;  // Default port is 23 on iOS devices or 2323 on OS X or iOS Simulator
+- (id)init;  // Default port is 2323 and history is preserved
 - (id)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory;
 @end

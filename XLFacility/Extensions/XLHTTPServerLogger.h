@@ -29,6 +29,6 @@
 
 @interface XLHTTPServerLogger : XLDatabaseLogger
 @property(nonatomic, readonly) NSUInteger port;
-- (id)init;  // Default port is 80 on iOS devices or 8080 on OS X or iOS Simulator
+- (id)init;  // Default port is 8080
 - (id)initWithPort:(NSUInteger)port;
 @end
