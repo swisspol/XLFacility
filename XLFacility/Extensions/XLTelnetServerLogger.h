@@ -25,28 +25,20 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLDatabaseLogger.h"
+#import "XLTCPServerLogger.h"
 
 /**
- *  The XLTelnetServerLogger subclass of XLDatabaseLogger runs a Telnet-like
+ *  The XLTelnetServerLogger subclass of XLTCPServerLogger runs a Telnet-like
  *  server you can connect to using "$ telnet IP_ADDRESS PORT" from a terminal.
  *  Log records received by the logger are then printed directly in the connected
  *  terminal.
  *
- *  XLTelnetServerLogger can optionally preserve the history of log records since
- *  the process started by using a temporary database from its parent class. If
- *  this feature is enabled, when connecting to the server, all past log records
- *  are initially printed in the terminal.
- *
- *  @warning On iOS, connecting to the server will not work while your app has
- *  been suspended by the OS while in background.
+ *  XLTelnetServerLogger can optionally preserve the history of log records
+ *  received since the logger was opened. If this feature is enabled, when
+ *  connecting to the server, all past log records are initially printed in the
+ *  terminal.
  */
-@interface XLTelnetServerLogger : XLDatabaseLogger
-
-/**
- *  Returns the port as specified when the logger was initialized.
- */
-@property(nonatomic, readonly) NSUInteger port;
+@interface XLTelnetServerLogger : XLTCPServerLogger
 
 /**
  *  Configures if the Telnet server is sending colored text output using ANSI

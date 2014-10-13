@@ -29,149 +29,58 @@
 #error XLFacility requires ARC
 #endif
 
-#import <net/if.h>
-#import <netdb.h>
-
 #import "XLHTTPServerLogger.h"
 #import "XLPrivate.h"
 
-#define kMaxPendingConnections 4
-#define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 #define kMinRefreshDelay 500  // In milliseconds
 #define kMaxLongPollDuration 30  // In seconds
 
-@interface XLHTTPServerConnection : NSObject
-@property(nonatomic, readonly) int socket;
-@property(nonatomic, readonly) dispatch_semaphore_t semaphore;
-@property(nonatomic, getter=isLongPolling) BOOL longPolling;
+@interface XLHTTPServerLogger ()
+@property(nonatomic, readonly) NSDateFormatter* dateFormatterRFC822;
+@end
+
+@interface XLHTTPServerConnection : XLTCPServerConnection
+@end
+
+@interface XLHTTPServerConnection () {
+@private
+  dispatch_semaphore_t _pollingSemaphore;
+}
 @end
 
 @implementation XLHTTPServerConnection
 
-- (id)initWithSocket:(int)socket {
-  if ((self = [super init])) {
-    _socket = socket;
-    _semaphore = dispatch_semaphore_create(0);
+- (void)didReceiveLogRecord {
+  if (_pollingSemaphore) {
+    dispatch_semaphore_signal(_pollingSemaphore);
   }
-  return self;
 }
 
-- (void)dealloc {
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(_semaphore);
-#endif
-  close(_socket);
-}
-
-@end
-
-@interface XLHTTPServerLogger () {
-@private
-  NSDateFormatter* _dateFormatterRFC822;
-  dispatch_semaphore_t _sourceSemaphore;
-  dispatch_source_t _source;
-  dispatch_queue_t _lockQueue;
-  NSMutableSet* _connections;
-}
-@end
-
-@implementation XLHTTPServerLogger
-
-- (instancetype)init {
-  return [self initWithPort:8080];
-}
-
-- (instancetype)initWithPort:(NSUInteger)port {
-  NSString* databasePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
-  if ((self = [super initWithDatabasePath:databasePath appVersion:0])) {
-    _port = port;
-    
-    _dateFormatterRFC822 = [[NSDateFormatter alloc] init];
-    _dateFormatterRFC822.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
-    _dateFormatterRFC822.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
-    _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
-    _sourceSemaphore = dispatch_semaphore_create(0);
-    _lockQueue = dispatch_queue_create(object_getClassName(self), DISPATCH_QUEUE_SERIAL);
-    _connections = [[NSMutableSet alloc] init];
-    
-    self.format = @"<td>%t</td><td>%l</td><td>%m%c</td>";
-  }
-  return self;
-}
-
-- (void)dealloc {
-  [[NSFileManager defaultManager] removeItemAtPath:self.databasePath error:NULL];
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(_lockQueue);
-  dispatch_release(_sourceSemaphore);
-#endif
-}
-
-- (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record {
-  NSString* message = [super sanitizeMessageFromRecord:record];
-  message = [message stringByReplacingOccurrencesOfString:@"<" withString:@"&lt;"];
-  message = [message stringByReplacingOccurrencesOfString:@">" withString:@"&gt;"];
-  message = [message stringByReplacingOccurrencesOfString:@"&" withString:@"&amp;"];
-  message = [message stringByReplacingOccurrencesOfString:@"\n" withString:@"<br>"];
-  return message;
-}
-
-- (NSString*)formatCallstackFromRecord:(XLLogRecord*)record {
-  NSString* callstack = [super formatCallstackFromRecord:record];
-  callstack = [callstack stringByReplacingOccurrencesOfString:@"\n" withString:@"<br>"];
-  return callstack;
-}
-
-- (XLHTTPServerConnection*)_openConnectionOnSocket:(int)socket {
-  __block XLHTTPServerConnection* connection;
-  dispatch_sync(_lockQueue, ^{
-    connection = [[XLHTTPServerConnection alloc] initWithSocket:socket];
-    [_connections addObject:connection];
-  });
-  return connection;
-}
-
-- (void)_closeConnection:(XLHTTPServerConnection*)connection {
-  dispatch_sync(_lockQueue, ^{
-    [_connections removeObject:connection];
-  });
-}
-
-- (BOOL)_writeHTTPResponse:(CFHTTPMessageRef)response forConnection:(XLHTTPServerConnection*)connection {
-  BOOL success = NO;
-  CFDataRef data = CFHTTPMessageCopySerializedMessage(response);
-  if (data) {
-    dispatch_data_t responseData = dispatch_data_create(CFDataGetBytePtr(data), CFDataGetLength(data), kDispatchQueue, ^{
-      CFRelease(data);
-    });
-    dispatch_write(connection.socket, responseData, kDispatchQueue, ^(dispatch_data_t remainingData, int error) {
-      if (error) {
-        XLOG_INTERNAL(@"Failed writing HTTP response: %s", strerror(error));
-      }
-      [self _closeConnection:connection];
-    });
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-    dispatch_release(responseData);
-#endif
-    success = YES;
-  } else {
-    XLOG_INTERNAL(@"%@", @"Failed serializing HTTP response");
-  }
-  return success;
-}
-
-- (BOOL)_writeHTMLResponse:(NSString*)htmlString forConnection:(XLHTTPServerConnection*)connection {
+- (BOOL)_writeHTMLResponse:(NSString*)htmlString {
   BOOL success = NO;
   NSData* htmlData = [htmlString dataUsingEncoding:NSUTF8StringEncoding];
   if (htmlData) {
     CFHTTPMessageRef response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, 200, NULL, kCFHTTPVersion1_1);
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Connection"), CFSTR("Close"));
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Server"), (__bridge CFStringRef)NSStringFromClass([self class]));
-    CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Date"), (__bridge CFStringRef)[_dateFormatterRFC822 stringFromDate:[NSDate date]]);
+    CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Date"), (__bridge CFStringRef)[[(XLHTTPServerLogger*)self.server dateFormatterRFC822] stringFromDate:[NSDate date]]);
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Type"), CFSTR("text/html; charset=utf-8"));
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Length"), (__bridge CFStringRef)[NSString stringWithFormat:@"%lu", (unsigned long)htmlData.length]);
     CFHTTPMessageSetBody(response, (__bridge CFDataRef)htmlData);
-    success = [self _writeHTTPResponse:response forConnection:connection];
+    
+    CFDataRef data = CFHTTPMessageCopySerializedMessage(response);
+    if (data) {
+      [self writeDataAsynchronously:(__bridge NSData*)data completion:^(BOOL ok) {
+        if (ok) {
+          [self close];
+        }
+      }];
+      CFRelease(data);
+      success = YES;
+    } else {
+      XLOG_INTERNAL(@"%@", @"Failed serializing HTTP response");
+    }
+    
     CFRelease(response);
   } else {
     XLOG_INTERNAL(@"%@", @"Failed generating HTML response");
@@ -181,7 +90,7 @@
 
 - (void)_appendLogRecordsToString:(NSMutableString*)string afterAbsoluteTime:(CFAbsoluteTime)time {
   __block CFAbsoluteTime maxTime = time;
-  [self enumerateRecordsAfterAbsoluteTime:time backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+  [self.server.databaseLogger enumerateRecordsAfterAbsoluteTime:time backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
     const char* style = "color: dimgray;";
     if (record.logLevel == kXLLogLevel_Warning) {
       style = "color: orange;";
@@ -190,7 +99,7 @@
     } else if (record.logLevel >= kXLLogLevel_Exception) {
       style = "color: red; font-weight: bold;";
     }
-    NSString* formattedMessage = [self formatRecord:record];
+    NSString* formattedMessage = [self.server formatRecord:record];
     [string appendFormat:@"<tr style=\"%s\">%@</tr>", style, formattedMessage];
     if (record.absoluteTime > maxTime) {
       maxTime = record.absoluteTime;
@@ -199,7 +108,7 @@
   [string appendFormat:@"<tr id=\"maxTime\" data-value=\"%f\"></tr>", maxTime];
 }
 
-- (BOOL)_processHTTPRequest:(CFHTTPMessageRef)request forConnection:(XLHTTPServerConnection*)connection {
+- (BOOL)_processHTTPRequest:(CFHTTPMessageRef)request {
   BOOL success = NO;
   NSString* method = CFBridgingRelease(CFHTTPMessageCopyRequestMethod(request));
   if ([method isEqualToString:@"GET"]) {
@@ -285,19 +194,17 @@
       [string appendString:@"</body>"];
       [string appendString:@"</html>"];
       
-      success = [self _writeHTMLResponse:string forConnection:connection];
+      success = [self _writeHTMLResponse:string];
     } else if ([path isEqualToString:@"/log"] && [query hasPrefix:@"after="]) {
       NSMutableString* string = [[NSMutableString alloc] init];
       CFAbsoluteTime time = [[query substringFromIndex:6] doubleValue];
       
-      dispatch_sync(_lockQueue, ^{
-        connection.longPolling = YES;
-      });
-      dispatch_semaphore_wait(connection.semaphore, dispatch_time(DISPATCH_TIME_NOW, kMaxLongPollDuration * NSEC_PER_SEC));
-      
-      [self _appendLogRecordsToString:string afterAbsoluteTime:time];
-      
-      success = [self _writeHTMLResponse:string forConnection:connection];
+      _pollingSemaphore = dispatch_semaphore_create(0);
+      dispatch_semaphore_wait(_pollingSemaphore, dispatch_time(DISPATCH_TIME_NOW, kMaxLongPollDuration * NSEC_PER_SEC));
+      if (self.server) {  // Check for race-condition if the connection was closed while waiting
+        [self _appendLogRecordsToString:string afterAbsoluteTime:time];
+        success = [self _writeHTMLResponse:string];
+      }
     }
     
   } else {
@@ -306,110 +213,91 @@
   return success;
 }
 
-- (void)_readHTTPRequestForConnection:(XLHTTPServerConnection*)connection {
-  dispatch_read(connection.socket, SIZE_MAX, kDispatchQueue, ^(dispatch_data_t data, int error) {
-    @autoreleasepool {
+- (void)open {
+  [self readDataAsynchronously:^(dispatch_data_t data) {
+    if (data) {
       BOOL success = NO;
-      if (error == 0) {
-        CFHTTPMessageRef message = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true);
-        dispatch_data_apply(data, ^bool(dispatch_data_t region, size_t offset, const void* buffer, size_t length) {
-          CFHTTPMessageAppendBytes(message, buffer, length);
-          return true;
-        });
-        if (CFHTTPMessageIsHeaderComplete(message)) {
-          success = [self _processHTTPRequest:message forConnection:connection];
-        } else {
-          XLOG_INTERNAL(@"%@", @"Failed parsing HTTP request headers");
-        }
-        CFRelease(message);
+      CFHTTPMessageRef message = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true);
+      dispatch_data_apply(data, ^bool(dispatch_data_t region, size_t offset, const void* buffer, size_t length) {
+        CFHTTPMessageAppendBytes(message, buffer, length);
+        return true;
+      });
+      if (CFHTTPMessageIsHeaderComplete(message)) {
+        success = [self _processHTTPRequest:message];
       } else {
-        XLOG_INTERNAL(@"Failed reading socket: %s", strerror(error));
+        XLOG_INTERNAL(@"%@", @"Failed parsing HTTP request headers");
       }
+      CFRelease(message);
       if (!success) {
-        [self _closeConnection:connection];
+        [self close];
       }
     }
-  });
+  }];
 }
 
-- (BOOL)open {
-  BOOL success = NO;
-  if ([super open]) {
-    int listeningSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (listeningSocket > 0) {
-      int yes = 1;
-      setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-      
-      struct sockaddr_in addr4;
-      bzero(&addr4, sizeof(addr4));
-      addr4.sin_len = sizeof(addr4);
-      addr4.sin_family = AF_INET;
-      addr4.sin_port = htons(_port);
-      addr4.sin_addr.s_addr = htonl(INADDR_ANY);
-      if (bind(listeningSocket, (void*)&addr4, sizeof(addr4)) == 0) {
-        if (listen(listeningSocket, kMaxPendingConnections) == 0) {
-          _source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, kDispatchQueue);
-          
-          dispatch_source_set_cancel_handler(_source, ^{
-            close(listeningSocket);
-            dispatch_semaphore_signal(_sourceSemaphore);
-          });
-          
-          dispatch_source_set_event_handler(_source, ^{
-            @autoreleasepool {
-              struct sockaddr remoteSockAddr;
-              socklen_t remoteAddrLen = sizeof(remoteSockAddr);
-              int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
-              if (socket > 0) {
-                int noSigPipe = 1;
-                setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
-                XLHTTPServerConnection* connection = [self _openConnectionOnSocket:socket];
-                [self _readHTTPRequestForConnection:connection];
-              } else {
-                XLOG_INTERNAL(@"Failed accepting socket: %s", strerror(errno));
-              }
-            }
-          });
-          
-          dispatch_resume(_source);
-          success = YES;
-        } else {
-          XLOG_INTERNAL(@"Failed starting listening socket: %s", strerror(errno));
-          close(listeningSocket);
-        }
-      } else {
-        XLOG_INTERNAL(@"Failed binding listening socket: %s", strerror(errno));
-        close(listeningSocket);
-      }
-    } else {
-      XLOG_INTERNAL(@"Failed creating listening socket: %s", strerror(errno));
-    }
+- (void)close {
+  [super close];
+  
+  if (_pollingSemaphore) {
+    dispatch_semaphore_signal(_pollingSemaphore);
   }
-  return success;
+}
+
+#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+
+- (void)dealloc {
+  if (_pollingSemaphore) {
+    dispatch_release(_pollingSemaphore);
+  }
+}
+
+#endif
+
+@end
+
+@implementation XLHTTPServerLogger
+
++ (Class)connectionClass {
+  return [XLHTTPServerConnection class];
+}
+
+- (instancetype)init {
+  return [self initWithPort:8080];
+}
+
+- (instancetype)initWithPort:(NSUInteger)port {
+  if ((self = [super initWithPort:port useDatabaseLogger:YES])) {
+    _dateFormatterRFC822 = [[NSDateFormatter alloc] init];
+    _dateFormatterRFC822.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
+    _dateFormatterRFC822.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
+    _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+    
+    self.format = @"<td>%t</td><td>%l</td><td>%m%c</td>";
+  }
+  return self;
+}
+
+- (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record {
+  NSString* message = [super sanitizeMessageFromRecord:record];
+  message = [message stringByReplacingOccurrencesOfString:@"<" withString:@"&lt;"];
+  message = [message stringByReplacingOccurrencesOfString:@">" withString:@"&gt;"];
+  message = [message stringByReplacingOccurrencesOfString:@"&" withString:@"&amp;"];
+  message = [message stringByReplacingOccurrencesOfString:@"\n" withString:@"<br>"];
+  return message;
+}
+
+- (NSString*)formatCallstackFromRecord:(XLLogRecord*)record {
+  NSString* callstack = [super formatCallstackFromRecord:record];
+  callstack = [callstack stringByReplacingOccurrencesOfString:@"\n" withString:@"<br>"];
+  return callstack;
 }
 
 - (void)logRecord:(XLLogRecord*)record {
   [super logRecord:record];
   
-  dispatch_sync(_lockQueue, ^{
-    for (XLHTTPServerConnection* connection in _connections) {
-      if (connection.longPolling) {
-        dispatch_semaphore_signal(connection.semaphore);
-        connection.longPolling = NO;
-      }
-    }
-  });
-}
-
-- (void)close {
-  dispatch_source_cancel(_source);
-  dispatch_semaphore_wait(_sourceSemaphore, DISPATCH_TIME_FOREVER);  // Wait until the cancellation handler has been called which guarantees the listening socket is closed
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(_source);
-#endif
-  _source = NULL;
-  
-  [super close];
+  [self enumerateConnectionsUsingBlock:^(XLTCPServerConnection* connection, BOOL* stop) {
+    [(XLHTTPServerConnection*)connection didReceiveLogRecord];
+  }];
 }
 
 @end

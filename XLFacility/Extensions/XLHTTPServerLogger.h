@@ -25,26 +25,21 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLDatabaseLogger.h"
+#import "XLTCPServerLogger.h"
 
 /**
- *  The XLHTTPServerLogger subclass of XLDatabaseLogger runs a simple HTTP server
+ *  The XLHTTPServerLogger subclass of XLTCPServerLogger runs a simple HTTP server
  *  you can connect to in your web browser by visiting "http://IP_ADDRESS:PORT/".
  *  Log records received by the logger are then printed directly in the connected.
  *
- *  XLHTTPServerLogger preserves the history of log records since the process
- *  started by using a temporary database from its parent class. When visiting the
- *  server URL, the webpage can therefore initially display all past log records.
+ *  XLHTTPServerLogger preserves the history of log records received since the
+ *  logger was opened. When visiting the server URL, the webpage can therefore
+ *  initially display all past log records.
  *
  *  XLHTTPServerLogger uses HTTP long-polling to automatically refresh the webpage
  *  when new log records are received by the logger.
  */
-@interface XLHTTPServerLogger : XLDatabaseLogger
-
-/**
- *  Returns the port as specified when the logger was initialized.
- */
-@property(nonatomic, readonly) NSUInteger port;
+@interface XLHTTPServerLogger : XLTCPServerLogger
 
 /**
  *  Initializes an HTTP server on port 8080.
