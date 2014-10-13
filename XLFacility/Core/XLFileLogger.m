@@ -37,6 +37,7 @@
   int _fd;
   BOOL _close;
   BOOL _append;
+  dispatch_queue_t _writeQueue;
 }
 @end
 
@@ -47,8 +48,15 @@
   return nil;
 }
 
-- (instancetype)initWithFilePath:(NSString*)path append:(BOOL)append {
+- (id)_init {
   if ((self = [super init])) {
+    _writeQueue = dispatch_queue_create(object_getClassName(self), DISPATCH_QUEUE_SERIAL);
+  }
+  return self;
+}
+
+- (instancetype)initWithFilePath:(NSString*)path append:(BOOL)append {
+  if ((self = [self _init])) {
     _filePath = [path copy];
     _append = append;
   }
@@ -56,7 +64,7 @@
 }
 
 - (instancetype)initWithFileDescriptor:(int)fd closeOnDealloc:(BOOL)close {
-  if ((self = [super init])) {
+  if ((self = [self _init])) {
     _fileDescriptor = fd;
     _close = close;
   }
@@ -67,6 +75,9 @@
   if (_close) {
     close(_fileDescriptor);
   }
+#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+  dispatch_release(_writeQueue);
+#endif
 }
 
 - (BOOL)open {
@@ -82,6 +93,7 @@
   return YES;
 }
 
+// We are using write() which is not buffered contrary to fwrite() so no flushing is needed
 - (void)_writeString:(NSString*)string {
   const char* utf8String = XLConvertNSStringToUTF8CString(string);
   if (utf8String) {
@@ -93,12 +105,11 @@
   }
 }
 
-// We are using write() which is not buffered contrary to fwrite() so no flushing is needed
 - (void)logRecord:(XLLogRecord*)record {
   if (_fd > 0) {
     NSString* formattedMessage = [self formatRecord:record];
     if (_writeInBackground) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+      dispatch_async(_writeQueue, ^{
         [self _writeString:formattedMessage];
       });
     } else {
