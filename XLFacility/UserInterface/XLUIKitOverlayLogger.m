@@ -36,8 +36,6 @@
 #define kOverlayWindowLevel 100.0
 #define kOverlayMargin 25.0
 #define kOverlayCornerRadius 6.0
-#define kFontName @"Courier"
-#define kFontSize 13.0
 
 @interface XLUIKitOverlayLogger () {
 @private
@@ -62,6 +60,7 @@
   if ((self = [super init])) {
     _overlayOpacity = 0.75;
     _overlayDuration = 5.0;
+    _textFont = [UIFont fontWithName:@"Courier" size:13.0];
   }
   return self;
 }
@@ -70,6 +69,12 @@
   _overlayOpacity = opacity;
   
   _textView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:_overlayOpacity];
+}
+
+- (void)setTextFont:(UIFont*)font {
+  _textFont = font;
+  
+  _textView.font = font;
 }
 
 - (BOOL)open {
@@ -90,7 +95,7 @@
   _textView.opaque = NO;
   _textView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:_overlayOpacity];
   _textView.textColor = [UIColor whiteColor];
-  _textView.font = [UIFont fontWithName:kFontName size:kFontSize];
+  _textView.font = _textFont;
   _textView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [_overlayWindow.rootViewController.view addSubview:_textView];
   _textView.text = @"";

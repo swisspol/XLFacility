@@ -30,5 +30,6 @@
 @interface XLUIKitOverlayLogger : XLLogger
 @property(nonatomic) float overlayOpacity;  // Default is 0.75
 @property(nonatomic) NSTimeInterval overlayDuration;  // Default is 5.0 (set to 0.0 to leave overlay always onscreen)
+@property(nonatomic, retain) UIFont* textFont;
 + (XLUIKitOverlayLogger*)sharedLogger;
 @end
