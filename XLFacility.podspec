@@ -7,7 +7,7 @@
 
 Pod::Spec.new do |s|
   s.name     = 'XLFacility'
-  s.version  = '0.9'
+  s.version  = '1.0'
   s.author   =  { 'Pierre-Olivier Latour' => 'info@pol-online.net' }
   s.license  = { :type => 'BSD', :file => 'LICENSE' }
   s.homepage = 'https://github.com/swisspol/XLFacility'
@@ -17,8 +17,6 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '5.0'
   s.osx.deployment_target = '10.7'
   s.requires_arc = true
-  
-  s.default_subspec = 'Core'
   
   s.subspec 'Core' do |cs|
     cs.source_files = 'XLFacility/Core/*.{h,m}'
@@ -33,7 +31,6 @@ Pod::Spec.new do |s|
     cs.ios.library = 'sqlite3'
     cs.ios.frameworks = 'CFNetwork'
     cs.osx.library = 'sqlite3'
-    cs.osx.framework = 'CFNetwork'
   end
 
   s.subspec 'UserInterface' do |cs|
