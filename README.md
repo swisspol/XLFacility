@@ -262,7 +262,7 @@ To implement more complex loggers, you will need to subclass `XLLogger` and impl
 @interface MyLogger : XLLogger
 @end
 
-@implementation XLLogger
+@implementation MyLogger
 
 - (void)logRecord:(XLLogRecord*)record {
   // Do something with the log record
