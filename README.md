@@ -10,7 +10,7 @@ XLFacility, which stands for *Extensive Logging Facility*, is an elegant and pow
 * Support a wide variety of logging destinations aka "loggers"
 * Customizable logging formats
 * Modern and clean codebase fully taking advantage of the latest Obj-C runtime and Grand Central Dispatch
-* Easy to understand architecture with the ability to write write custom loggers in a few lines of code
+* Easy to understand architecture with the ability to write custom loggers in a few lines of code
 * No dependencies on third-party source code
 * Available under a friendly [New BSD License](LICENSE)
 
