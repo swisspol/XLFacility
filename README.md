@@ -36,7 +36,7 @@ In the precompiled header file for your Xcode project, insert the following:
 #define NSLog(...) XLOG_INFO(__VA_ARGS__)
 ```
 
-From this point on, any calls to `NSLog()` in your app source code to log a message will be replaced by ones to XLFacility. Note that this will **not** affect calls to `NSLog()` done by Apple frameworks or third-party libraries in your app (see "Capturing Stderr or Stdout" further in this document for a potential solution).
+From this point on, any calls to `NSLog()` in your app source code to log a message will be replaced by ones to XLFacility. Note that this will **not** affect calls to `NSLog()` done by Apple frameworks or third-party libraries in your app (see "Capturing Stderr and Stdout" further in this document for a potential solution).
 
 Test-Driving Your (Modified) App
 ================================
@@ -45,12 +45,12 @@ So far nothing has really changed on the surface except that when running your a
 ```
 00:00:00.248 [INFO     ]> Hello World!
 ```
-Where previously they would look like that:
+While previously they would look like that:
 ```
 2014-10-12 02:41:29.842 TestApp[37006:2455985] Hello World!
 ```
 
-That's the first big difference between XLFacility and `NSLog()`: you can customize the output to fit your taste. Try adding `#import "XLStandardLogger.h"` to the top of the `main.m` file of your app and then insert this line inside `main()` before `UIApplication` or `NSApplication` gets called:
+That's the first big difference between XLFacility and `NSLog()`: you can customize the output to fit your taste. Try adding `#import "XLStandardLogger.h"` to the top of the `main.m` file of your app and then inserting this line inside `main()` before `UIApplication` or `NSApplication` gets called:
 ```objectivec
 [[XLStandardLogger sharedErrorLogger] setFormat:XLLoggerFormatString_NSLog];
 ```
@@ -65,18 +65,18 @@ Run your app again and messages in the Xcode console should now look like this:
 [INFO | com.apple.main-thread] Hello World!
 ```
 
-See [XLLogger.h](XLFacility/Core/XLLogger.h) for the full list of format specifiers supported by XLFacility.
+*See [XLLogger.h](XLFacility/Core/XLLogger.h) for the full list of format specifiers supported by XLFacility.*
 
 Logging Messages With XLFacility
 ================================
 
-Like pretty much all logging systems, XLFacility defines various logging levels, which are by order of importance: `DEBUG`, `VERBOSE`, `INFO`, `WARNING`, `ERROR`, `EXCEPTION` and `ABORT`. The idea is that when logging messages, you provide the appropriate importance level: for instance `VERBOSE` to trace and help debug what is happening in the code, versus `WARNING` and above to report actual issues. The logging system can then be configured to "drop" messages that are below a certain level, allowing the user to control the "signal-to-noise" ratio.
+Like pretty much all logging systems, XLFacility defines various logging levels, which are by order of importance: `DEBUG`, `VERBOSE`, `INFO`, `WARNING`, `ERROR`, `EXCEPTION` and `ABORT`. The idea is that when logging a message, you also provide the corresponding importance level: for instance `VERBOSE` to trace and help debug what is happening in the code, versus `WARNING` and above to report actual issues. The logging system can then be configured to "drop" messages that are below a certain level, allowing the user to control the "signal-to-noise" ratio.
 
-By default, when building your app in `Release` coniguration XLFacility ignores messages at the `DEBUG` and `VERBOSE` levels. When building in `Debug` configuration (requires the `DEBUG` preprocessor constant evaluating to non-zero), it keeps everything.
+By default, when building your app in `Release` configuration, XLFacility ignores messages at the `DEBUG` and `VERBOSE` levels. When building in `Debug` configuration (requires the `DEBUG` preprocessor constant evaluating to non-zero), it keeps everything.
 
-**IMPORTANT:** So far you've seen how to "override" `NSLog()` calls in your source code to redirect messages to FLFacility at the `INFO` level but this is not the best approach. Instead don't use `NSLog()` at all but call directly XLFacility functions to log messages.
+**IMPORTANT:** So far you've seen how to "override" `NSLog()` calls in your source code to redirect messages to XLFacility at the `INFO` level but this is not the best approach. Instead don't use `NSLog()` at all but call directly XLFacility functions to log messages.
 
-You can log messages in XLFacility by calling the `-log...` methods on the shared `XLFacility` instance or by using the macros from `XLFacilityMacros.h`. The latter is highly recommended as macros produce the exact same logging results but are quite easier to the eye, faster to type, and most importantly they avoid evaluating their arguments unless necessary. (*)
+You can log messages in XLFacility by calling the `-log...` methods on the shared `XLFacility` instance or by using the macros from `XLFacilityMacros.h`. The latter is highly recommended as macros produce the exact same logging results but are quite easier to the eye, faster to type, and most importantly they avoid evaluating their arguments unless necessary.
 
 The following macros are available to log messages at various levels:
 * `XLOG_DEBUG(...)`: Becomes a no-op if building `Release` (i.e. if the `DEBUG` preprocessor constant evaluates to zero)
@@ -116,8 +116,6 @@ Here are some example use cases:
 }
 ```
 
-(*) For instance, if the log level for XLFacility is set to `ERROR`, `XLOG_WARNING(@"Unexpected value: %@", value)` will almost be a no-op while `[[XLFacility sharedFacility] logWarning:@"Unexpected value: %@", value]` will still evaluate all the arguments (which can be quite expensive), compute the format string, and finally pass everything to the `XLFacility` shared instance where it will be ignored anyway.
-
 Fun With Remote Logging
 =======================
 
@@ -145,7 +143,7 @@ You are connected to TestApp[37006] (in color!)
 
 Any call to `NSLog()` in your app's source code is now being sent live to your Terminal window. And when you connect to your app, as a convenience to make sure you haven't missed anything,  `XLTelnetServerLogger` will immediately replay all messages logged since the app was launched (this behavior can be changed).
 
-What's really interesting and useful however is connecting to your app while it's running on another Mac or on a real iPhone / iPad. As long as your home / office / WiFi network doesn't block communication on port `2323` (the default port used by `XLTelnetServerLogger`), you should be able to remotely connect by simply entering `telnet YOUR_DEVICE_IP_ADDRESS 2323` in Terminal on your computer. Note that connecting to your iOS app will not work while if it has been suspended by iOS while in background.
+What's really interesting and useful is connecting to your app while it's running on another Mac or on a real iPhone / iPad. As long as your home / office / WiFi network doesn't block communication on port `2323` (the default port used by `XLTelnetServerLogger`), you should be able to remotely connect by simply entering `telnet YOUR_DEVICE_IP_ADDRESS 2323` in Terminal on your computer.
 
 Of course, like you've already done above with `XLStandardLogger`, you can customize the format used by `XLTelnetServerLogger`, for instance like this:
 ```objectivec
@@ -162,10 +160,12 @@ Log Monitoring From Your Web Browser
 
 Do the same modification as you've done above to add suport for `XLTelnetServerLogger` but use `XLHTTPServerLogger` instead. When your app is running go to `http://127.0.0.1:8080/` or `http://YOUR_DEVICE_IP_ADDRESS:8080/` in your web browser. You should be able to see all the XLFacility log messages from your app since it started. The web page will even automatically refresh when new log messages are available.
 
+**IMPORTANT:** For the same reasons than for `XLTelnetServerLogger`, it's also not recommended that you ship your app on the App Store with `XLHTTPServerLogger` active by default.
+
 Onscreen Logging Overlay (iOS only)
 ===================================
 
-For iOS apps, you can easily have an overlay logging window that appears whenever log messagesy are sent to XLFacility. Simply take advantage of `XLUIKitOverlayLogger` like this:
+In iOS apps you can easily have an overlay logging window that appears whenever log messages are sent to XLFacility. Simply take advantage of `XLUIKitOverlayLogger` like this:
 ```objectivec
 #import "XLUIKitOverlayLogger.h"
 
@@ -183,9 +183,9 @@ For iOS apps, you can easily have an overlay logging window that appears wheneve
 Archiving Log Messages
 ======================
 
-There are a couple ways to save persistently across app launches the log messages sent to XLFacility:
+There are a couple ways to save persistently across app relaunches the log messages sent to XLFacility:
 
-The simplest solution is to use `XLFileLogger` to save log message to a plain text file like this:
+The simplest solution is to use `XLFileLogger` to save log messages to a plain text file like this:
 ```objectivec
 XLFileLogger* fileLogger = [[XLFileLogger alloc] initWithFilePath:@"my-file.log" append:YES];
 fileLogger.minLogLevel = kXLLogLevel_Error;
@@ -201,7 +201,7 @@ XLFileLogger* databaseLogger = [[XLFileLogger alloc] initWithFilePath:@"my-datab
 
 Note that `XLDatabaseLogger` serializes the log messages to the database as-is and does not format them i.e. its `format` property has no effect.
 
-You can easily "replay" later the saved log messages for instance to display them in a log window in your application interface or to send them to a server:
+You can easily "replay" later the saved log messages, for instance to display them in a log window in your application interface or to send them to a server:
 ```objectivec
 [databaseLogger enumerateRecordsAfterAbsoluteTime:0.0
                                          backward:NO
@@ -215,9 +215,9 @@ You can easily "replay" later the saved log messages for instance to display the
 Filtering XLFacility Log Messages
 =================================
 
-Use the `minLogLevel` property on the `XLFacility` shared instance to have XLFacility ignore all log messages below a certain level. If you want to "mute" entirely XLFacility, simply set the `minLogLevel` property to very a high value like `INT_MAX`.
+Use the `minLogLevel` property on the `XLFacility` shared instance to have XLFacility ignore all log messages below a certain level.
 
-You can also control the minimum and maximum log level on each logger using their `minLogLevel` and `maxLogLevel` properties. You can set a fully custom log record filter on a logger like this:
+You can also control the minimum and maximum log level on each logger using their `minLogLevel` and `maxLogLevel` properties. You can even set a fully custom log record filter on a logger like this:
 ```objectivec
 myLogger.logRecordFilter = ^BOOL(XLLogger* logger, XLLogRecord* record) {
   // Examine "record" properties and return YES to continue processing this record
@@ -235,14 +235,12 @@ If you want instead to log *all* exceptions, as they are created and wether or n
 
 In both cases, XLFacility will capture the current callstack as part of the log message.
 
-Capturing Stderr or Stdout
-==========================
+Capturing Stderr and Stdout
+===========================
 
 If you use XLFacility functions exclusively in your app to log messages, then everything you log from your source code will go to XLFacility. If you use third-party source code, you might be able to patch or override its calls to `NSLog()`, `printf()` or equivalent as demonstrated at the beginning of this document. However this will not work for Apple or third-party libraries or frameworks.
 
 XLFacility has a powerful feature that allows to capture the standard output and standard error from your app. Just call `[[XLFacility sharedFacility] enableCapturingOfStandardError]` (respectively `[[XLFacility sharedFacility] enableCapturingOfStandardOutput]`) and from this point on anything written to the standard output (respectively standard error) will be split on newlines boundaries and automatically become separate log messages in XLFacility with the `INFO` (respectively `ERROR`) level.
-
-Note that you can still use `[XLStandardLogger sharedOutputLogger]` or `[XLStandardLogger sharedErrorLogger]` as XLFacility will prevent infinite loops.
 
 Writing Custom Loggers
 ======================
