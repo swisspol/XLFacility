@@ -52,7 +52,7 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @property(nonatomic, readonly) NSSet* loggers;
 + (XLFacility*)sharedFacility;
 - (XLLogger*)addLogger:(XLLogger*)logger;  // Returns the logger if added successfully
-- (BOOL)removeLogger:(XLLogger*)logger;  // Return YES if the logger was found (and therefore removed)
+- (void)removeLogger:(XLLogger*)logger;
 - (void)removeAllLoggers;
 @end
 

@@ -161,16 +161,13 @@ static void _ExitHandler() {
   return addedLogger;
 }
 
-- (BOOL)removeLogger:(XLLogger*)logger {
-  __block BOOL success = NO;
+- (void)removeLogger:(XLLogger*)logger {
   dispatch_sync(_lockQueue, ^{
     if ([_loggers containsObject:logger]) {
       [logger close];
       [_loggers removeObject:logger];
-      success = YES;
     }
   });
-  return success;
 }
 
 - (void)removeAllLoggers {
