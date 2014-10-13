@@ -62,11 +62,9 @@
 }
 
 - (void)logRecord:(XLLogRecord*)record {
-  static int levelMapping[] = {ASL_LEVEL_DEBUG, ASL_LEVEL_INFO, ASL_LEVEL_NOTICE, ASL_LEVEL_WARNING, ASL_LEVEL_ERR, ASL_LEVEL_CRIT, ASL_LEVEL_ALERT};
+  static const char* levelMapping[] = {"7", "6", "5", "4", "3", "2", "1"};
   aslmsg message = asl_new(ASL_TYPE_MSG);
-  char level[2];
-  snprintf(level, sizeof(level), "%d", levelMapping[record.logLevel]);
-  asl_set(message, ASL_KEY_LEVEL, level);
+  asl_set(message, ASL_KEY_LEVEL, levelMapping[record.logLevel]);
   asl_set(message, ASL_KEY_MSG, XLConvertNSStringToUTF8CString(record.message));
   asl_send(_client, message);  // This automatically sets ASL_KEY_TIME with no possibility to override
   asl_free(message);
