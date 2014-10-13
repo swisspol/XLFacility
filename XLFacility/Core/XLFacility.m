@@ -45,12 +45,14 @@
 #define kInvalidUTF8Placeholder "<INVALID UTF8 STRING>"
 #endif
 
+typedef id (*ExceptionInitializerIMP)(id self, SEL cmd, NSString* name, NSString* reason, NSDictionary* userInfo);
+
 XLFacility* XLSharedFacility = nil;
 int XLOriginalStdOut = 0;
 int XLOriginalStdErr = 0;
 
 static NSUncaughtExceptionHandler* _originalExceptionHandler = NULL;
-static IMP _originalExceptionInitializerIMP = NULL;
+static ExceptionInitializerIMP _originalExceptionInitializerIMP = NULL;
 
 static dispatch_source_t _stdOutCaptureSource = NULL;
 static dispatch_source_t _stdErrCaptureSource = NULL;
@@ -343,7 +345,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 + (void)enableLoggingOfInitializedExceptions {
   if (!_originalExceptionInitializerIMP) {
     Method method = class_getInstanceMethod([NSException class], @selector(initWithName:reason:userInfo:));
-    _originalExceptionInitializerIMP = method_setImplementation(method, (IMP)&_ExceptionInitializer);
+    _originalExceptionInitializerIMP = (ExceptionInitializerIMP)method_setImplementation(method, (IMP)&_ExceptionInitializer);
   }
 }
 
