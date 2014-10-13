@@ -289,18 +289,20 @@ static NSString* _uid = nil;
   
   if (_multilinesPrefix.length) {
     NSArray* components = [string componentsSeparatedByString:@"\n"];
-    [string replaceCharactersInRange:NSMakeRange(0, string.length) withString:@""];
-    [components enumerateObjectsUsingBlock:^(NSString* component, NSUInteger idx, BOOL* stop) {
-      if (idx > 0) {
-        [string appendString:@"\n"];
-      }
-      if (component.length) {
+    if ((components.count != 1) && !((components.count == 2) && ![components[1] length])) {  // Fast path if there are no newlines or just a trailing one
+      [string replaceCharactersInRange:NSMakeRange(0, string.length) withString:@""];
+      [components enumerateObjectsUsingBlock:^(NSString* component, NSUInteger idx, BOOL* stop) {
         if (idx > 0) {
-          [string appendString:_multilinesPrefix];
+          [string appendString:@"\n"];
         }
-        [string appendString:component];
-      }
-    }];
+        if (component.length) {
+          if (idx > 0) {
+            [string appendString:_multilinesPrefix];
+          }
+          [string appendString:component];
+        }
+      }];
+    }
   }
   
   return string;
