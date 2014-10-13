@@ -171,11 +171,15 @@ static void _ExitHandler() {
 }
 
 - (XLLogger*)addLogger:(XLLogger*)logger {
-  __block XLLogger* addedLogger = nil;
+  __block XLLogger* addedLogger;
   dispatch_sync(_lockQueue, ^{
-    if (![_loggers containsObject:logger] && [logger open]) {
-      [_loggers addObject:logger];
-      addedLogger = logger;
+    if (![_loggers containsObject:logger]) {
+      dispatch_sync(logger.serialQueue, ^{
+        addedLogger = [logger open] ? logger : nil;
+      });
+      if (addedLogger) {
+        [_loggers addObject:addedLogger];
+      }
     }
   });
   return addedLogger;
@@ -184,8 +188,9 @@ static void _ExitHandler() {
 - (void)removeLogger:(XLLogger*)logger {
   dispatch_sync(_lockQueue, ^{
     if ([_loggers containsObject:logger]) {
-      dispatch_sync(logger.serialQueue, ^{});  // Wait for logger to be done
-      [logger close];
+      dispatch_sync(logger.serialQueue, ^{
+        [logger close];
+      });
       [_loggers removeObject:logger];
     }
   });
@@ -193,9 +198,10 @@ static void _ExitHandler() {
 
 - (void)removeAllLoggers {
   dispatch_sync(_lockQueue, ^{
-    dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);  // Wait for all loggers to be done
     for (XLLogger* logger in _loggers) {
-      [logger close];
+      dispatch_sync(logger.serialQueue, ^{
+        [logger close];
+      });
     }
     [_loggers removeAllObjects];
   });
@@ -250,7 +256,9 @@ static void _ExitHandler() {
     // If the log record is at ABORT level, close all loggers and kill the process
     if (level >= kXLLogLevel_Abort) {
       for (XLLogger* logger in _loggers) {
-        [logger close];
+        dispatch_sync(logger.serialQueue, ^{
+          [logger close];
+        });
       }
       abort();
     }

@@ -50,8 +50,17 @@ extern NSString* const XLLoggerFormatString_NSLog;
 /**
  *  The XLLogger class is an abstract class for loggers that receive log records
  *  from XLFacility: it cannot be used directly.
+ *
+ *  @warning Each logger has its own internal GCD serial queue and -open,
+ *  -logRecord: and -close are always executed on it.
  */
 @interface XLLogger : NSObject
+
+/**
+ *  Returns a GCD serial queue subclasses can use to protect internal data
+ *  that can be accessed concurrently from multiple threads.
+ */
+@property(nonatomic, readonly) dispatch_queue_t lockQueue;
 
 /**
  *  Sets the minimum log level below which received log records are ignored.
@@ -82,14 +91,6 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  The default implementation does nothing.
  */
 - (BOOL)open;
-
-/**
- *  Called by XLFacility to check if the logger should receive a log record.
- *
- *  The default implementation checks the log record against min & max log levels
- *  and applies the log record filter if defined.
- */
-- (BOOL)shouldLogRecord:(XLLogRecord*)record;
 
 /**
  *  Called whenever a log record is received from XLFacility.

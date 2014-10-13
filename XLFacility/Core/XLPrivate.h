@@ -47,4 +47,5 @@ extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
 
 @interface XLLogger ()
 @property(nonatomic, readonly) dispatch_queue_t serialQueue;
+- (BOOL)shouldLogRecord:(XLLogRecord*)record;
 @end

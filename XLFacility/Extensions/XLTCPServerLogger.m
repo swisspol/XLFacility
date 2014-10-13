@@ -147,7 +147,6 @@ static NSString* _StringFromAddressData(NSData* data) {
 @interface XLTCPServerLogger () {
 @private
   BOOL _useDatabase;
-  dispatch_queue_t _lockQueue;
   dispatch_group_t _syncGroup;
   dispatch_semaphore_t _sourceSemaphore;
   NSMutableSet* _connections;
@@ -171,7 +170,6 @@ static NSString* _StringFromAddressData(NSData* data) {
     _port = port;
     _useDatabase = useDatabaseLogger;
     
-    _lockQueue = dispatch_queue_create(object_getClassName(self), DISPATCH_QUEUE_SERIAL);
     _syncGroup = dispatch_group_create();
     _sourceSemaphore = dispatch_semaphore_create(0);
     _connections = [[NSMutableSet alloc] init];
@@ -184,21 +182,20 @@ static NSString* _StringFromAddressData(NSData* data) {
 - (void)dealloc {
   dispatch_release(_sourceSemaphore);
   dispatch_release(_syncGroup);
-  dispatch_release(_lockQueue);
 }
 
 #endif
 
 - (NSSet*)connections {
   __block NSSet* connections;
-  dispatch_sync(_lockQueue, ^{
+  dispatch_sync(self.lockQueue, ^{
     connections = [_connections copy];
   });
   return connections;
 }
 
 - (void)didCloseConnection:(XLTCPServerConnection*)connection {
-  dispatch_sync(_lockQueue, ^{
+  dispatch_sync(self.lockQueue, ^{
     if ([_connections containsObject:connection]) {
       [_connections removeObject:connection];
       dispatch_group_leave(_syncGroup);
@@ -257,9 +254,9 @@ static NSString* _StringFromAddressData(NSData* data) {
               } else {
                 XLOG_INTERNAL(@"Failed retrieving local socket address: %s", strerror(errno));
               }
-            
+              
               XLTCPServerConnection* connection = [[[[self class] connectionClass] alloc] initWithServer:self localAddress:localAddress remoteAddress:remoteAddress socket:socket];
-              dispatch_sync(_lockQueue, ^{
+              dispatch_sync(self.lockQueue, ^{
                 dispatch_group_enter(_syncGroup);
                 [_connections addObject:connection];
               });
@@ -321,7 +318,7 @@ static NSString* _StringFromAddressData(NSData* data) {
 }
 
 - (void)enumerateConnectionsUsingBlock:(void (^)(XLTCPServerConnection* connection, BOOL* stop))block {
-  dispatch_sync(_lockQueue, ^{
+  dispatch_sync(self.lockQueue, ^{
     BOOL stop = NO;
     for (XLTCPServerConnection* connection in _connections) {
       block(connection, &stop);

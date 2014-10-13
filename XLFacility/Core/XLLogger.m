@@ -94,6 +94,7 @@ static NSString* _uid = nil;
 - (id)init {
   if ((self = [super init])) {
     _serialQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
+    _lockQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
     _minLogLevel = kXLMinLogLevel;
     _maxLogLevel = kXLMaxLogLevel;
     _datetimeFormatter = [[NSDateFormatter alloc] init];
@@ -110,6 +111,7 @@ static NSString* _uid = nil;
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 
 - (void)dealloc {
+  dispatch_release(_lockQueue);
   dispatch_release(_serialQueue);
 }
 
@@ -323,7 +325,10 @@ static NSString* _uid = nil;
       }
       
       case kFormatToken_DateTime: {
-        NSString* datetime = [_datetimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:record.absoluteTime]];
+        __block NSString* datetime;
+        dispatch_sync(_lockQueue, ^{
+          datetime = [_datetimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:record.absoluteTime]];  // NSDateFormatter is not thread-safe so use serial lock in case -formatRecord: is called on multiple threads in parallel
+        });
         if (datetime.length) {
           [string appendString:datetime];
         }
