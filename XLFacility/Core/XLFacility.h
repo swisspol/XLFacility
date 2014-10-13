@@ -43,6 +43,14 @@ typedef NS_ENUM(int, XLLogLevel) {
 };
 
 /**
+ *  Converts a NSString to an UTF-8 string.
+ *
+ *  Contrary to -[NSString dataUsingEncoding:] this function is guaranteed
+ *  to return a non-nil result as long as the input string is not nil.
+ */
+extern NSData* XLConvertNSStringToUTF8String(NSString* string);
+
+/**
  *  Converts a NSString to an UTF-8 NULL terminated C string.
  *
  *  Contrary to -[NSString UTF8String] this function is guaranteed to return

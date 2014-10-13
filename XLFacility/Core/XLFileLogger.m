@@ -85,8 +85,8 @@
 // We are using write() which is not buffered contrary to fwrite() so no flushing is needed
 - (void)logRecord:(XLLogRecord*)record {
   if (_fd > 0) {
-    const char* string = XLConvertNSStringToUTF8CString([self formatRecord:record]);
-    if (write(_fd, string, strlen(string)) < 0) {
+    NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
+    if (write(_fd, data.bytes, data.length) < 0) {
       XLOG_INTERNAL(@"Failed writing to log file at \"%@\": %s", _filePath, strerror(errno));
       close(_fd);
       _fd = 0;

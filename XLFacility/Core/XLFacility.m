@@ -41,6 +41,10 @@
 #define kFileDescriptorCaptureBufferSize 1024
 #define kCapturedNSLogPrefix @"(NSLog) "
 
+#if !DEBUG
+#define kInvalidUTF8Placeholder "<INVALID UTF8 STRING>"
+#endif
+
 XLFacility* XLSharedFacility = nil;
 int XLOriginalStdOut = 0;
 int XLOriginalStdErr = 0;
@@ -71,6 +75,21 @@ void XLLogInternalError(NSString* format, ...) {
 #endif
 }
 
+NSData* XLConvertNSStringToUTF8String(NSString* string) {
+  NSData* utf8Data = nil;
+  if (string) {
+    utf8Data = [string dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:NO];
+    if (!utf8Data) {
+#if DEBUG
+      abort();
+#else
+      utf8Data = [NSData dataWithBytesNoCopy:kInvalidUTF8Placeholder length:strlen(kInvalidUTF8Placeholder) freeWhenDone:NO];
+#endif
+    }
+  }
+  return utf8Data;
+}
+
 const char* XLConvertNSStringToUTF8CString(NSString* string) {
   const char* utf8String = NULL;
   if (string) {
@@ -80,7 +99,7 @@ const char* XLConvertNSStringToUTF8CString(NSString* string) {
 #if DEBUG
       abort();
 #else
-      utf8String = "<INVALID UTF8 STRING>";
+      utf8String = kInvalidUTF8Placeholder;
 #endif
     }
   }
