@@ -39,6 +39,7 @@
 #define kMinLogLevelEnvironmentVariable "XLFacilityMinLogLevel"
 
 #define kFileDescriptorCaptureBufferSize 1024
+#define kCapturedNSLogPrefix @"(NSLog) "
 
 XLFacility* XLSharedFacility = nil;
 int XLOriginalStdOut = 0;
@@ -340,7 +341,9 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
   }
 }
 
-static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel level) {
+static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel level, BOOL detectNSLogFormatting) {
+  size_t prognameLength = strlen(getprogname());
+  
   int fildes[2];
   pipe(fildes);  // [0] is read end of pipe while [1] is write end
   dup2(fildes[1], fd);  // Duplicate write end of pipe "onto" fd (this closes fd)
@@ -353,6 +356,7 @@ static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel leve
   dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, fd, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
   dispatch_source_set_event_handler(source, ^{
     @autoreleasepool {
+      
       while (1) {
         ssize_t size = read(fd, buffer, kFileDescriptorCaptureBufferSize);
         if (size <= 0) {
@@ -363,20 +367,40 @@ static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel leve
           break;
         }
       }
+      
       while (1) {
         NSRange range = [data rangeOfData:[NSData dataWithBytes:"\n" length:1] options:0 range:NSMakeRange(0, data.length)];
         if (range.location == NSNotFound) {
           break;
         }
         @try {
-          NSString* message = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, range.location)] encoding:NSUTF8StringEncoding];
-          [XLSharedFacility logMessage:message withLevel:level];
+          NSUInteger offset = 0;
+          
+          if (detectNSLogFormatting && (range.location > 24 + prognameLength + 4)) {  // "yyyy-mm-dd HH:MM:ss.SSS progname[:] "
+            const char* bytes = (const char*)data.bytes;
+            if ((bytes[4] == '-') && (bytes[7] == '-') && (bytes[10] == ' ') && (bytes[13] == ':') && (bytes[16] == ':') && (bytes[19] == '.')) {
+              if ((bytes[23] == ' ') && /*!strncmp(&bytes[24], pname, prognameLength) &&*/ (bytes[24 + prognameLength] == '[')) {
+                const char* found = strnstr(&bytes[24 + prognameLength + 1], "] ", data.length - (24 + prognameLength + 1));
+                if (found) {
+                  offset = found - bytes + 2;
+                }
+              }
+            }
+          }
+          
+          NSString* message = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(offset, range.location - offset)] encoding:NSUTF8StringEncoding];
+          if (message) {
+            [XLSharedFacility logMessage:(offset ? [kCapturedNSLogPrefix stringByAppendingString:message] : message) withLevel:level];
+          } else {
+            XLLogInternalError(@"%@", @"Failed interpreting captured content from standard file descriptor as UTF8");
+          }
         }
         @catch (NSException* exception) {
-          XLLogInternalError(@"Failed capturing writing to file descriptor: %@", exception);
+          XLLogInternalError(@"Failed parsing captured content from standard file descriptor: %@", exception);
         }
         [data replaceBytesInRange:NSMakeRange(0, range.location + range.length) withBytes:NULL length:0];
       }
+      
     }
   });
   dispatch_resume(source);
@@ -385,13 +409,13 @@ static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel leve
 
 + (void)enableCapturingOfStandardOutput {
   if (!_stdOutCaptureSource) {
-    _stdOutCaptureSource = _CaptureWritingToFileDescriptor(STDOUT_FILENO, kXLLogLevel_Info);
+    _stdOutCaptureSource = _CaptureWritingToFileDescriptor(STDOUT_FILENO, kXLLogLevel_Info, NO);
   }
 }
 
 + (void)enableCapturingOfStandardError {
   if (!_stdErrCaptureSource) {
-    _stdErrCaptureSource = _CaptureWritingToFileDescriptor(STDERR_FILENO, kXLLogLevel_Error);
+    _stdErrCaptureSource = _CaptureWritingToFileDescriptor(STDERR_FILENO, kXLLogLevel_Error, YES);
   }
 }
 
