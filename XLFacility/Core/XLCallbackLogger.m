@@ -45,6 +45,11 @@
   return [[[self class] alloc] initWithOpenCallback:NULL logRecordCallback:callback closeCallback:NULL];
 }
 
+- (id)init {
+  [self doesNotRecognizeSelector:_cmd];
+  return nil;
+}
+
 - (instancetype)initWithOpenCallback:(XLCallbackLoggerOpenBlock)openCallback
                    logRecordCallback:(XLCallbackLoggerLogRecordBlock)logRecordCallback
                        closeCallback:(XLCallbackLoggerCloseBlock)closeCallback {
