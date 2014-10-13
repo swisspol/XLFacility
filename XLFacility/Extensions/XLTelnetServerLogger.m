@@ -35,7 +35,6 @@
 #import "XLTelnetServerLogger.h"
 #import "XLPrivate.h"
 
-#define kDefaultPort 2323
 #define kMaxPendingConnections 4
 #define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 
@@ -52,7 +51,7 @@
 @implementation XLTelnetServerLogger
 
 - (id)init {
-  return [self initWithPort:kDefaultPort preserveHistory:YES];
+  return [self initWithPort:2323 preserveHistory:YES];
 }
 
 - (id)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory {

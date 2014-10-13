@@ -35,7 +35,6 @@
 #import "XLHTTPServerLogger.h"
 #import "XLPrivate.h"
 
-#define kDefaultPort 8080
 #define kMaxPendingConnections 4
 #define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 #define kMinRefreshDelay 500  // In milliseconds
@@ -79,7 +78,7 @@
 @implementation XLHTTPServerLogger
 
 - (id)init {
-  return [self initWithPort:kDefaultPort];
+  return [self initWithPort:8080];
 }
 
 - (id)initWithPort:(NSUInteger)port {
