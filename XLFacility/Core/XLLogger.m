@@ -381,7 +381,7 @@ static NSString* _uid = nil;
 
 - (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record {
   NSArray* components = [record.message componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-  return [components componentsJoinedByString:@"\n"];
+  return (components.count > 1 ? [components componentsJoinedByString:@"\n"] : record.message);
 }
 
 - (NSString*)formatCallstackFromRecord:(XLLogRecord*)record {
