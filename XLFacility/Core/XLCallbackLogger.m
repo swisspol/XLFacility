@@ -33,25 +33,41 @@
 
 @interface XLCallbackLogger () {
 @private
-  XLCallbackLoggerBlock _block;
+  XLCallbackLoggerOpenBlock _openBlock;
+  XLCallbackLoggerLogRecordBlock _logRecordBlock;
+  XLCallbackLoggerCloseBlock _closeBlock;
 }
 @end
 
 @implementation XLCallbackLogger
 
-+ (instancetype)loggerWithCallback:(XLCallbackLoggerBlock)callback {
-  return [[[self class] alloc] initWithCallback:callback];
++ (instancetype)loggerWithCallback:(XLCallbackLoggerLogRecordBlock)callback {
+  return [[[self class] alloc] initWithOpenCallback:NULL logRecordCallback:callback closeCallback:NULL];
 }
 
-- (instancetype)initWithCallback:(XLCallbackLoggerBlock)callback {
+- (instancetype)initWithOpenCallback:(XLCallbackLoggerOpenBlock)openCallback
+                   logRecordCallback:(XLCallbackLoggerLogRecordBlock)logRecordCallback
+                       closeCallback:(XLCallbackLoggerCloseBlock)closeCallback {
   if ((self = [super init])) {
-    _block = callback;
+    _openBlock = openCallback;
+    _logRecordBlock = logRecordCallback;
+    _closeBlock = closeCallback;
   }
   return self;
 }
 
+- (BOOL)open {
+  return _openBlock ? _openBlock(self) : YES;
+}
+
 - (void)logRecord:(XLLogRecord*)record {
-  _block(self, record);
+  _logRecordBlock(self, record);
+}
+
+- (void)close {
+  if (_closeBlock) {
+    _closeBlock(self);
+  }
 }
 
 @end

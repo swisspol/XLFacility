@@ -30,26 +30,42 @@
 @class XLCallbackLogger;
 
 /**
- *  The XLCallbackLoggerBlock is called by the logger for every log record received.
+ *  The XLCallbackLoggerOpenBlock is called by the logger when added to XLFacility.
  *
- *  @warning This block will be executed on arbitrary thread and also needs to be
- *  reentrant if used with multiple XLCallbackLogger instances.
+ *  @warning This block will be executed on arbitrary threads.
  */
-typedef void (^XLCallbackLoggerBlock)(XLCallbackLogger* logger, XLLogRecord* record);
+typedef BOOL (^XLCallbackLoggerOpenBlock)(XLCallbackLogger* logger);
 
 /**
- *  The XLCallbackLogger subclass of XLLogger logs records to a GCD block callback.
+ *  The XLCallbackLoggerBlock is called by the logger for every log record received.
+ *
+ *  @warning This block will be executed on arbitrary threads and also needs to be
+ *  reentrant if used with multiple XLCallbackLogger instances.
+ */
+typedef void (^XLCallbackLoggerLogRecordBlock)(XLCallbackLogger* logger, XLLogRecord* record);
+
+/**
+ *  The XLCallbackLoggerCloseBlock is called by the logger when removed from XLFacility.
+ *
+ *  @warning This block will be executed on arbitrary threads.
+ */
+typedef void (^XLCallbackLoggerCloseBlock)(XLCallbackLogger* logger);
+
+/**
+ *  The XLCallbackLogger subclass of XLLogger implements a logger through GCD callbacks.
  */
 @interface XLCallbackLogger : XLLogger
 
 /**
- *  Creates a logger with a GCD block callback.
+ *  Creates a logger with a log record callback.
  */
-+ (instancetype)loggerWithCallback:(XLCallbackLoggerBlock)callback;
++ (instancetype)loggerWithCallback:(XLCallbackLoggerLogRecordBlock)callback;
 
 /**
  *  This method is the designated initializer for the class.
  */
-- (instancetype)initWithCallback:(XLCallbackLoggerBlock)callback;
+- (instancetype)initWithOpenCallback:(XLCallbackLoggerOpenBlock)openCallback
+                   logRecordCallback:(XLCallbackLoggerLogRecordBlock)logRecordCallback
+                       closeCallback:(XLCallbackLoggerCloseBlock)closeCallback;
 
 @end
