@@ -236,10 +236,8 @@ static void _ExitHandler() {
     // Call loggers asynchronously
     for (XLLogger* logger in _loggers) {
       if ([logger shouldLogRecord:record]) {
-        dispatch_group_enter(_syncGroup);
-        dispatch_async(logger.serialQueue, ^{
+        dispatch_group_async(_syncGroup, logger.serialQueue, ^{
           [logger logRecord:record];
-          dispatch_group_leave(_syncGroup);
         });
       }
     }
