@@ -50,11 +50,11 @@
 
 @implementation XLTelnetServerLogger
 
-- (id)init {
+- (instancetype)init {
   return [self initWithPort:2323 preserveHistory:YES];
 }
 
-- (id)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory {
+- (instancetype)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory {
   NSString* databasePath = preserveHistory ? [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]] : nil;
   if ((self = [super initWithDatabasePath:databasePath appVersion:0])) {
     _port = port;

@@ -50,7 +50,7 @@
   return nil;
 }
 
-- (id)initWithDatabasePath:(NSString*)path appVersion:(int)appVersion {
+- (instancetype)initWithDatabasePath:(NSString*)path appVersion:(int)appVersion {
   if ((self = [super init])) {
     _databasePath = [path copy];
     _appVersion = appVersion;

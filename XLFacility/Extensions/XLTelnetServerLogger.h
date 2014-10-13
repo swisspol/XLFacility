@@ -59,13 +59,13 @@
 /**
  *  Initializes a Telnet server on port 2323 that preserves history.
  */
-- (id)init;
+- (instancetype)init;
 
 /**
  *  This method is the designated initializer for the class.
  *
  *  @warning The Telnet server is not running until the logger is opened.
  */
-- (id)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory;
+- (instancetype)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory;
 
 @end

@@ -55,7 +55,7 @@
  *  @warning The database file is not created or opened until the logger is
  *  opened.
  */
-- (id)initWithDatabasePath:(NSString*)path appVersion:(int)appVersion;
+- (instancetype)initWithDatabasePath:(NSString*)path appVersion:(int)appVersion;
 
 /**
  *  Deletes records from the database that are older than a specific time.

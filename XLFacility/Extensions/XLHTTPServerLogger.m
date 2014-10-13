@@ -43,7 +43,7 @@
 @interface XLHTTPServerConnection : NSObject
 @property(nonatomic, readonly) int socket;
 @property(nonatomic, readonly) dispatch_semaphore_t semaphore;
-@property(nonatomic) BOOL longPolling;
+@property(nonatomic, getter=isLongPolling) BOOL longPolling;
 @end
 
 @implementation XLHTTPServerConnection
@@ -77,11 +77,11 @@
 
 @implementation XLHTTPServerLogger
 
-- (id)init {
+- (instancetype)init {
   return [self initWithPort:8080];
 }
 
-- (id)initWithPort:(NSUInteger)port {
+- (instancetype)initWithPort:(NSUInteger)port {
   NSString* databasePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
   if ((self = [super initWithDatabasePath:databasePath appVersion:0])) {
     _port = port;

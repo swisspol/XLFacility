@@ -38,9 +38,6 @@
  *
  *  XLHTTPServerLogger uses HTTP long-polling to automatically refresh the webpage
  *  when new log records are received by the logger.
- *
- *  @warning On iOS, connecting to the server will not work while your app has
- *  been suspended by the OS while in background.
  */
 @interface XLHTTPServerLogger : XLDatabaseLogger
 
@@ -52,13 +49,13 @@
 /**
  *  Initializes an HTTP server on port 8080.
  */
-- (id)init;
+- (instancetype)init;
 
 /**
  *  This method is the designated initializer for the class.
  *
  *  @warning The HTTP server is not running until the logger is opened.
  */
-- (id)initWithPort:(NSUInteger)port;
+- (instancetype)initWithPort:(NSUInteger)port;
 
 @end
