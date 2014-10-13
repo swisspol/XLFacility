@@ -169,10 +169,7 @@
                     [self enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
                       [history appendString:[self _formatRecord:record]];
                     }];
-                    const char* message = XLConvertNSStringToUTF8CString(history);
-                    if (message) {
-                      [self _writeCString:message toSocket:number];
-                    }
+                    [self _writeCString:XLConvertNSStringToUTF8CString(history) toSocket:number];
                   }
                 });
               } else {
@@ -204,17 +201,15 @@
   }
   
   const char* string = XLConvertNSStringToUTF8CString([self _formatRecord:record]);
-  if (string) {
-    dispatch_data_t data = dispatch_data_create(string, strlen(string), kDispatchQueue, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
-    dispatch_async(_lockQueue, ^{
-      for (NSNumber* socket in _connections) {
-        [self _writeData:data toSocket:socket];
-      }
+  dispatch_data_t data = dispatch_data_create(string, strlen(string), kDispatchQueue, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+  dispatch_async(_lockQueue, ^{
+    for (NSNumber* socket in _connections) {
+      [self _writeData:data toSocket:socket];
+    }
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-      dispatch_release(data);
+    dispatch_release(data);
 #endif
-    });
-  }
+  });
 }
 
 - (void)close {

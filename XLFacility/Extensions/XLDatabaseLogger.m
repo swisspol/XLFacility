@@ -79,31 +79,28 @@
 }
 
 - (void)logRecord:(XLLogRecord*)record {
-  const char* message = XLConvertNSStringToUTF8CString(record.message);
-  const char* callstack = XLConvertNSStringToUTF8CString([record.callstack componentsJoinedByString:@"\n"]);
+  sqlite3_bind_double(_statement, 1, record.absoluteTime);
+  sqlite3_bind_int(_statement, 2, record.logLevel);
+  sqlite3_bind_text(_statement, 3, XLConvertNSStringToUTF8CString(record.message), -1, SQLITE_STATIC);
+  sqlite3_bind_int(_statement, 4, record.capturedErrno);
+  sqlite3_bind_int(_statement, 5, record.capturedThreadID);
   const char* label = XLConvertNSStringToUTF8CString(record.capturedQueueLabel);
-  if (message) {
-    sqlite3_bind_double(_statement, 1, record.absoluteTime);
-    sqlite3_bind_int(_statement, 2, record.logLevel);
-    sqlite3_bind_text(_statement, 3, message, -1, SQLITE_STATIC);
-    sqlite3_bind_int(_statement, 4, record.capturedErrno);
-    sqlite3_bind_int(_statement, 5, record.capturedThreadID);
-    if (label) {
-      sqlite3_bind_text(_statement, 6, label, -1, SQLITE_STATIC);
-    } else {
-      sqlite3_bind_null(_statement, 6);
-    }
-    if (callstack) {
-      sqlite3_bind_text(_statement, 7, callstack, -1, SQLITE_STATIC);
-    } else {
-      sqlite3_bind_null(_statement, 7);
-    }
-    if (sqlite3_step(_statement) != SQLITE_DONE) {
-      XLOG_INTERNAL(@"Failed writing to database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
-    }
-    sqlite3_reset(_statement);
-    sqlite3_clear_bindings(_statement);
+  if (label) {
+    sqlite3_bind_text(_statement, 6, label, -1, SQLITE_STATIC);
+  } else {
+    sqlite3_bind_null(_statement, 6);
   }
+  const char* callstack = XLConvertNSStringToUTF8CString([record.callstack componentsJoinedByString:@"\n"]);
+  if (callstack) {
+    sqlite3_bind_text(_statement, 7, callstack, -1, SQLITE_STATIC);
+  } else {
+    sqlite3_bind_null(_statement, 7);
+  }
+  if (sqlite3_step(_statement) != SQLITE_DONE) {
+    XLOG_INTERNAL(@"Failed writing to database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
+  }
+  sqlite3_reset(_statement);
+  sqlite3_clear_bindings(_statement);
 }
 
 - (void)close {

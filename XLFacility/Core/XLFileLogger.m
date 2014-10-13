@@ -96,12 +96,10 @@
 // We are using write() which is not buffered contrary to fwrite() so no flushing is needed
 - (void)_writeString:(NSString*)string {
   const char* utf8String = XLConvertNSStringToUTF8CString(string);
-  if (utf8String) {
-    if (write(_fd, utf8String, strlen(utf8String)) < 0) {
-      XLOG_INTERNAL(@"Failed writing to log file at \"%@\": %s", _filePath, strerror(errno));
-      close(_fd);
-      _fd = 0;
-    }
+  if (write(_fd, utf8String, strlen(utf8String)) < 0) {
+    XLOG_INTERNAL(@"Failed writing to log file at \"%@\": %s", _filePath, strerror(errno));
+    close(_fd);
+    _fd = 0;
   }
 }
 
