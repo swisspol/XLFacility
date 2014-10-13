@@ -90,7 +90,7 @@ const char* XLConvertNSStringToUTF8CString(NSString* string) {
 @interface XLFacility () {
 @private
   dispatch_queue_t _lockQueue;
-  dispatch_group_t _destinationGroup;
+  dispatch_group_t _syncGroup;
   NSMutableSet* _loggers;
 }
 @end
@@ -131,9 +131,8 @@ static void _ExitHandler() {
     _minCaptureCallstackLevel = kXLLogLevel_Exception;
     
     _lockQueue = dispatch_queue_create(object_getClassName(self), DISPATCH_QUEUE_SERIAL);
-    _destinationGroup = dispatch_group_create();
+    _syncGroup = dispatch_group_create();
     _loggers = [[NSMutableSet alloc] init];
-    _callsLoggersConcurrently = YES;
     
     if (isatty(XLOriginalStdErr)) {
       [self addLogger:[XLStandardLogger sharedErrorLogger]];
@@ -164,6 +163,7 @@ static void _ExitHandler() {
 - (void)removeLogger:(XLLogger*)logger {
   dispatch_sync(_lockQueue, ^{
     if ([_loggers containsObject:logger]) {
+      dispatch_sync(logger.serialQueue, ^{});  // Wait for logger to be done
       [logger close];
       [_loggers removeObject:logger];
     }
@@ -172,6 +172,7 @@ static void _ExitHandler() {
 
 - (void)removeAllLoggers {
   dispatch_sync(_lockQueue, ^{
+    dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);  // Wait for all loggers to be done
     for (XLLogger* logger in _loggers) {
       [logger close];
     }
@@ -184,13 +185,16 @@ static void _ExitHandler() {
 @implementation XLFacility (Logging)
 
 - (void)_logMessage:(NSString*)message withLevel:(XLLogLevel)level callstack:(NSArray*)callstack {
-  CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
   if (level < kXLMinLogLevel) {
     level = kXLMinLogLevel;
   } else if (level > kXLMaxLogLevel) {
     level = kXLMaxLogLevel;
   }
   
+  // Save current absolute time
+  CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
+  
+  // Capture current callstack if necessary (using the same format as -[NSException callStackSymbols])
   if ((level >= _minCaptureCallstackLevel) && !callstack) {
     void* backtraceFrames[128];
     int frameCount = backtrace(backtraceFrames, sizeof(backtraceFrames) / sizeof(void*));
@@ -204,30 +208,34 @@ static void _ExitHandler() {
     }
   }
   
+  // Create the log record and dispatch to all loggers
   XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time logLevel:level message:message callstack:callstack];
   dispatch_sync(_lockQueue, ^{
-    dispatch_queue_t concurrentQueue = _loggers.count > 1 && _callsLoggersConcurrently ? dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) : NULL;
+    
+    // Call loggers asynchronously
     for (XLLogger* logger in _loggers) {
       if ([logger shouldLogRecord:record]) {
-        if (concurrentQueue) {
-          dispatch_group_async(_destinationGroup, concurrentQueue, ^{
-            [logger logRecord:record];
-          });
-        } else {
+        dispatch_group_enter(_syncGroup);
+        dispatch_async(logger.serialQueue, ^{
           [logger logRecord:record];
-        }
+          dispatch_group_leave(_syncGroup);
+        });
       }
     }
-    if (concurrentQueue) {
-      dispatch_group_wait(_destinationGroup, DISPATCH_TIME_FOREVER);
+    
+    // If the log record is at ERROR level or above, block XLFacility entirely until all loggers are done
+    if (level >= kXLLogLevel_Error) {
+      dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);
     }
     
+    // If the log record is at ABORT level, close all loggers and kill the process
     if (level >= kXLLogLevel_Abort) {
       for (XLLogger* logger in _loggers) {
         [logger close];
       }
       abort();
     }
+    
   });
 }
 

@@ -44,3 +44,7 @@ extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
                  callstack:(NSArray*)callstack;
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime logLevel:(XLLogLevel)logLevel message:(NSString*)message callstack:(NSArray*)callstack;
 @end
+
+@interface XLLogger ()
+@property(nonatomic, readonly) dispatch_queue_t serialQueue;
+@end

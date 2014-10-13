@@ -37,7 +37,6 @@
   int _fd;
   BOOL _close;
   BOOL _append;
-  dispatch_queue_t _writeQueue;
 }
 @end
 
@@ -48,15 +47,8 @@
   return nil;
 }
 
-- (id)_init {
-  if ((self = [super init])) {
-    _writeQueue = dispatch_queue_create(object_getClassName(self), DISPATCH_QUEUE_SERIAL);
-  }
-  return self;
-}
-
 - (instancetype)initWithFilePath:(NSString*)path append:(BOOL)append {
-  if ((self = [self _init])) {
+  if ((self = [super init])) {
     _filePath = [path copy];
     _append = append;
   }
@@ -64,7 +56,7 @@
 }
 
 - (instancetype)initWithFileDescriptor:(int)fd closeOnDealloc:(BOOL)close {
-  if ((self = [self _init])) {
+  if ((self = [super init])) {
     _fileDescriptor = fd;
     _close = close;
   }
@@ -75,9 +67,6 @@
   if (_close) {
     close(_fileDescriptor);
   }
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(_writeQueue);
-#endif
 }
 
 - (BOOL)open {
@@ -94,24 +83,13 @@
 }
 
 // We are using write() which is not buffered contrary to fwrite() so no flushing is needed
-- (void)_writeString:(NSString*)string {
-  const char* utf8String = XLConvertNSStringToUTF8CString(string);
-  if (write(_fd, utf8String, strlen(utf8String)) < 0) {
-    XLOG_INTERNAL(@"Failed writing to log file at \"%@\": %s", _filePath, strerror(errno));
-    close(_fd);
-    _fd = 0;
-  }
-}
-
 - (void)logRecord:(XLLogRecord*)record {
   if (_fd > 0) {
-    NSString* formattedMessage = [self formatRecord:record];
-    if (_writeInBackground) {
-      dispatch_async(_writeQueue, ^{
-        [self _writeString:formattedMessage];
-      });
-    } else {
-      [self _writeString:formattedMessage];
+    const char* string = XLConvertNSStringToUTF8CString([self formatRecord:record]);
+    if (write(_fd, string, strlen(string)) < 0) {
+      XLOG_INTERNAL(@"Failed writing to log file at \"%@\": %s", _filePath, strerror(errno));
+      close(_fd);
+      _fd = 0;
     }
   }
 }

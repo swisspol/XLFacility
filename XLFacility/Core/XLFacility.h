@@ -87,17 +87,6 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @property(nonatomic) XLLogLevel minCaptureCallstackLevel;
 
 /**
- *  Configures if loggers are called concurrently when XLFacility processes a log
- *  message.
- *
- *  The default value is YES.
- *
- *  @warning Even if this setting is set to YES, all loggers must finish handling
- *  the current log message before XLFacility processes the next one.
- */
-@property(nonatomic) BOOL callsLoggersConcurrently;
-
-/**
  *  Returns all currently added loggers.
  */
 @property(nonatomic, readonly) NSSet* loggers;

@@ -31,7 +31,7 @@
 
 #import <pthread.h>
 
-#import "XLLogger.h"
+#import "XLPrivate.h"
 
 #define kNoQueueLabel @"(null)"
 
@@ -93,6 +93,7 @@ static NSString* _uid = nil;
 
 - (id)init {
   if ((self = [super init])) {
+    _serialQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
     _minLogLevel = kXLMinLogLevel;
     _maxLogLevel = kXLMaxLogLevel;
     _datetimeFormatter = [[NSDateFormatter alloc] init];
@@ -105,6 +106,14 @@ static NSString* _uid = nil;
   }
   return self;
 }
+
+#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+
+- (void)dealloc {
+  dispatch_release(_serialQueue);
+}
+
+#endif
 
 - (BOOL)open {
   return YES;

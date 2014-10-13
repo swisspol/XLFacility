@@ -48,15 +48,6 @@
 @property(nonatomic, readonly) int fileDescriptor;
 
 /**
- *  Configures if writing to the file happens asynchronously in which case the
- *  logger returns control immediately to the XLFacility after receiving the
- *  log record.
- *
- *  The default value is NO.
- */
-@property(nonatomic) BOOL writeInBackground;
-
-/**
  *  This method is a designated initializer for the class.
  *
  *  @warning The file is not created or opened until the logger is opened.
