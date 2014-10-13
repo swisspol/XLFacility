@@ -7,12 +7,21 @@ Overview
 
 XLFacility, which stands for *Extensive Logging Facility*, is an elegant and powerful logging facility for OS X & iOS. It was written from scratch with the following goals in mind:
 * Making it trivial to log messages from anywhere in your app source code without impacting performance
-* Built-in loggers to save log messages to `stderr`, files, databases, remote connections like Telnet, UI overlays and more
+* Support a wide variety of logging destinations aka "loggers"
 * Customizable logging formats
 * Modern and clean codebase fully taking advantage of the latest Obj-C runtime and Grand Central Dispatch
 * Easy to understand architecture with the ability to write write custom loggers in a few lines of code
 * No dependencies on third-party source code
 * Available under a friendly [New BSD License](LICENSE)
+
+Built-in loggers:
+* Standard output and standard error
+* [Apple System Logger](https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/LoggingErrorsAndWarnings.html)
+* Local file
+* Local [SQLite](http://www.sqlite.org/) database
+* Telnet server which can be accessed from a terminal on a different computer to monitor log messages as they arrive
+* HTTP server which can be accessed from a web browser on a different computer to browse the past log messages and see live updates
+* User interface window overlay for iOS apps
 
 Requirements:
 * OS X 10.7 or later (x86_64)
