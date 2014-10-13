@@ -37,6 +37,9 @@
  *  the process started by using a temporary database from its parent class. If
  *  this feature is enabled, when connecting to the server, all past log records
  *  are initially printed in the terminal.
+ *
+ *  @warning On iOS, connecting to the server will not work while your app has
+ *  been suspended by the OS while in background.
  */
 @interface XLTelnetServerLogger : XLDatabaseLogger
 

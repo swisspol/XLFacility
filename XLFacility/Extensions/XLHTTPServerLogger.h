@@ -38,6 +38,9 @@
  *
  *  XLHTTPServerLogger uses HTTP long-polling to automatically refresh the webpage
  *  when new log records are received by the logger.
+ *
+ *  @warning On iOS, connecting to the server will not work while your app has
+ *  been suspended by the OS while in background.
  */
 @interface XLHTTPServerLogger : XLDatabaseLogger
 

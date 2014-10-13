@@ -27,6 +27,23 @@
 
 #import "XLFacility.h"
 
+/**
+ *  These macros which are used like NSLog() are the most efficient way to log
+ *  messages with XLFacility.
+ *
+ *  It's highly recommended you use them instead of calling the -[log...]
+ *  methods on the shared XLFacility instance. Not only are they quite easier
+ *  to the eye but most importantly they avoid evaluating their arguments
+ *  unless necessary.
+ 
+ *  For instance, if the log level for XLFacility is set to ERROR, calling
+ *  XLOG_WARNING(@"Unexpected value: %@", value)` will almost be a no-op
+ *  while [[XLFacility sharedFacility] logWarning:@"Unexpected value: %@", value]
+ *  will still evaluate all the arguments (which can be quite expensive),
+ *  compute the format string, and finally pass everything to the XLFacility
+ *  shared instance where it will be ignored anyway.
+ */
+
 #if DEBUG
 #define XLOG_DEBUG(...) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Debug) [XLSharedFacility logDebug:__VA_ARGS__]; } while (0)
 #else
@@ -38,6 +55,13 @@
 #define XLOG_ERROR(...) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Error) [XLSharedFacility logError:__VA_ARGS__]; } while (0)
 #define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:__EXCEPTION__]; } while (0)
 #define XLOG_ABORT(...) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logAbort:__VA_ARGS__]; } while (0)
+
+/**
+ *  These other macros let you easily check conditions inside your code and
+ *  log messages with XLFacility on failure.
+ *
+ *  You can use them instead of assert() or NSAssert().
+ */
 
 #define XLOG_CHECK(__CONDITION__) \
 do { \
