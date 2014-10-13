@@ -34,8 +34,10 @@ Drop-in NSLog Replacement
 
 In the precompiled header file for your Xcode project, insert the following:
 ```objectivec
+#ifdef __OBJC__
 #import "XLFacilityMacros.h"
 #define NSLog(...) XLOG_INFO(__VA_ARGS__)
+#endif
 ```
 
 From this point on, any calls to `NSLog()` in your app source code to log a message will be replaced by ones to XLFacility. Note that this will **not** affect calls to `NSLog()` done by Apple frameworks or third-party libraries in your app (see "Capturing Stderr and Stdout" further in this document for a potential solution).
