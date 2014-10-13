@@ -65,31 +65,7 @@ Run your app again and messages in the Xcode console should now look like this:
 [INFO | com.apple.main-thread] Hello World!
 ```
 
-Here's the full list of format specifiers supported by XLFacility:
-```
-%l: level name
-%L: level name padded to constant width with trailing spaces
-%m: message
-%M: message
-%u: user ID
-%p: process ID
-%P: process name
-%r: thread ID
-%q: queue label (or "(null)" if not available)
-%t: relative timestamp since process started in "HH:mm:ss.SSS" format
-%d: absolute date-time formatted using the "datetimeFormatter" property
-%e: errno as an integer
-%E: errno as a string
-%c: Callstack (or nothing if not available)
-
-\n: newline character
-\r: return character
-\t: tab character
-\%: percent character
-\\: backslash character
-```
-
-Note that specifiers like the date-time, GCD queue label or `errno` value all reflect the state of the app at the time the message was sent to XLFacility, not when it is actually displayed in the Xcode console for instance.
+See [XLLogger.h](XLFacility/Core/XLLogger.h) for the full list of format specifiers supported by XLFacility.
 
 Logging Messages With XLFacility
 ================================
@@ -250,12 +226,12 @@ myLogger.logRecordFilter = ^BOOL(XLLogger* logger, XLLogRecord* record) {
 };
 ```
 
-Capturing Exceptions
-====================
+Logging Exceptions
+==================
 
 Call `+[XLFacility enableLoggingOfUncaughtExceptions]` early enough in your app (typically from `main()` before `UIApplication` or `NSApplication` gets called) to have XLFacility install an uncaught exception handler to automatically call `XLOG_EXCEPTION()` passing the exception before the app terminates.
 
-If you want instead to capture *all* exceptions, as they are created and wether or not they are caught, use `+[XLFacility enableLoggingOfInitializedExceptions]` instead. Note that this will also capture exceptions that are not thrown either.
+If you want instead to log *all* exceptions, as they are created and wether or not they are caught, use `+[XLFacility enableLoggingOfInitializedExceptions]` instead. Note that this will also log exceptions that are not thrown either.
 
 In both cases, XLFacility will capture the current callstack as part of the log message.
 
