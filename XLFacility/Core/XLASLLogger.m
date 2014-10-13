@@ -65,7 +65,7 @@
   static const char* levelMapping[] = {"7", "6", "5", "4", "3", "2", "1"};
   aslmsg message = asl_new(ASL_TYPE_MSG);
   asl_set(message, ASL_KEY_LEVEL, levelMapping[record.logLevel]);
-  asl_set(message, ASL_KEY_MSG, XLConvertNSStringToUTF8CString(record.message));
+  asl_set(message, ASL_KEY_MSG, XLConvertNSStringToUTF8CString([self sanitizeMessageFromRecord:record]));
   asl_send(_client, message);  // This automatically sets ASL_KEY_TIME with no possibility to override
   asl_free(message);
 }
