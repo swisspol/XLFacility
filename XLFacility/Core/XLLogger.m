@@ -64,6 +64,10 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   NSMutableData* _tokens;
   NSMutableArray* _strings;
   NSDateFormatter* _datetimeFormatter;
+  
+  NSString* _callstackHeader;
+  NSString* _callstackFooter;
+  NSString* _multilinesPrefix;
 }
 @end
 
@@ -100,6 +104,36 @@ static NSString* _uid = nil;
     self.format = XLLoggerFormatString_Default;
   }
   return self;
+}
+
+- (BOOL)open {
+  return YES;
+}
+
+- (BOOL)shouldLogRecord:(XLLogRecord*)record {
+  if ((record.logLevel < _minLogLevel) || (record.logLevel > _maxLogLevel)) {
+    return NO;
+  }
+  if (_logRecordFilter && !_logRecordFilter(self, record)) {
+    return NO;
+  }
+  return YES;
+}
+
+- (void)logRecord:(XLLogRecord*)record {
+  [self doesNotRecognizeSelector:_cmd];
+}
+
+- (void)close {
+  ;
+}
+
+@end
+
+@implementation XLLogger (Formatting)
+
+- (NSString*)format {
+  return _format;
 }
 
 - (void)setFormat:(NSString*)format {
@@ -161,6 +195,34 @@ static NSString* _uid = nil;
       scanner.scanLocation = scanner.scanLocation + 1;
     }
   }
+}
+
+- (NSDateFormatter*)datetimeFormatter {
+  return _datetimeFormatter;
+}
+
+- (void)setCallstackHeader:(NSString*)string {
+  _callstackHeader = string;
+}
+
+- (NSString*)callstackHeader {
+  return _callstackHeader;
+}
+
+- (void)setCallstackFooter:(NSString*)string {
+  _callstackFooter = string;
+}
+
+- (NSString*)callstackFooter {
+  return _callstackFooter;
+}
+
+- (void)setMultilinesPrefix:(NSString*)string {
+  _multilinesPrefix = string;
+}
+
+- (NSString*)multilinesPrefix {
+  return _multilinesPrefix;
 }
 
 - (NSString*)formatRecord:(XLLogRecord*)record {
@@ -307,32 +369,6 @@ static NSString* _uid = nil;
   
   return string;
 }
-
-- (BOOL)open {
-  return YES;
-}
-
-- (BOOL)shouldLogRecord:(XLLogRecord*)record {
-  if ((record.logLevel < _minLogLevel) || (record.logLevel > _maxLogLevel)) {
-    return NO;
-  }
-  if (_logRecordFilter && !_logRecordFilter(self, record)) {
-    return NO;
-  }
-  return YES;
-}
-
-- (void)logRecord:(XLLogRecord*)record {
-  [self doesNotRecognizeSelector:_cmd];
-}
-
-- (void)close {
-  ;
-}
-
-@end
-
-@implementation XLLogger (Extensions)
 
 - (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record {
   NSArray* components = [record.message componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];

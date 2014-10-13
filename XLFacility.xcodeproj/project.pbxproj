@@ -410,6 +410,7 @@
 					"-Wno-implicit-retain-self",
 					"-Wno-switch-enum",
 					"-Wno-assign-enum",
+					"-Wno-documentation-unknown-command",
 				);
 			};
 			name = Debug;

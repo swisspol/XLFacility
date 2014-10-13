@@ -27,8 +27,35 @@
 
 #import "XLDatabaseLogger.h"
 
+/**
+ *  The XLHTTPServerLogger subclass of XLDatabaseLogger runs a simple HTTP server
+ *  you can connect to in your web browser by visiting "http://IP_ADDRESS:PORT/".
+ *  Log records received by the logger are then printed directly in the connected.
+ *
+ *  XLHTTPServerLogger preserves the history of log records since the process
+ *  started by using a temporary database from its parent class. When visiting the
+ *  server URL, the webpage can therefore initially display all past log records.
+ *
+ *  XLHTTPServerLogger uses HTTP long-polling to automatically refresh the webpage
+ *  when new log records are received by the logger.
+ */
 @interface XLHTTPServerLogger : XLDatabaseLogger
+
+/**
+ *  Returns the port as specified when the logger was initialized.
+ */
 @property(nonatomic, readonly) NSUInteger port;
-- (id)init;  // Default port is 8080
+
+/**
+ *  Initializes an HTTP server on port 8080.
+ */
+- (id)init;
+
+/**
+ *  This method is the designated initializer for the class.
+ *
+ *  @warning The HTTP server is not running until the logger is opened.
+ */
 - (id)initWithPort:(NSUInteger)port;
+
 @end

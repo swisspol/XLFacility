@@ -27,52 +27,176 @@
 
 #import "XLLogRecord.h"
 
-/*
- %l: level name
- %L: level name padded to constant width with trailing spaces
- %m: message
- %M: message
- %u: user ID
- %p: process ID
- %P: process name
- %r: thread ID
- %q: queue label (or "(null)" if not available)
- %t: relative timestamp since process started in "HH:mm:ss.SSS" format
- %d: absolute date-time formatted using the "datetimeFormatter" property
- %e: errno as an integer
- %E: errno as a string
- %c: Callstack (or nothing if not available)
-
- \n: newline character
- \r: return character
- \t: tab character
- \%: percent character
- \\: backslash character
-*/
-
+/**
+ *  The XLLogRecordFilterBlock is called by the logger for every log record received.
+ *  It should return YES if the logger can proceed with the log record or NO if it
+ *  should ignore it.
+ *
+ *  @warning This block will be executed on arbitrary thread and also needs to be
+ *  reentrant if used with multiple XLLogger instances.
+ */
 typedef BOOL (^XLLogRecordFilterBlock)(XLLogger* logger, XLLogRecord* record);
 
+/**
+ *  The default format string for XLFacility ("%t [%L]> %m%c\n").
+ */
 extern NSString* const XLLoggerFormatString_Default;
+
+/**
+ *  The format string to match NSLog().
+ */
 extern NSString* const XLLoggerFormatString_NSLog;
 
+/**
+ *  The XLLogger class is an abstract class for loggers that receive log records
+ *  from XLFacility: it cannot be used directly.
+ */
 @interface XLLogger : NSObject
-@property(nonatomic) XLLogLevel minLogLevel;  // Default is DEBUG
-@property(nonatomic) XLLogLevel maxLogLevel;  // Default is ABORT
-@property(nonatomic, copy) XLLogRecordFilterBlock logRecordFilter;  // Default is NULL
-- (BOOL)open;  // May be implemeted by subclasses - Default implementation does nothing
-- (BOOL)shouldLogRecord:(XLLogRecord*)record;  // Default implementation checks record against min & max log levels and applies record filter if defined
-- (void)logRecord:(XLLogRecord*)record;  // Must be implemented by subclasses
-- (void)close;  // May be implemeted by subclasses - Default implementation does nothing
 
-@property(nonatomic, copy) NSString* format;  // Default is "%t [%L]> %m%c\n"
-@property(nonatomic, readonly) NSDateFormatter* datetimeFormatter;  // Default format is "yyyy-MM-dd HH:mm:ss.SSS"
-@property(nonatomic, copy) NSString* callstackHeader;  // Default is "\n\n>>> Captured call stack:\n"
-@property(nonatomic, copy) NSString* callstackFooter;  // Default is nil
-@property(nonatomic, copy) NSString* multilinesPrefix;  // Default is nil
-- (NSString*)formatRecord:(XLLogRecord*)record;
+/**
+ *  Sets the minimum log level below which received log records are ignored.
+ *
+ *  The default value is DEBUG.
+ */
+@property(nonatomic) XLLogLevel minLogLevel;
+
+/**
+ *  Sets the maximum log level above which received log records are ignored.
+ *
+ *  The default value is ABORT.
+ */
+@property(nonatomic) XLLogLevel maxLogLevel;
+
+/**
+ *  Sets the log record filter block.
+ *
+ *  The default value is NULL.
+ */
+@property(nonatomic, copy) XLLogRecordFilterBlock logRecordFilter;
+
+/**
+ *  Called when the logger is added to XLFacility.
+ *
+ *  Returning NO will prevent the logger to be added.
+ *
+ *  The default implementation does nothing.
+ */
+- (BOOL)open;
+
+/**
+ *  Called by XLFacility to check if the logger should receive a log record.
+ *
+ *  The default implementation checks the log record against min & max log levels
+ *  and applies the log record filter if defined.
+ */
+- (BOOL)shouldLogRecord:(XLLogRecord*)record;
+
+/**
+ *  Called whenever a log record is received from XLFacility.
+ *
+ *  @warning This method must be implemented by subclasses.
+ */
+- (void)logRecord:(XLLogRecord*)record;
+
+/**
+ *  Called when the logger is removed from XLFacility.
+ *
+ *  The default implementation does nothing.
+ */
+- (void)close;
+
 @end
 
-@interface XLLogger (Extensions)
-- (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record;  // Normalizes all newline characters
-- (NSString*)formatCallstackFromRecord:(XLLogRecord*)record;  // Returns nil if record has no callstack
+@interface XLLogger (Formatting)
+
+/**
+ *  Sets the format string used to format log records by loggers which require
+ *  formatting. The following format specifiers are supported:
+ *
+ *  %l: level name
+ *  %L: level name padded to constant width with trailing spaces
+ *  %m: message
+ *  %M: message
+ *  %u: user ID
+ *  %p: process ID
+ *  %P: process name
+ *  %r: thread ID
+ *  %q: queue label (or "(null)" if not available)
+ *  %t: relative timestamp since process started in "HH:mm:ss.SSS" format
+ *  %d: absolute date-time formatted using the "datetimeFormatter" property
+ *  %e: errno as an integer
+ *  %E: errno as a string
+ *  %c: Callstack (or nothing if not available)
+ *
+ *  \n: newline character
+ *  \r: return character
+ *  \t: tab character
+ *  \%: percent character
+ *  \\: backslash character
+ *
+ *  The default value is XLLoggerFormatString_Default.
+ *
+ *  @warning Note that specifiers like the date-time, GCD queue label or "errno"
+ *  value all reflect the state of the process at the time the message was sent
+ *  to XLFacility, not when it is actually displayed in the Xcode console for
+ *  instance.
+ */
+@property(nonatomic, copy) NSString* format;
+
+/**
+ *  Returns the NSDateFormatter used when formatting date-times for the "%d"
+ *  format specifier.
+ *
+ *  The default format is "yyyy-MM-dd HH:mm:ss.SSS".
+ *
+ *  @warning Because NSDateFormatter is not thread-safe on older iOS and OS X
+ *  versions, this formatter should not be configured after the logger has
+ *  been added to XLFacility.
+ */
+@property(nonatomic, readonly) NSDateFormatter* datetimeFormatter;
+
+/**
+ *  Sets the header string used by -formatCallstackFromRecord: to be inserted
+ *  before the callstack.
+ *
+ *  The default value is "\n\n>>> Captured call stack:\n".
+ */
+@property(nonatomic, copy) NSString* callstackHeader;
+
+/**
+ *  Sets the footer string used by -formatCallstackFromRecord: to be inserted
+ *  after the callstack.
+ *
+ *  The default value is nil.
+ */
+@property(nonatomic, copy) NSString* callstackFooter;  // Default is nil
+
+/**
+ *  Sets the prefix string used by -formatRecord: to be inserted before each
+ *  line after the first one (in case the result string spans multiple lines).
+ *
+ *  The default value is nil.
+ */
+@property(nonatomic, copy) NSString* multilinesPrefix;
+
+/**
+ *  Converts a log record into a string using the format set for the logger.
+ */
+- (NSString*)formatRecord:(XLLogRecord*)record;
+
+/**
+ *  Converts the callstack from a log record into a string.
+ *
+ *  This method returns nil if the log record has no callstack.
+ */
+- (NSString*)formatCallstackFromRecord:(XLLogRecord*)record;
+
+/**
+ *  Returns a sanitized version of the message from a log record.
+ *
+ *  The current implementation normalizes all newline characters in the message
+ *  to be '\n'.
+ */
+- (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record;
+
 @end

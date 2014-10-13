@@ -29,8 +29,27 @@
 
 @class XLCallbackLogger;
 
+/**
+ *  The XLCallbackLoggerBlock is called by the logger for every log record received.
+ *
+ *  @warning This block will be executed on arbitrary thread and also needs to be
+ *  reentrant if used with multiple XLCallbackLogger instances.
+ */
 typedef void (^XLCallbackLoggerBlock)(XLCallbackLogger* logger, XLLogRecord* record);
 
+/**
+ *  The XLCallbackLogger subclass of XLLogger logs records to a GCD block callback.
+ */
 @interface XLCallbackLogger : XLLogger
+
+/**
+ *  Creates a logger with a GCD block callback.
+ */
 + (instancetype)loggerWithCallback:(XLCallbackLoggerBlock)callback;
+
+/**
+ *  This method is the designated initializer for the class.
+ */
+- (instancetype)initWithCallback:(XLCallbackLoggerBlock)callback;
+
 @end

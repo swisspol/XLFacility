@@ -27,9 +27,42 @@
 
 #import "XLDatabaseLogger.h"
 
+/**
+ *  The XLTelnetServerLogger subclass of XLDatabaseLogger runs a Telnet-like
+ *  server you can connect to using "$ telnet IP_ADDRESS PORT" from a terminal.
+ *  Log records received by the logger are then printed directly in the connected
+ *  terminal.
+ *
+ *  XLTelnetServerLogger can optionally preserve the history of log records since
+ *  the process started by using a temporary database from its parent class. If
+ *  this feature is enabled, when connecting to the server, all past log records
+ *  are initially printed in the terminal.
+ */
 @interface XLTelnetServerLogger : XLDatabaseLogger
+
+/**
+ *  Returns the port as specified when the logger was initialized.
+ */
 @property(nonatomic, readonly) NSUInteger port;
-@property(nonatomic) BOOL colorize;  // Default is YES
-- (id)init;  // Default port is 2323 and history is preserved
+
+/**
+ *  Configures if the Telnet server is sending colored text output using ANSI
+ *  escape codes. This requires a color terminal.
+ *
+ *  The default value is YES.
+ */
+@property(nonatomic) BOOL colorize;
+
+/**
+ *  Initializes a Telnet server on port 2323 that preserves history.
+ */
+- (id)init;
+
+/**
+ *  This method is the designated initializer for the class.
+ *
+ *  @warning The Telnet server is not running until the logger is opened.
+ */
 - (id)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory;
+
 @end

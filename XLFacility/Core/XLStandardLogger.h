@@ -27,7 +27,26 @@
 
 #import "XLFileLogger.h"
 
+/**
+ *  The XLStandardLogger subclass of XLLogger logs records to the standard
+ *  output or standard error.
+ *
+ *  @warning XLStandardLogger duplicates the stdout and stderr file descriptors
+ *  when the process starts to still be able to write to them even if they are
+ *  closed or replaced later on.
+ */
 @interface XLStandardLogger : XLFileLogger
+
+/**
+ *  Returns the shared instance of XLStandardLogger that logs records to the
+ *  standard output.
+ */
 + (XLStandardLogger*)sharedOutputLogger;
+
+/**
+ *  Returns the shared instance of XLStandardLogger that logs records to the
+ *  standard error.
+ */
 + (XLStandardLogger*)sharedErrorLogger;
+
 @end

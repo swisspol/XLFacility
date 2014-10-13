@@ -27,6 +27,14 @@
 
 #import "XLLogger.h"
 
+/**
+ *  The XLASLLogger subclass of XLLogger logs records to the Apple System Logger.
+ */
 @interface XLASLLogger : XLLogger
+
+/**
+ *  Returns the shared instance for XLASLLogger.
+ */
 + (XLASLLogger*)sharedLogger;
+
 @end

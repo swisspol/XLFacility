@@ -27,6 +27,9 @@
 
 #import <Foundation/Foundation.h>
 
+/**
+ *  Constants representing the supported log levels in XLFacility.
+ */
 typedef NS_ENUM(int, XLLogLevel) {
   kXLLogLevel_Debug = 0,
   kXLLogLevel_Verbose,
@@ -39,40 +42,181 @@ typedef NS_ENUM(int, XLLogLevel) {
   kXLMaxLogLevel = kXLLogLevel_Abort
 };
 
+/**
+ *  Converts a NSString to an UTF-8 NULL terminated C string.
+ *
+ *  Contrary to -[NSString UTF8String] this function is guaranteed to return
+ *  a non-NULL result as long as the input string is not nil.
+ */
 extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 
 @class XLLogger;
 
-// By default XLFacility has the [XLStandardLogger sharedStdErrLogger] logger pre-installed if stderr is connected to a terminal type device
-// To remove it simply call [[XLFacility sharedFacility] removeLogger:[XLStandardLogger sharedStdErrLogger]]
+/**
+ *  The XLFacility class is the central class of the XLFacility system.
+ *
+ *  The shared XLFacility instance is automatically created when the process
+ *  starts.
+ *
+ *  @warning By default XLFacility has the [XLStandardLogger sharedStdErrLogger]
+ *  logger pre-installed if stderr is connected to a terminal type device.
+ *  To remove this logger add this line to the main() function of your app:
+ *  [[XLFacility sharedFacility] removeLogger:[XLStandardLogger sharedStdErrLogger]]
+ */
 @interface XLFacility : NSObject
-@property(nonatomic) XLLogLevel minLogLevel;  // Default is INFO (or DEBUG if the preprocessor constant "DEBUG" is non-zero at build time)
-@property(nonatomic) XLLogLevel minCaptureCallstackLevel;  // Default is EXCEPTION
-@property(nonatomic) BOOL callsLoggersConcurrently;  // Default is YES
+
+/**
+ *  Sets the minimum log level below which log messages are ignored.
+ *
+ *  The default value is INFO (or DEBUG if the preprocessor constant "DEBUG"
+ *  evaluates to non-zero at build time).
+ */
+@property(nonatomic) XLLogLevel minLogLevel;
+
+/**
+ *  Sets the minimum log level below which callstack are not captured along with
+ *  log messages.
+ *
+ *  The default value is EXCEPTION.
+ */
+@property(nonatomic) XLLogLevel minCaptureCallstackLevel;
+
+/**
+ *  Configures if loggers are called concurrently when XLFacility processes a log
+ *  message.
+ *
+ *  The default value is YES.
+ *
+ *  @warning Even if this setting is set to YES, all loggers must finish handling
+ *  the current log message before XLFacility processes the next one.
+ */
+@property(nonatomic) BOOL callsLoggersConcurrently;
+
+/**
+ *  Returns all currently added loggers.
+ */
 @property(nonatomic, readonly) NSSet* loggers;
+
+/**
+ *  Returns the shared XLFacility instance.
+ */
 + (XLFacility*)sharedFacility;
-- (XLLogger*)addLogger:(XLLogger*)logger;  // Returns the logger if added successfully
+
+/**
+ *  Adds a logger to XLFacility.
+ *
+ *  Returns the logger if added successfully (i.e. it was not already added and
+ *  was opened successfully).
+ */
+- (XLLogger*)addLogger:(XLLogger*)logger;
+
+/**
+ *  Removes a logger from XLFacility.
+ *
+ *  Return YES if the logger was found (and therefore removed).
+ */
 - (void)removeLogger:(XLLogger*)logger;
+
+/**
+ *  Removes all loggers from XLFacility.
+*/
 - (void)removeAllLoggers;
+
 @end
 
 @interface XLFacility (Logging)
+
+/**
+ *  Logs a message with a specific log level.
+ */
 - (void)logMessage:(NSString*)message withLevel:(XLLogLevel)level;
+
+/**
+ *  Logs a message as a format string with a specific log level.
+ */
 - (void)logMessageWithLevel:(XLLogLevel)level format:(NSString*)format, ... NS_FORMAT_FUNCTION(2, 3);
+
+/**
+ *  Logs a message as a format string with the DEBUG log level.
+ */
 - (void)logDebug:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
+
+/**
+ *  Logs a message as a format string with the VERBOSE log level.
+ */
 - (void)logVerbose:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
+
+/**
+ *  Logs a message as a format string with the INFO log level.
+ */
 - (void)logInfo:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
+
+/**
+ *  Logs a message as a format string with the WARNING log level.
+ */
 - (void)logWarning:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
+
+/**
+ *  Logs a message as a format string with the ERROR log level.
+ */
 - (void)logError:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
+
+/**
+ *  Logs an exception the DEBUG log level.
+ *
+ *  The log message is automatically generated.
+ */
 - (void)logException:(NSException*)exception;
+
+/**
+ *  Logs a message as a format string with the ABORT log level.
+ */
 - (void)logAbort:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
+
 @end
 
 @interface XLFacility (Extensions)
+
+/**
+ *  Enables logging of uncaught exceptions by installing an uncaught exception
+ *  handler.
+ */
 + (void)enableLoggingOfUncaughtExceptions;
+
+/**
+ *  Enables logging of all exceptions at the moment they are created and wether
+ *  or not they are caught.
+ *
+ *  @warning Note that this will also capture exceptions that are not thrown either.
+ */
 + (void)enableLoggingOfInitializedExceptions;
-+ (void)enableCapturingOfStandardOutput;  // Redirects stdout to INFO and breaks automatically on newlines
-+ (void)enableCapturingOfStandardError;  // Redirects stderr to ERROR and breaks automatically on newlines
+
+/**
+ *  Enables capturing of the standard output of the process and converting it into
+ *  log messages at the INFO level after splitting on newlines boundaries.
+ *
+ *  @warning XLFacility achieves this by redirecting the file descriptor but since
+ *  the original one is preserved so this method can still be used along with
+ *  [XLStandardLogger sharedOutputLogger].
+ */
++ (void)enableCapturingOfStandardOutput;
+
+/**
+ *  Enables capturing of the standard error of the process and converting it into
+ *  log messages at the ERROR level after splitting on newlines boundaries.
+ *
+ *  XLFacility will attempt to detect messages coming from NSLog() and automatically
+ *  strip their prelude with the datetime and process info.
+ *
+ *  @warning XLFacility achieves this by redirecting the file descriptor but since
+ *  the original one is preserved so this method can still be used along with
+ *  [XLStandardLogger sharedErrorLogger].
+ */
++ (void)enableCapturingOfStandardError;
+
 @end
 
-extern XLFacility* XLSharedFacility;  // Same as +[XLFacility sharedFacility]
+/**
+ *  Convenience global variable to access the shared XLFacility instance.
+ */
+extern XLFacility* XLSharedFacility;

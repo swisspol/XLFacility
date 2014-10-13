@@ -27,12 +27,45 @@
 
 #import "XLFacility.h"
 
+/**
+ *  The XLLogRecord class encapsulates information about messages logged
+ *  through XLFacility.
+ */
 @interface XLLogRecord : NSObject
+
+/**
+ *  Returns the absolute time when the message was logged.
+ */
 @property(nonatomic, readonly) CFAbsoluteTime absoluteTime;
+
+/**
+ *  Returns the log level used when logging the message.
+ */
 @property(nonatomic, readonly) XLLogLevel logLevel;
+
+/**
+ *  Returns the log message.
+ */
 @property(nonatomic, readonly) NSString* message;
+
+/**
+ *  Returns the errno value when the message was logged.
+ */
 @property(nonatomic, readonly) int capturedErrno;
+
+/**
+ *  Returns the thread ID when the message was logged.
+ */
 @property(nonatomic, readonly) int capturedThreadID;
-@property(nonatomic, readonly) NSString* capturedQueueLabel;  // May be nil
-@property(nonatomic, readonly) NSArray* callstack;  // May be nil
+
+/**
+ *  Returns the GCD queue label when the message was logged (may be nil).
+ */
+@property(nonatomic, readonly) NSString* capturedQueueLabel;
+
+/**
+ *  Returns the callstack when the message was logged (may be nil).
+ */
+@property(nonatomic, readonly) NSArray* callstack;
+
 @end

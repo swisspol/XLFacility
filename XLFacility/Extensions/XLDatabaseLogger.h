@@ -27,13 +27,52 @@
 
 #import "XLLogger.h"
 
+/**
+ *  The XLDatabaseLogger subclass of XLLogger saves logs records to a
+ *  SQLite database which can be queried afterwards.
+ *
+ *  The "appVersion" argument can be used to keep track of which version of
+ *  your app generated a given log record.
+ *
+ *  @warning XLUIKitOverlayLogger does not format records in any way and ignores
+ *  the "format" property of XLLogger: it justs serializes records to the database.
+ */
 @interface XLDatabaseLogger : XLLogger
+
+/**
+ *  Returns the database path as specified when the logger was initialized.
+ */
 @property(nonatomic, readonly) NSString* databasePath;
+
+/**
+ *  Returns the app version as specified when the logger was initialized.
+ */
 @property(nonatomic, readonly) int appVersion;
+
+/**
+ *  This method is the designated initializer for the class.
+ *
+ *  @warning The database file is not created or opened until the logger is
+ *  opened.
+ */
 - (id)initWithDatabasePath:(NSString*)path appVersion:(int)appVersion;
-- (BOOL)purgeRecordsBeforeAbsoluteTime:(CFAbsoluteTime)time;  // Pass <= 0.0 to delete all records
+
+/**
+ *  Deletes records from the database that are older than a specific time.
+ *  Pass 0.0 to delete all records.
+ *
+ *  Returns NO if deletion failed.
+ */
+- (BOOL)purgeRecordsBeforeAbsoluteTime:(CFAbsoluteTime)time;
+
+/**
+ *  Enumerates records in the database that are newer than a specific time.
+ *  Pass 0.0 for "time" to enumerate all records since the beginning of time
+ *  and pass 0 for "limit" to fetch all matching records.
+ */
 - (void)enumerateRecordsAfterAbsoluteTime:(CFAbsoluteTime)time
-                                 backward:(BOOL)backward  // Pass <= 0.0 to enumerate all records
-                               maxRecords:(NSUInteger)limit  // Pass 0 for no limit
+                                 backward:(BOOL)backward
+                               maxRecords:(NSUInteger)limit
                                usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block;
+
 @end

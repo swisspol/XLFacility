@@ -27,10 +27,45 @@
 
 #import "XLLogger.h"
 
+/**
+ *  The XLFileLogger subclass of XLLogger writes logs records to a file.
+ *
+ *  @warning XLFileLogger does not perform any buffering when writing to the
+ *  file i.e. log records are written to disk immediately.
+ */
 @interface XLFileLogger : XLLogger
-@property(nonatomic, readonly) NSString* filePath;  // nil if initialized with a file descriptor
-@property(nonatomic, readonly) int fileDescriptor;  // 0 if initialized with a file path
-@property(nonatomic) BOOL writeInBackground;  // Default is NO
+
+/**
+ *  Returns the file path as specified when the logger was initialized or nil
+ *  if it was initialized with a file descriptor.
+ */
+@property(nonatomic, readonly) NSString* filePath;
+
+/**
+ *  Returns the file descriptor as specified when the logger was initialized
+ *  or 0 if it was initialized with a file path.
+ */
+@property(nonatomic, readonly) int fileDescriptor;
+
+/**
+ *  Configures if writing to the file happens asynchronously in which case the
+ *  logger returns control immediately to the XLFacility after receiving the
+ *  log record.
+ *
+ *  The default value is NO.
+ */
+@property(nonatomic) BOOL writeInBackground;
+
+/**
+ *  This method is a designated initializer for the class.
+ *
+ *  @warning The file is not created or opened until the logger is opened.
+ */
 - (instancetype)initWithFilePath:(NSString*)path append:(BOOL)append;
+
+/**
+ *  This method is a designated initializer for the class.
+ */
 - (instancetype)initWithFileDescriptor:(int)fd closeOnDealloc:(BOOL)close;
+
 @end

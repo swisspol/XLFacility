@@ -27,9 +27,38 @@
 
 #import "XLLogger.h"
 
+/**
+ *  The XLUIKitOverlayLogger subclass of XLLogger displays an overlay window
+ *  on top of the entire app user interface whenever log records are received.
+ */
 @interface XLUIKitOverlayLogger : XLLogger
-@property(nonatomic) float overlayOpacity;  // Default is 0.75
-@property(nonatomic) NSTimeInterval overlayDuration;  // Default is 5.0 (set to 0.0 to leave overlay always onscreen)
+
+/**
+ *  Sets the opacity of the window overlay in [0.0, 1.0] range.
+ *
+ *  The default value is 0.75.
+ */
+@property(nonatomic) float overlayOpacity;
+
+/**
+ *  Sets the duration in seconds during which the overlay remains visible after
+ *  the last log record was received. Set to 0.0 to make the overlay always
+ *  visible.
+ *
+ *  The default value is 5.0.
+ */
+@property(nonatomic) NSTimeInterval overlayDuration;
+
+/**
+ *  Sets the font used to display log records.
+ *
+ *  The default value is (Courier, 13.0).
+ */
 @property(nonatomic, retain) UIFont* textFont;
+
+/**
+ *  Returns the shared instance for XLUIKitOverlayLogger.
+ */
 + (XLUIKitOverlayLogger*)sharedLogger;
+
 @end
