@@ -62,7 +62,7 @@
     _preserveHistory = preserveHistory;
     _colorize = YES;
     
-    _lockQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
+    _lockQueue = dispatch_queue_create(object_getClassName(self), DISPATCH_QUEUE_SERIAL);
     _connections = [[NSMutableSet alloc] init];
     _sourceSemaphore = dispatch_semaphore_create(0);
   }

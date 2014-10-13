@@ -130,7 +130,7 @@ static void _ExitHandler() {
     }
     _minCaptureCallstackLevel = kXLLogLevel_Exception;
     
-    _lockQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
+    _lockQueue = dispatch_queue_create(object_getClassName(self), DISPATCH_QUEUE_SERIAL);
     _destinationGroup = dispatch_group_create();
     _loggers = [[NSMutableSet alloc] init];
     _callsLoggersConcurrently = YES;

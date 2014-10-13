@@ -92,7 +92,7 @@
     _dateFormatterRFC822.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
     _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     _sourceSemaphore = dispatch_semaphore_create(0);
-    _lockQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
+    _lockQueue = dispatch_queue_create(object_getClassName(self), DISPATCH_QUEUE_SERIAL);
     _connections = [[NSMutableSet alloc] init];
     
     self.format = @"<td>%t</td><td>%l</td><td>%m%c</td>";
