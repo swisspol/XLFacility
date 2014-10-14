@@ -43,6 +43,7 @@
 		E26ABC3A19ECA02500654D9F /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E26DC19C19E883C600C68DDC /* libsqlite3.dylib */; };
 		E26ABC3B19ECA04600654D9F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1319E9FF5000D85595 /* CFNetwork.framework */; };
 		E26ABC3D19ECA04F00654D9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E26ABC3C19ECA04F00654D9F /* Cocoa.framework */; };
+		E26ABC4419ECBE2900654D9F /* XLAppKitOverlayLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABC4319ECBE2900654D9F /* XLAppKitOverlayLogger.m */; };
 		E26DC19D19E883C600C68DDC /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E26DC19C19E883C600C68DDC /* libsqlite3.dylib */; };
 		E280BF1419E9FF5000D85595 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1319E9FF5000D85595 /* CFNetwork.framework */; };
 		E280BF1619E9FF5500D85595 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1519E9FF5500D85595 /* CFNetwork.framework */; };
@@ -108,6 +109,8 @@
 		E26ABC1619EC9E2D00654D9F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		E26ABC2B19EC9F9A00654D9F /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E26ABC3C19ECA04F00654D9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		E26ABC4219ECBE2900654D9F /* XLAppKitOverlayLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLAppKitOverlayLogger.h; sourceTree = "<group>"; };
+		E26ABC4319ECBE2900654D9F /* XLAppKitOverlayLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLAppKitOverlayLogger.m; sourceTree = "<group>"; };
 		E26DC16719E8494700C68DDC /* XLFacility */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = XLFacility; sourceTree = BUILT_PRODUCTS_DIR; };
 		E26DC19C19E883C600C68DDC /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		E280BF0E19E9F3DF00D85595 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -307,6 +310,8 @@
 		E2BBC7FB19EAF0E90082CB48 /* UserInterface */ = {
 			isa = PBXGroup;
 			children = (
+				E26ABC4219ECBE2900654D9F /* XLAppKitOverlayLogger.h */,
+				E26ABC4319ECBE2900654D9F /* XLAppKitOverlayLogger.m */,
 				E2BBC7FC19EAF0E90082CB48 /* XLUIKitOverlayLogger.h */,
 				E2BBC7FD19EAF0E90082CB48 /* XLUIKitOverlayLogger.m */,
 			);
@@ -436,6 +441,7 @@
 				E26ABC1219EC9E2D00654D9F /* main.m in Sources */,
 				E26ABC3919EC9FF700654D9F /* XLTelnetServerLogger.m in Sources */,
 				E26ABC2F19EC9FF700654D9F /* XLASLLogger.m in Sources */,
+				E26ABC4419ECBE2900654D9F /* XLAppKitOverlayLogger.m in Sources */,
 				E26ABC3619EC9FF700654D9F /* XLDatabaseLogger.m in Sources */,
 				E26ABC3319EC9FF700654D9F /* XLLogger.m in Sources */,
 				E26ABC3819EC9FF700654D9F /* XLTCPServerLogger.m in Sources */,

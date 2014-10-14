@@ -36,6 +36,7 @@ Pod::Spec.new do |s|
   s.subspec 'UserInterface' do |cs|
     cs.dependency 'XLFacility/Core'
     cs.source_files = 'XLFacility/UserInterface/*.{h,m}'
+    cs.ios.exclude_files = 'XLFacility/UserInterface/XLAppKitOverlayLogger.{h,m}'
     cs.osx.exclude_files = 'XLFacility/UserInterface/XLUIKitOverlayLogger.{h,m}'
     cs.requires_arc = true
   end

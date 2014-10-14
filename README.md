@@ -21,7 +21,7 @@ Built-in loggers:
 * Local [SQLite](http://www.sqlite.org/) database
 * Telnet server which can be accessed from a terminal on a different computer to monitor log messages as they arrive
 * HTTP server which can be accessed from a web browser on a different computer to browse the past log messages and see live updates
-* User interface window overlay for iOS apps
+* User interface window overlay for OS X & iOS apps
 
 Requirements:
 * OS X 10.7 or later (x86_64)
@@ -180,10 +180,12 @@ Do the same modification as you've done above to add suport for `XLTelnetServerL
 
 **IMPORTANT:** For the same reasons than for `XLTelnetServerLogger`, it's also not recommended that you ship your app on the App Store with `XLHTTPServerLogger` active by default.
 
-Onscreen Logging Overlay (iOS only)
-===================================
+Onscreen Logging Overlay
+========================
 
-In iOS apps you can easily have an overlay logging window that appears whenever log messages are sent to XLFacility. Simply take advantage of `XLUIKitOverlayLogger` like this:
+On OS X & iOS apps you can easily have an overlay logging window that appears whenever log messages are sent to XLFacility. Simply take advantage of `XLUIKitOverlayLogger` or `XLAppKitOverlayLogger` like this:
+
+**iOS version**
 ```objectivec
 #import "XLUIKitOverlayLogger.h"
 
@@ -191,6 +193,21 @@ In iOS apps you can easily have an overlay logging window that appears whenever 
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
   [[XLFacility sharedFacility] addLogger:[XLUIKitOverlayLogger sharedLogger]];
+  
+  // Rest of your app initialization code goes here
+}
+
+@end
+```
+
+**OS X version**
+```objectivec
+#import "XLAppKitOverlayLogger.h"
+
+@implementation MyAppDelegate
+
+- (void)applicationDidFinishLaunching:(NSNotification*)notification {
+  [[XLFacility sharedFacility] addLogger:[XLAppKitOverlayLogger sharedLogger]];
   
   // Rest of your app initialization code goes here
 }

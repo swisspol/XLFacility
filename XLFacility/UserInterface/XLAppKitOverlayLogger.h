@@ -25,32 +25,41 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "AppDelegate.h"
-#import "XLFacilityMacros.h"
-#import "XLAppKitOverlayLogger.h"
+#import <AppKit/AppKit.h>
+#import "XLLogger.h"
 
-@implementation AppDelegate
+/**
+ *  The XLAppKitOverlayLogger subclass of XLLogger displays an overlay window
+ *  on top of the entire app user interface whenever log records are received.
+ */
+@interface XLAppKitOverlayLogger : XLLogger
 
-- (IBAction)click:(id)sender {
-  XLOG_INFO(@"%s", __FUNCTION__);
-}
+/**
+ *  Sets the opacity of the window overlay in [0.0, 1.0] range.
+ *
+ *  The default value is 0.75.
+ */
+@property(nonatomic) float overlayOpacity;
 
-- (void)applicationDidFinishLaunching:(NSNotification*)notification {
-  [[XLFacility sharedFacility] addLogger:[XLAppKitOverlayLogger sharedLogger]];
-  
-  XLOG_INFO(@"%s", __FUNCTION__);
-}
+/**
+ *  Sets the duration in seconds during which the overlay remains visible after
+ *  the last log record was received. Set to 0.0 to make the overlay always
+ *  visible.
+ *
+ *  The default value is 5.0.
+ */
+@property(nonatomic) NSTimeInterval overlayDuration;
 
-- (void)applicationDidBecomeActive:(NSNotification*)notification {
-  XLOG_INFO(@"%s", __FUNCTION__);
-}
+/**
+ *  Sets the font used to display log records.
+ *
+ *  The default value is (Monaco, 11.0).
+ */
+@property(nonatomic, retain) NSFont* textFont;
 
-- (void)applicationDidResignActive:(NSNotification*)notification {
-  XLOG_INFO(@"%s", __FUNCTION__);
-}
-
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender {
-  return YES;
-}
+/**
+ *  Returns the shared instance for XLAppKitOverlayLogger.
+ */
++ (XLAppKitOverlayLogger*)sharedLogger;
 
 @end
