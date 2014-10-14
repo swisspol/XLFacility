@@ -50,9 +50,6 @@ extern NSString* const XLLoggerFormatString_NSLog;
 /**
  *  The XLLogger class is an abstract class for loggers that receive log records
  *  from XLFacility: it cannot be used directly.
- *
- *  @warning Each logger has its own internal GCD serial queue and -open,
- *  -logRecord: and -close are always executed on it.
  */
 @interface XLLogger : NSObject
 
@@ -83,6 +80,16 @@ extern NSString* const XLLoggerFormatString_NSLog;
  */
 @property(nonatomic, copy) XLLogRecordFilterBlock logRecordFilter;
 
+@end
+
+/**
+ *  These methods are the ones to be implemented by subclasses.
+ *
+ *  @warning Each logger has its own internal GCD serial queue and -open,
+ *  -logRecord: and -close are always executed on it.
+ */
+@interface XLLogger (Subclassing)
+
 /**
  *  Called when the logger is added to XLFacility.
  *
@@ -95,7 +102,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
 /**
  *  Called whenever a log record is received from XLFacility.
  *
- *  @warning This method must be implemented by subclasses.
+ *  @warning This method must be implemented by subclasseses.
  */
 - (void)logRecord:(XLLogRecord*)record;
 

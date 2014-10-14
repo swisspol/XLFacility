@@ -117,10 +117,6 @@ static NSString* _uid = nil;
 
 #endif
 
-- (BOOL)open {
-  return YES;
-}
-
 - (BOOL)shouldLogRecord:(XLLogRecord*)record {
   if ((record.logLevel < _minLogLevel) || (record.logLevel > _maxLogLevel)) {
     return NO;
@@ -128,6 +124,14 @@ static NSString* _uid = nil;
   if (_logRecordFilter && !_logRecordFilter(self, record)) {
     return NO;
   }
+  return YES;
+}
+
+@end
+
+@implementation XLLogger (Subclassing)
+
+- (BOOL)open {
   return YES;
 }
 
