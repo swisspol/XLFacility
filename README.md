@@ -76,7 +76,7 @@ Run your app again and notice how messages in the console now look exactly like 
 
 Let's use a custom compact format instead:
 ```objectivec
-[[XLStandardLogger sharedErrorLogger] setFormat:@"[%l | %q] %m\n"];
+[[XLStandardLogger sharedErrorLogger] setFormat:@"[%l | %q] %m"];
 ```
 Run your app again and messages in the Xcode console should now look like this:
 ```
@@ -166,7 +166,7 @@ What's really interesting and useful is connecting to your app while it's runnin
 Of course, like you've already done above with `XLStandardLogger`, you can customize the format used by `XLTelnetServerLogger`, for instance like this:
 ```objectivec
 XLLogger* logger = [[XLFacility sharedFacility] addLogger:[[XLTelnetServerLogger alloc] init]];
-logger.format = @"[%l | %q] %m\n";
+logger.format = @"[%l | %q] %m";
 ```
 
 You can even add multiples instances of `XLTelnetServerLogger` to XLFacility, each listening on a unique port and configured differently.
@@ -224,7 +224,7 @@ The simplest solution is to use `XLFileLogger` to save log messages to a plain t
 ```objectivec
 XLFileLogger* fileLogger = [[XLFileLogger alloc] initWithFilePath:@"my-file.log" append:YES];
 fileLogger.minLogLevel = kXLLogLevel_Error;
-fileLogger.format = @"%d\t%m\n";
+fileLogger.format = @"%d\t%m";
 [[XLFacility sharedFacility] addLogger:fileLogger];
 ```
 

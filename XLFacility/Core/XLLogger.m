@@ -61,6 +61,7 @@ typedef NS_ENUM(unsigned char, FormatToken) {
 @interface XLLogger () {
 @private
   NSString* _format;
+  BOOL _appendNewlineToFormat;
   NSMutableData* _tokens;
   NSMutableArray* _strings;
   NSDateFormatter* _datetimeFormatter;
@@ -71,8 +72,8 @@ typedef NS_ENUM(unsigned char, FormatToken) {
 }
 @end
 
-NSString* const XLLoggerFormatString_Default = @"%t [%L]> %m%c\n";
-NSString* const XLLoggerFormatString_NSLog = @"%d %P[%p:%r] %m\n";
+NSString* const XLLoggerFormatString_Default = @"%t [%L]> %m%c";
+NSString* const XLLoggerFormatString_NSLog = @"%d %P[%p:%r] %m";
 
 static NSString* _logLevelNames[] = {@"DEBUG", @"VERBOSE", @"INFO", @"WARNING", @"ERROR", @"EXCEPTION", @"ABORT"};
 static NSString* _paddedLogLevelNames[] = {@"DEBUG    ", @"VERBOSE  ", @"INFO     ", @"WARNING  ", @"ERROR    ", @"EXCEPTION", @"ABORT    "};
@@ -97,6 +98,7 @@ static NSString* _uid = nil;
     _lockQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
     _minLogLevel = kXLMinLogLevel;
     _maxLogLevel = kXLMaxLogLevel;
+    _appendNewlineToFormat = YES;
     _datetimeFormatter = [[NSDateFormatter alloc] init];
     _datetimeFormatter.timeZone = [NSTimeZone systemTimeZone];
     _datetimeFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
@@ -210,6 +212,14 @@ static NSString* _uid = nil;
       scanner.scanLocation = scanner.scanLocation + 1;
     }
   }
+}
+
+- (void)setAppendNewlineToFormat:(BOOL)flag {
+  _appendNewlineToFormat = flag;
+}
+
+- (BOOL)appendNewlineToFormat {
+  return _appendNewlineToFormat;
 }
 
 - (NSDateFormatter*)datetimeFormatter {
@@ -369,7 +379,7 @@ static NSString* _uid = nil;
   
   if (_multilinesPrefix.length) {
     NSArray* components = [string componentsSeparatedByString:@"\n"];
-    if ((components.count != 1) && !((components.count == 2) && ![components[1] length])) {  // Fast path if there are no newlines or just a trailing one
+    if (components.count != 1) {
       [string replaceCharactersInRange:NSMakeRange(0, string.length) withString:@""];
       [components enumerateObjectsUsingBlock:^(NSString* component, NSUInteger idx, BOOL* stop) {
         if (idx > 0) {
@@ -383,6 +393,10 @@ static NSString* _uid = nil;
         }
       }];
     }
+  }
+  
+  if (_appendNewlineToFormat) {
+    [string appendString:@"\n"];
   }
   
   return string;

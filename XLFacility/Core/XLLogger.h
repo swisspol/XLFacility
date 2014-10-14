@@ -38,7 +38,7 @@
 typedef BOOL (^XLLogRecordFilterBlock)(XLLogger* logger, XLLogRecord* record);
 
 /**
- *  The default format string for XLFacility ("%t [%L]> %m%c\n").
+ *  The default format string for XLFacility ("%t [%L]> %m%c").
  */
 extern NSString* const XLLoggerFormatString_Default;
 
@@ -149,6 +149,14 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  instance.
  */
 @property(nonatomic, copy) NSString* format;
+
+/**
+ *  Sets if a trailing newline should automatically be added at the end of the
+ *  string returned by -formatRecord:.
+ *
+ *  The default value is YES.
+ */
+@property(nonatomic) BOOL appendNewlineToFormat;
 
 /**
  *  Returns the NSDateFormatter used when formatting date-times for the "%d"

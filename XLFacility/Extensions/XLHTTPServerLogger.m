@@ -273,6 +273,7 @@
     _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     
     self.format = @"<td>%t</td><td>%l</td><td>%m%c</td>";
+    self.appendNewlineToFormat = NO;
   }
   return self;
 }
