@@ -31,7 +31,7 @@ rm -rf "$BUILD_DIR"
 xcodebuild -sdk "$OSX_SDK" -target "$OSX_TARGET" -configuration "$CONFIGURATION" build "SYMROOT=$BUILD_DIR"
 
 # Run tests
-# TODO
+xcodebuild test -scheme "Tests"
 
 # Done
 echo "\nAll tests completed successfully!"
