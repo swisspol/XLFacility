@@ -45,6 +45,7 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_LevelName,
   kFormatToken_PaddedLevelName,
   kFormatToken_Message,
+  kFormatToken_SanitizedMessage,
   kFormatToken_UserID,
   kFormatToken_ProcessID,
   kFormatToken_ProcessName,
@@ -194,6 +195,7 @@ static NSString* _uid = nil;
           case 'l': token = kFormatToken_LevelName; break;
           case 'L': token = kFormatToken_PaddedLevelName; break;
           case 'm': token = kFormatToken_Message; break;
+          case 'M': token = kFormatToken_SanitizedMessage; break;
           case 'u': token = kFormatToken_UserID; break;
           case 'p': token = kFormatToken_ProcessID; break;
           case 'P': token = kFormatToken_ProcessName; break;
@@ -293,6 +295,11 @@ static NSString* _uid = nil;
       }
       
       case kFormatToken_Message: {
+        [string appendString:record.message];
+        break;
+      }
+      
+      case kFormatToken_SanitizedMessage: {
         [string appendString:[self sanitizeMessageFromRecord:record]];
         break;
       }

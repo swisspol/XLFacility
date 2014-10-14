@@ -272,7 +272,7 @@
     _dateFormatterRFC822.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
     _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     
-    self.format = @"<td>%t</td><td>%l</td><td>%m%c</td>";
+    self.format = @"<td>%t</td><td>%l</td><td>%M%c</td>";
     self.appendNewlineToFormat = NO;
   }
   return self;

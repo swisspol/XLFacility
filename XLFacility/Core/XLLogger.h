@@ -124,6 +124,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  %l: level name
  *  %L: level name padded to constant width with trailing spaces
  *  %m: message
+ *  %M: sanitized message (uses -sanitizeMessageFromRecord:)
  *  %u: user ID
  *  %p: process ID
  *  %P: process name
