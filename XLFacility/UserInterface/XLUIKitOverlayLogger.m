@@ -29,8 +29,6 @@
 #error XLFacility requires ARC
 #endif
 
-#import <UIKit/UIKit.h>
-
 #import "XLUIKitOverlayLogger.h"
 
 #define kOverlayWindowLevel 100.0
