@@ -333,12 +333,19 @@ static void _UncaughtExceptionHandler(NSException* exception) {
   }
 }
 
-+ (void)enableLoggingOfUncaughtExceptions {
+- (void)setLogsUncaughtExceptions:(BOOL)flag {
   NSUncaughtExceptionHandler* exceptionHandler = NSGetUncaughtExceptionHandler();
-  if (exceptionHandler != _UncaughtExceptionHandler) {
-    _originalExceptionHandler = exceptionHandler;
+  if (flag && (exceptionHandler != _UncaughtExceptionHandler)) {
     NSSetUncaughtExceptionHandler(_UncaughtExceptionHandler);
+    _originalExceptionHandler = exceptionHandler;
+  } else if (!flag && (exceptionHandler == _UncaughtExceptionHandler)) {
+    NSSetUncaughtExceptionHandler(_originalExceptionHandler);
+    _originalExceptionHandler = NULL;
   }
+}
+
+- (BOOL)logsUncaughtExceptions {
+  return (NSGetUncaughtExceptionHandler() == _UncaughtExceptionHandler);
 }
 
 static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reason, NSDictionary* userInfo) {
@@ -349,14 +356,20 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 }
 
 // It's not possible to patch @throw so we patch NSException initialization instead (the callstack will be nil at this time though)
-+ (void)enableLoggingOfInitializedExceptions {
-  if (!_originalExceptionInitializerIMP) {
-    Method method = class_getInstanceMethod([NSException class], @selector(initWithName:reason:userInfo:));
+- (void)setLogsInitializedExceptions:(BOOL)flag {
+  Method method = class_getInstanceMethod([NSException class], @selector(initWithName:reason:userInfo:));
+  if (flag && (_originalExceptionInitializerIMP == NULL)) {
     _originalExceptionInitializerIMP = (ExceptionInitializerIMP)method_setImplementation(method, (IMP)&_ExceptionInitializer);
+  } else if (!flag && (_originalExceptionInitializerIMP != NULL)) {
+    method_setImplementation(method, (IMP)_originalExceptionInitializerIMP);
   }
 }
 
-static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel level, BOOL detectNSLogFormatting) {
+- (BOOL)logsInitializedExceptions {
+  return (_originalExceptionInitializerIMP == NULL);
+}
+
+- (dispatch_source_t)_startCapturingWritingToFD:(int)fd logLevel:(XLLogLevel)level detectNSLogFormatting:(BOOL)nsLog {
   if (_newlineData == nil) {
     _newlineData = [[NSData alloc] initWithBytes:"\n" length:1];
   }
@@ -394,7 +407,7 @@ static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel leve
         @try {
           NSUInteger offset = 0;
           
-          if (detectNSLogFormatting && (range.location > 24 + prognameLength + 4)) {  // "yyyy-mm-dd HH:MM:ss.SSS progname[:] "
+          if (nsLog && (range.location > 24 + prognameLength + 4)) {  // "yyyy-mm-dd HH:MM:ss.SSS progname[:] "
             const char* bytes = (const char*)data.bytes;
             if ((bytes[4] == '-') && (bytes[7] == '-') && (bytes[10] == ' ') && (bytes[13] == ':') && (bytes[16] == ':') && (bytes[19] == '.')) {
               if ((bytes[23] == ' ') && /*!strncmp(&bytes[24], pname, prognameLength) &&*/ (bytes[24 + prognameLength] == '[')) {
@@ -425,16 +438,39 @@ static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel leve
   return source;
 }
 
-+ (void)enableCapturingOfStandardOutput {
-  if (!_stdOutCaptureSource) {
-    _stdOutCaptureSource = _CaptureWritingToFileDescriptor(STDOUT_FILENO, kXLLogLevel_Info, NO);
+- (void)_stopCapturingWritingToFD:(int)fd originalFD:(int)originalFD dispatchSource:(dispatch_source_t)source {
+  dispatch_source_cancel(source);
+#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+  dispatch_release(source);
+#endif
+  
+  dup2(originalFD, fd);  // Duplicate original file descriptor "onto" fd (this closes fd)
+}
+
+- (void)setCapturesStandardOutput:(BOOL)flag {
+  if (flag && (_stdOutCaptureSource == NULL)) {
+    _stdOutCaptureSource = [self _startCapturingWritingToFD:STDOUT_FILENO logLevel:kXLLogLevel_Info detectNSLogFormatting:NO];
+  } else if (!flag && (_stdOutCaptureSource != NULL)) {
+    [self _stopCapturingWritingToFD:STDOUT_FILENO originalFD:XLOriginalStdOut dispatchSource:_stdOutCaptureSource];
+    _stdOutCaptureSource = NULL;
   }
 }
 
-+ (void)enableCapturingOfStandardError {
-  if (!_stdErrCaptureSource) {
-    _stdErrCaptureSource = _CaptureWritingToFileDescriptor(STDERR_FILENO, kXLLogLevel_Error, YES);
+- (BOOL)capturesStandardOutput {
+  return (_stdOutCaptureSource != NULL);
+}
+
+- (void)setCapturesStandardError:(BOOL)flag {
+  if (flag && (_stdErrCaptureSource == NULL)) {
+    _stdErrCaptureSource = [self _startCapturingWritingToFD:STDERR_FILENO logLevel:kXLLogLevel_Error detectNSLogFormatting:YES];
+  } else if (!flag && (_stdErrCaptureSource != NULL)) {
+    [self _stopCapturingWritingToFD:STDERR_FILENO originalFD:XLOriginalStdErr dispatchSource:_stdErrCaptureSource];
+    _stdErrCaptureSource = NULL;
   }
+}
+
+- (BOOL)capturesStandardError {
+  return (_stdErrCaptureSource != NULL);
 }
 
 @end

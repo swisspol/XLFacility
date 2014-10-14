@@ -264,9 +264,9 @@ myLogger.logRecordFilter = ^BOOL(XLLogger* logger, XLLogRecord* record) {
 Logging Exceptions
 ==================
 
-Call `+[XLFacility enableLoggingOfUncaughtExceptions]` early enough in your app (typically from `main()` before `UIApplication` or `NSApplication` gets called) to have XLFacility install an uncaught exception handler to automatically call `XLOG_EXCEPTION()` passing the exception before the app terminates.
+Call `[XLSharedFacility setLogsUncaughtExceptions:YES]` early enough in your app (typically from `main()` before `UIApplication` or `NSApplication` gets called) to have XLFacility install an uncaught exception handler to automatically call `XLOG_EXCEPTION()` passing the exception before the app terminates.
 
-If you want instead to log *all* exceptions, as they are created and wether or not they are caught, use `+[XLFacility enableLoggingOfInitializedExceptions]` instead. Note that this will also log exceptions that are not thrown either.
+If you want instead to log *all* exceptions, as they are created and wether or not they are caught, use `[XLSharedFacility setLogsInitializedExceptions:YES]` instead. Note that this will also log exceptions that are not thrown either.
 
 In both cases, XLFacility will capture the current callstack as part of the log message.
 
@@ -275,7 +275,7 @@ Capturing Stderr and Stdout
 
 If you use XLFacility functions exclusively in your app to log messages, then everything you log from your source code will go to XLFacility. If you use third-party source code, you might be able to patch or override its calls to `NSLog()`, `printf()` or equivalent as demonstrated at the beginning of this document. However this will not work for Apple or third-party libraries or frameworks.
 
-XLFacility has a powerful feature that allows to capture the standard output and standard error from your app. Just call `[[XLFacility sharedFacility] enableCapturingOfStandardError]` (respectively `[[XLFacility sharedFacility] enableCapturingOfStandardOutput]`) and from this point on anything written to the standard output (respectively standard error) will be split on newlines boundaries and automatically become separate log messages in XLFacility with the `INFO` (respectively `ERROR`) level.
+XLFacility has a powerful feature that allows to capture the standard output and standard error from your app. Just call `[XLSharedFacility setCapturesStandardError:YES]` (respectively `[XLSharedFacility setCapturesStandardOutput:YES]`) and from this point on anything written to the standard output (respectively standard error) will be split on newlines boundaries and automatically become separate log messages in XLFacility with the `INFO` (respectively `ERROR`) level.
 
 Writing Custom Loggers
 ======================

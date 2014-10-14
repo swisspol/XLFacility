@@ -180,41 +180,45 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @interface XLFacility (Extensions)
 
 /**
- *  Enables logging of uncaught exceptions by installing an uncaught exception
- *  handler.
+ *  Sets if XLFacility automatically logs of uncaught exceptions.
+ *
+ *  Default value is NO;
  */
-+ (void)enableLoggingOfUncaughtExceptions;
+@property(nonatomic) BOOL logsUncaughtExceptions;
 
 /**
- *  Enables logging of all exceptions at the moment they are created and wether
- *  or not they are caught.
+ *  Sets if XLFacility automatically logs all exceptions at the moment they are
+ *  created and wether or not they are caught.
+ *
+ *  Default value is NO;
  *
  *  @warning Note that this will also capture exceptions that are not thrown either.
  */
-+ (void)enableLoggingOfInitializedExceptions;
+@property(nonatomic) BOOL logsInitializedExceptions;
 
 /**
- *  Enables capturing of the standard output of the process and converting it into
- *  log messages at the INFO level after splitting on newlines boundaries.
+ *  Sets if XLFacility captures the standard output of the process and converts it
+ *  into log messages at the INFO level after splitting on newlines boundaries.
+ *
+ *  Default value is NO;
  *
  *  @warning XLFacility achieves this by redirecting the file descriptor but since
  *  the original one is preserved so this method can still be used along with
  *  [XLStandardLogger sharedOutputLogger].
  */
-+ (void)enableCapturingOfStandardOutput;
+@property(nonatomic) BOOL capturesStandardOutput;
 
 /**
- *  Enables capturing of the standard error of the process and converting it into
- *  log messages at the ERROR level after splitting on newlines boundaries.
+ *  Sets if XLFacility captures the standard output of the process and converts it
+ *  into log messages at the ERROR level after splitting on newlines boundaries.
  *
- *  XLFacility will attempt to detect messages coming from NSLog() and automatically
- *  strip their prelude with the datetime and process info.
+ *  Default value is NO;
  *
  *  @warning XLFacility achieves this by redirecting the file descriptor but since
  *  the original one is preserved so this method can still be used along with
  *  [XLStandardLogger sharedErrorLogger].
  */
-+ (void)enableCapturingOfStandardError;
+@property(nonatomic) BOOL capturesStandardError;
 
 @end
 

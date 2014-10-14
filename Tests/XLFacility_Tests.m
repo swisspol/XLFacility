@@ -50,8 +50,8 @@
 - (void)setUp {
   [super setUp];
   
-  [XLFacility enableLoggingOfInitializedExceptions];
-  [XLFacility enableCapturingOfStandardOutput];
+  [XLSharedFacility setCapturesStandardOutput:NO];
+  [XLSharedFacility setLogsInitializedExceptions:NO];
   [XLSharedFacility setMinLogLevel:kXLLogLevel_Debug];
   [XLSharedFacility removeAllLoggers];
   
@@ -77,6 +77,8 @@
 }
 
 - (void)testCapturingInitializedException {
+  [XLSharedFacility setLogsInitializedExceptions:YES];
+  
   @try {
     [[NSArray array] objectAtIndex:1];
   }
@@ -91,9 +93,24 @@
   XCTAssertEqual(record.logLevel, kXLLogLevel_Exception);
   XCTAssertTrue([record.message hasPrefix:@"NSRangeException *** "]);
   XCTAssertNotNil(record.callstack);
+  
+  [XLSharedFacility setLogsInitializedExceptions:NO];
+  
+  @try {
+    [[NSArray array] objectAtIndex:1];
+  }
+  @catch (NSException* exception) {
+#pragma unused(exception)
+  }
+  
+  usleep(kSleepDelay);
+  
+  XCTAssertEqual(_capturedRecords.count, 1);
 }
 
 - (void)testCapturingStdOut {
+  [XLSharedFacility setCapturesStandardOutput:YES];
+  
   fprintf(stdout, "Hello stdout!\n");
   fprintf(stdout, "Bonjour stdout!\n");
   fflush(stdout);
@@ -105,6 +122,15 @@
   XCTAssertEqual(record1.logLevel, kXLLogLevel_Info);
   XLLogRecord* record2 = _capturedRecords[1];
   XCTAssertEqual(record2.logLevel, kXLLogLevel_Info);
+  
+  [XLSharedFacility setCapturesStandardOutput:NO];
+  
+  fprintf(stdout, "Hello again!\n");
+  fflush(stdout);
+  
+  usleep(kSleepDelay);
+  
+  XCTAssertEqual(_capturedRecords.count, 2);
 }
 
 - (void)testFileLogger {
@@ -132,6 +158,7 @@
 [ERROR    ] Hello World #10!\n\
 ");
   
+  [XLSharedFacility removeLogger:logger];
   [[NSFileManager defaultManager] removeItemAtPath:filePath error:NULL];
 }
 
@@ -153,11 +180,12 @@
     ++index;
   }];
   
+  [XLSharedFacility removeLogger:logger];
   [[NSFileManager defaultManager] removeItemAtPath:databasePath error:NULL];
 }
 
 - (void)testASLLogger {
-  [XLSharedFacility addLogger:[XLASLLogger sharedLogger]];
+  XLLogger* logger = [XLSharedFacility addLogger:[XLASLLogger sharedLogger]];
   
   XLOG_INFO(@"Bonjour le monde!");
   XLOG_WARNING(@"Hello World!");
@@ -200,6 +228,8 @@
     ++index;
   }
   asl_free(query);
+  
+  [XLSharedFacility removeLogger:logger];
 }
 
 @end
