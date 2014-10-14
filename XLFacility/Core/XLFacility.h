@@ -69,7 +69,7 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
  *  @warning By default XLFacility has the [XLStandardLogger sharedStdErrLogger]
  *  logger pre-installed if stderr is connected to a terminal type device.
  *  To remove this logger add this line to the main() function of your app:
- *  [[XLFacility sharedFacility] removeLogger:[XLStandardLogger sharedStdErrLogger]]
+ *  [XLSharedFacility removeLogger:[XLStandardLogger sharedStdErrLogger]]
  */
 @interface XLFacility : NSObject
 
@@ -101,6 +101,9 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 
 /**
  *  Returns the shared XLFacility instance.
+ *
+ *  You can also use the "XLSharedFacility" global variable to make your code
+ *  slightly more compact.
  */
 + (XLFacility*)sharedFacility;
 

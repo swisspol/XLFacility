@@ -50,7 +50,7 @@
   [_window.rootViewController.view addSubview:button];
   
   [[XLUIKitOverlayLogger sharedLogger] setOverlayOpacity:0.66];
-  [[XLFacility sharedFacility] addLogger:[XLUIKitOverlayLogger sharedLogger]];
+  [XLSharedFacility addLogger:[XLUIKitOverlayLogger sharedLogger]];
   
   XLOG_INFO(@"%s", __FUNCTION__);
   

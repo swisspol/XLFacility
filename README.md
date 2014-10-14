@@ -139,7 +139,7 @@ Fun With Remote Logging
 
 Going back to the `main.m` file of your app, add `#import "XLTelnetServerLogger.h"` to the top, and insert this line before `UIApplication` or `NSApplication` gets called:
 ```objectivec
-[[XLFacility sharedFacility] addLogger:[[XLTelnetServerLogger alloc] init]];
+[XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
 ```
 What we are doing here is adding a secondary "logger" to XLFacility so that log messages are sent to two destinations simultaneously.
 
@@ -165,7 +165,7 @@ What's really interesting and useful is connecting to your app while it's runnin
 
 Of course, like you've already done above with `XLStandardLogger`, you can customize the format used by `XLTelnetServerLogger`, for instance like this:
 ```objectivec
-XLLogger* logger = [[XLFacility sharedFacility] addLogger:[[XLTelnetServerLogger alloc] init]];
+XLLogger* logger = [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
 logger.format = @"[%l | %q] %m";
 ```
 
@@ -192,7 +192,7 @@ On OS X & iOS apps you can easily have an overlay logging window that appears wh
 @implementation MyAppDelegate
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
-  [[XLFacility sharedFacility] addLogger:[XLUIKitOverlayLogger sharedLogger]];
+  [XLSharedFacility addLogger:[XLUIKitOverlayLogger sharedLogger]];
   
   // Rest of your app initialization code goes here
 }
@@ -207,7 +207,7 @@ On OS X & iOS apps you can easily have an overlay logging window that appears wh
 @implementation MyAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
-  [[XLFacility sharedFacility] addLogger:[XLAppKitOverlayLogger sharedLogger]];
+  [XLSharedFacility addLogger:[XLAppKitOverlayLogger sharedLogger]];
   
   // Rest of your app initialization code goes here
 }
@@ -225,13 +225,13 @@ The simplest solution is to use `XLFileLogger` to save log messages to a plain t
 XLFileLogger* fileLogger = [[XLFileLogger alloc] initWithFilePath:@"my-file.log" append:YES];
 fileLogger.minLogLevel = kXLLogLevel_Error;
 fileLogger.format = @"%d\t%m";
-[[XLFacility sharedFacility] addLogger:fileLogger];
+[XLSharedFacility addLogger:fileLogger];
 ```
 
 The more powerful solution is to use `XLDatabaseLogger` which uses a [SQLite](http://www.sqlite.org/) database under the hood:
 ```objectivec
 XLFileLogger* databaseLogger = [[XLFileLogger alloc] initWithFilePath:@"my-database.db" appVersion:0];
-[[XLFacility sharedFacility] addLogger:databaseLogger];
+[XLSharedFacility addLogger:databaseLogger];
 ```
 
 Note that `XLDatabaseLogger` serializes the log messages to the database as-is and does not format them i.e. its `format` property has no effect.
@@ -282,7 +282,7 @@ Writing Custom Loggers
 
 You can write a custom logger in a few lines of code by using `XLCallbackLogger` like this:
 ```objectivec
-[[XLFacility sharedFacility] addLogger:[XLCallbackLogger loggerWithCallback:^(XLCallbackLogger* logger, XLLogRecord* record) {
+[XLSharedFacility addLogger:[XLCallbackLogger loggerWithCallback:^(XLCallbackLogger* logger, XLLogRecord* record) {
   // Do something with the log record
   printf("%s\n", [record.message UTF8String]);
 }]];

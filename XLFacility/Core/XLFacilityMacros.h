@@ -38,7 +38,7 @@
  
  *  For instance, if the log level for XLFacility is set to ERROR, calling
  *  XLOG_WARNING(@"Unexpected value: %@", value)` will almost be a no-op
- *  while [[XLFacility sharedFacility] logWarning:@"Unexpected value: %@", value]
+ *  while [XLSharedFacility logWarning:@"Unexpected value: %@", value]
  *  will still evaluate all the arguments (which can be quite expensive),
  *  compute the format string, and finally pass everything to the XLFacility
  *  shared instance where it will be ignored anyway.

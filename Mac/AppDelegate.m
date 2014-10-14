@@ -36,7 +36,7 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
-  [[XLFacility sharedFacility] addLogger:[XLAppKitOverlayLogger sharedLogger]];
+  [XLSharedFacility addLogger:[XLAppKitOverlayLogger sharedLogger]];
   
   XLOG_INFO(@"%s", __FUNCTION__);
 }
