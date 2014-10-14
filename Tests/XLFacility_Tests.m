@@ -164,7 +164,7 @@
   
   usleep(kSleepDelay);
   
-  fprintf(stderr, "\n");
+  fprintf(stderr, "Querying ASL - please wait...\n");
   
   aslmsg query = asl_new(ASL_TYPE_QUERY);
   const char* level = "7";  // ASL_LEVEL_DEBUG
