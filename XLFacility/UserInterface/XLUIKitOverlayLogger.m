@@ -34,6 +34,7 @@
 #define kOverlayWindowLevel 100.0
 #define kOverlayMargin 25.0
 #define kOverlayCornerRadius 6.0
+#define kOverlayFadeDuration 0.3
 
 @interface XLUIKitOverlayLogger () {
 @private
@@ -110,18 +111,13 @@
   return YES;
 }
 
-- (void)_animationDidStop:(NSString*)animationID finished:(NSNumber*)finished context:(void*)context {
-  _overlayWindow.hidden = YES;
-  _textView.text = @"";
-}
-
 - (void)_overlayTimer:(NSTimer*)timer {
-  [UIView beginAnimations:nil context:NULL];
-  [UIView setAnimationBeginsFromCurrentState:YES];
-  [UIView setAnimationDelegate:self];
-  [UIView setAnimationDidStopSelector:@selector(_animationDidStop:finished:context:)];
-  _textView.alpha = 0.0;
-  [UIView commitAnimations];
+  [UIView animateWithDuration:kOverlayFadeDuration animations:^{
+    _textView.alpha = 0.0;
+  } completion:^(BOOL finished) {
+    _overlayWindow.hidden = YES;
+    _textView.text = @"";
+  }];
 }
 
 - (void)logRecord:(XLLogRecord*)record {
@@ -135,10 +131,9 @@
     _overlayWindow.hidden = NO;
     if (_overlayDuration > 0.0) {
       if (_textView.alpha < 1.0) {
-        [UIView beginAnimations:nil context:NULL];
-        [UIView setAnimationBeginsFromCurrentState:YES];
-        _textView.alpha = 1.0;
-        [UIView commitAnimations];
+        [UIView animateWithDuration:kOverlayFadeDuration animations:^{
+          _textView.alpha = 1.0;
+        }];
       }
       [_overlayTimer setFireDate:[NSDate dateWithTimeIntervalSinceNow:_overlayDuration]];
     } else {
