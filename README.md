@@ -6,10 +6,10 @@ Overview
 [![Platform](http://cocoapod-badges.herokuapp.com/p/XLFacility/badge.png)](http://cocoadocs.org/docsets/XLFacility)
 
 XLFacility, which stands for *Extensive Logging Facility*, is an elegant and powerful logging facility for OS X & iOS. It was written from scratch with the following goals in mind:
-* Making it trivial to log messages from anywhere in your app source code without impacting performance
+* Drop-in replacement of `NSLog()` along with trivial to use macros to log messages anywhere in your app without impacting performance
 * Support a wide variety of logging destinations aka "loggers"
 * Customizable logging formats
-* Modern and clean codebase fully taking advantage of the latest Obj-C runtime and Grand Central Dispatch
+* Modern, clean and compact codebase fully taking advantage of the latest Obj-C runtime and Grand Central Dispatch
 * Easy to understand architecture with the ability to write custom loggers in a few lines of code
 * No dependencies on third-party source code
 * Available under a friendly [New BSD License](LICENSE)
