@@ -300,6 +300,8 @@ static NSString* _StringFromAddressData(NSData* data) {
   int listeningSocket6 = [self _createListeningSocket:YES localAddress:&addr6 length:sizeof(addr6)];
   
   if ((listeningSocket4 <= 0) || (listeningSocket6 <= 0)) {
+    close(listeningSocket4);
+    close(listeningSocket6);
     if (_databaseLogger) {
       [_databaseLogger close];
       [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
