@@ -658,6 +658,7 @@
 				E26ABC2619EC9E2D00654D9F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		E26DC16219E8494700C68DDC /* Build configuration list for PBXProject "XLFacility" */ = {
 			isa = XCConfigurationList;
