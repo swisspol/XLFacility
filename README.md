@@ -38,6 +38,11 @@ Alternatively, you can install XLFacility using [CocoaPods](http://cocoapods.org
 pod "XLFacility", "~> 1.0"
 ```
 
+This provides all loggers including the server ones but if you want just the "core" of XLFacility, use instead:
+```
+pod "XLFacility/Core", "~> 1.0"
+```
+
 Drop-in NSLog Replacement
 =========================
 
