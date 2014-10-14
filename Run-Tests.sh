@@ -14,21 +14,21 @@ CONFIGURATION="Release"
 BUILD_DIR="/tmp/XLFacility"
 PRODUCT="$BUILD_DIR/$CONFIGURATION/XLFacility"
 
-# Build for iOS for oldest deployment target (TODO: run tests on iOS)
+# Build for iOS for oldest deployment target
 rm -rf "$BUILD_DIR"
-xcodebuild -sdk "$IOS_SDK" -target "$IOS_TARGET" -configuration "$CONFIGURATION" build "SYMROOT=$BUILD_DIR" "IPHONEOS_DEPLOYMENT_TARGET=5.0" > /dev/null
+xcodebuild -sdk "$IOS_SDK" -target "$IOS_TARGET" -configuration "$CONFIGURATION" build "SYMROOT=$BUILD_DIR" "IPHONEOS_DEPLOYMENT_TARGET=5.0"
 
-# Build for iOS for default deployment target (TODO: run tests on iOS)
+# Build for iOS for default deployment target
 rm -rf "$BUILD_DIR"
-xcodebuild -sdk "$IOS_SDK" -target "$IOS_TARGET" -configuration "$CONFIGURATION" build "SYMROOT=$BUILD_DIR" > /dev/null
+xcodebuild -sdk "$IOS_SDK" -target "$IOS_TARGET" -configuration "$CONFIGURATION" build "SYMROOT=$BUILD_DIR"
 
 # Build for OS X for oldest deployment target
 rm -rf "$BUILD_DIR"
-xcodebuild -sdk "$OSX_SDK" -target "$OSX_TARGET" -configuration "$CONFIGURATION" build "SYMROOT=$BUILD_DIR" "MACOSX_DEPLOYMENT_TARGET=10.7" > /dev/null
+xcodebuild -sdk "$OSX_SDK" -target "$OSX_TARGET" -configuration "$CONFIGURATION" build "SYMROOT=$BUILD_DIR" "MACOSX_DEPLOYMENT_TARGET=10.7"
 
 # Build for OS X for default deployment target
 rm -rf "$BUILD_DIR"
-xcodebuild -sdk "$OSX_SDK" -target "$OSX_TARGET" -configuration "$CONFIGURATION" build "SYMROOT=$BUILD_DIR" > /dev/null
+xcodebuild -sdk "$OSX_SDK" -target "$OSX_TARGET" -configuration "$CONFIGURATION" build "SYMROOT=$BUILD_DIR"
 
 # Run tests
 # TODO
