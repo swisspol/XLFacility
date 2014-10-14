@@ -13,8 +13,9 @@
 			buildPhases = (
 			);
 			dependencies = (
-				E2B3CF2B19E9189C003ED065 /* PBXTargetDependency */,
 				E2B3CEEB19E91784003ED065 /* PBXTargetDependency */,
+				E2B3CF2B19E9189C003ED065 /* PBXTargetDependency */,
+				E26ABC2E19EC9FA400654D9F /* PBXTargetDependency */,
 			);
 			name = "Build All";
 			productName = "Build All";
@@ -24,7 +25,24 @@
 /* Begin PBXBuildFile section */
 		E26ABB5019EC278300654D9F /* XLTCPServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */; };
 		E26ABB5119EC278300654D9F /* XLTCPServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */; };
-		E26DC18F19E85DA300C68DDC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E26DC18D19E85DA300C68DDC /* main.m */; };
+		E26ABC1019EC9E2D00654D9F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABC0F19EC9E2D00654D9F /* AppDelegate.m */; };
+		E26ABC1219EC9E2D00654D9F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABC1119EC9E2D00654D9F /* main.m */; };
+		E26ABC1719EC9E2D00654D9F /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E26ABC1519EC9E2D00654D9F /* MainMenu.xib */; };
+		E26ABC2C19EC9F9A00654D9F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABC2B19EC9F9A00654D9F /* main.m */; };
+		E26ABC2F19EC9FF700654D9F /* XLASLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A019EA425700A1B39F /* XLASLLogger.m */; };
+		E26ABC3019EC9FF700654D9F /* XLCallbackLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A219EA425700A1B39F /* XLCallbackLogger.m */; };
+		E26ABC3119EC9FF700654D9F /* XLFacility.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A419EA425700A1B39F /* XLFacility.m */; };
+		E26ABC3219EC9FF700654D9F /* XLFileLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A619EA425700A1B39F /* XLFileLogger.m */; };
+		E26ABC3319EC9FF700654D9F /* XLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A819EA425700A1B39F /* XLLogger.m */; };
+		E26ABC3419EC9FF700654D9F /* XLLogRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8AC19EA425700A1B39F /* XLLogRecord.m */; };
+		E26ABC3519EC9FF700654D9F /* XLStandardLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8AE19EA425700A1B39F /* XLStandardLogger.m */; };
+		E26ABC3619EC9FF700654D9F /* XLDatabaseLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8B119EA425700A1B39F /* XLDatabaseLogger.m */; };
+		E26ABC3719EC9FF700654D9F /* XLHTTPServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8B319EA425700A1B39F /* XLHTTPServerLogger.m */; };
+		E26ABC3819EC9FF700654D9F /* XLTCPServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */; };
+		E26ABC3919EC9FF700654D9F /* XLTelnetServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8B519EA425700A1B39F /* XLTelnetServerLogger.m */; };
+		E26ABC3A19ECA02500654D9F /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E26DC19C19E883C600C68DDC /* libsqlite3.dylib */; };
+		E26ABC3B19ECA04600654D9F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1319E9FF5000D85595 /* CFNetwork.framework */; };
+		E26ABC3D19ECA04F00654D9F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E26ABC3C19ECA04F00654D9F /* Cocoa.framework */; };
 		E26DC19D19E883C600C68DDC /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E26DC19C19E883C600C68DDC /* libsqlite3.dylib */; };
 		E280BF1419E9FF5000D85595 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1319E9FF5000D85595 /* CFNetwork.framework */; };
 		E280BF1619E9FF5500D85595 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1519E9FF5500D85595 /* CFNetwork.framework */; };
@@ -56,6 +74,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		E26ABC2D19EC9FA400654D9F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E26DC15F19E8494700C68DDC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E26ABC0919EC9E2D00654D9F;
+			remoteInfo = "XLFacility (Mac)";
+		};
 		E2B3CEEA19E91784003ED065 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E26DC15F19E8494700C68DDC /* Project object */;
@@ -75,8 +100,15 @@
 /* Begin PBXFileReference section */
 		E26ABB4E19EC278300654D9F /* XLTCPServerLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPServerLogger.h; sourceTree = "<group>"; };
 		E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPServerLogger.m; sourceTree = "<group>"; };
+		E26ABC0A19EC9E2D00654D9F /* XLFacility.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XLFacility.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E26ABC0D19EC9E2D00654D9F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E26ABC0E19EC9E2D00654D9F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		E26ABC0F19EC9E2D00654D9F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		E26ABC1119EC9E2D00654D9F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		E26ABC1619EC9E2D00654D9F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		E26ABC2B19EC9F9A00654D9F /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		E26ABC3C19ECA04F00654D9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E26DC16719E8494700C68DDC /* XLFacility */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = XLFacility; sourceTree = BUILT_PRODUCTS_DIR; };
-		E26DC18D19E85DA300C68DDC /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E26DC19C19E883C600C68DDC /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		E280BF0E19E9F3DF00D85595 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E280BF1319E9FF5000D85595 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -116,6 +148,16 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E26ABC0719EC9E2D00654D9F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E26ABC3D19ECA04F00654D9F /* Cocoa.framework in Frameworks */,
+				E26ABC3B19ECA04600654D9F /* CFNetwork.framework in Frameworks */,
+				E26ABC3A19ECA02500654D9F /* libsqlite3.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E26DC16419E8494700C68DDC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -138,14 +180,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E26ABC0B19EC9E2D00654D9F /* Mac */ = {
+			isa = PBXGroup;
+			children = (
+				E26ABC0E19EC9E2D00654D9F /* AppDelegate.h */,
+				E26ABC0F19EC9E2D00654D9F /* AppDelegate.m */,
+				E26ABC1519EC9E2D00654D9F /* MainMenu.xib */,
+				E26ABC0D19EC9E2D00654D9F /* Info.plist */,
+				E26ABC1119EC9E2D00654D9F /* main.m */,
+			);
+			path = Mac;
+			sourceTree = "<group>";
+		};
+		E26ABC2A19EC9F9A00654D9F /* CLT */ = {
+			isa = PBXGroup;
+			children = (
+				E26ABC2B19EC9F9A00654D9F /* main.m */,
+			);
+			path = CLT;
+			sourceTree = "<group>";
+		};
 		E26DC15E19E8494700C68DDC = {
 			isa = PBXGroup;
 			children = (
 				E280BF0E19E9F3DF00D85595 /* README.md */,
 				E2BBC7FF19EB1C320082CB48 /* XLFacility.podspec */,
 				E29DC89D19EA425700A1B39F /* XLFacility */,
-				E26DC18C19E85DA300C68DDC /* Mac */,
+				E26ABC2A19EC9F9A00654D9F /* CLT */,
 				E2B3CF1619E91825003ED065 /* iOS */,
+				E26ABC0B19EC9E2D00654D9F /* Mac */,
 				E26DC19E19E883CC00C68DDC /* Mac Frameworks and Libraries */,
 				E2B3CF2E19E919AC003ED065 /* iOS Frameworks and Libraries */,
 				E26DC16819E8494700C68DDC /* Products */,
@@ -157,21 +220,15 @@
 			children = (
 				E26DC16719E8494700C68DDC /* XLFacility */,
 				E2B3CEF019E917BB003ED065 /* XLFacility.app */,
+				E26ABC0A19EC9E2D00654D9F /* XLFacility.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		E26DC18C19E85DA300C68DDC /* Mac */ = {
-			isa = PBXGroup;
-			children = (
-				E26DC18D19E85DA300C68DDC /* main.m */,
-			);
-			path = Mac;
 			sourceTree = "<group>";
 		};
 		E26DC19E19E883CC00C68DDC /* Mac Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				E26ABC3C19ECA04F00654D9F /* Cocoa.framework */,
 				E280BF1319E9FF5000D85595 /* CFNetwork.framework */,
 				E26DC19C19E883C600C68DDC /* libsqlite3.dylib */,
 			);
@@ -259,9 +316,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E26DC16619E8494700C68DDC /* XLFacility (Mac) */ = {
+		E26ABC0919EC9E2D00654D9F /* XLFacility (Mac) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E26DC16E19E8494700C68DDC /* Build configuration list for PBXNativeTarget "XLFacility (Mac)" */;
+			buildConfigurationList = E26ABC2419EC9E2D00654D9F /* Build configuration list for PBXNativeTarget "XLFacility (Mac)" */;
+			buildPhases = (
+				E26ABC0619EC9E2D00654D9F /* Sources */,
+				E26ABC0719EC9E2D00654D9F /* Frameworks */,
+				E26ABC0819EC9E2D00654D9F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "XLFacility (Mac)";
+			productName = Mac;
+			productReference = E26ABC0A19EC9E2D00654D9F /* XLFacility.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E26DC16619E8494700C68DDC /* XLFacility (CLT) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E26DC16E19E8494700C68DDC /* Build configuration list for PBXNativeTarget "XLFacility (CLT)" */;
 			buildPhases = (
 				E26DC16319E8494700C68DDC /* Sources */,
 				E26DC16419E8494700C68DDC /* Frameworks */,
@@ -270,7 +344,7 @@
 			);
 			dependencies = (
 			);
-			name = "XLFacility (Mac)";
+			name = "XLFacility (CLT)";
 			productName = Logger;
 			productReference = E26DC16719E8494700C68DDC /* XLFacility */;
 			productType = "com.apple.product-type.tool";
@@ -301,6 +375,9 @@
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
+					E26ABC0919EC9E2D00654D9F = {
+						CreatedOnToolsVersion = 6.1;
+					};
 					E26DC16619E8494700C68DDC = {
 						CreatedOnToolsVersion = 6.1;
 					};
@@ -326,13 +403,22 @@
 			projectRoot = "";
 			targets = (
 				E2B3CEE619E91770003ED065 /* Build All */,
-				E26DC16619E8494700C68DDC /* XLFacility (Mac) */,
+				E26DC16619E8494700C68DDC /* XLFacility (CLT) */,
 				E2B3CEEF19E917BB003ED065 /* XLFacility (iOS) */,
+				E26ABC0919EC9E2D00654D9F /* XLFacility (Mac) */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		E26ABC0819EC9E2D00654D9F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E26ABC1719EC9E2D00654D9F /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E2B3CEEE19E917BB003ED065 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -343,11 +429,31 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E26ABC0619EC9E2D00654D9F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E26ABC1219EC9E2D00654D9F /* main.m in Sources */,
+				E26ABC3919EC9FF700654D9F /* XLTelnetServerLogger.m in Sources */,
+				E26ABC2F19EC9FF700654D9F /* XLASLLogger.m in Sources */,
+				E26ABC3619EC9FF700654D9F /* XLDatabaseLogger.m in Sources */,
+				E26ABC3319EC9FF700654D9F /* XLLogger.m in Sources */,
+				E26ABC3819EC9FF700654D9F /* XLTCPServerLogger.m in Sources */,
+				E26ABC3119EC9FF700654D9F /* XLFacility.m in Sources */,
+				E26ABC3519EC9FF700654D9F /* XLStandardLogger.m in Sources */,
+				E26ABC3019EC9FF700654D9F /* XLCallbackLogger.m in Sources */,
+				E26ABC3419EC9FF700654D9F /* XLLogRecord.m in Sources */,
+				E26ABC3719EC9FF700654D9F /* XLHTTPServerLogger.m in Sources */,
+				E26ABC1019EC9E2D00654D9F /* AppDelegate.m in Sources */,
+				E26ABC3219EC9FF700654D9F /* XLFileLogger.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E26DC16319E8494700C68DDC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E26DC18F19E85DA300C68DDC /* main.m in Sources */,
+				E26ABC2C19EC9F9A00654D9F /* main.m in Sources */,
 				E29DC8C419EA425700A1B39F /* XLDatabaseLogger.m in Sources */,
 				E29DC8B819EA425700A1B39F /* XLCallbackLogger.m in Sources */,
 				E29DC8B619EA425700A1B39F /* XLASLLogger.m in Sources */,
@@ -366,8 +472,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E26ABB5119EC278300654D9F /* XLTCPServerLogger.m in Sources */,
 				E2B3CF1D19E91825003ED065 /* main.m in Sources */,
+				E26ABB5119EC278300654D9F /* XLTCPServerLogger.m in Sources */,
 				E2B3CF1B19E91825003ED065 /* AppDelegate.m in Sources */,
 				E29DC8C519EA425700A1B39F /* XLDatabaseLogger.m in Sources */,
 				E29DC8BB19EA425700A1B39F /* XLFacility.m in Sources */,
@@ -386,9 +492,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		E26ABC2E19EC9FA400654D9F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E26ABC0919EC9E2D00654D9F /* XLFacility (Mac) */;
+			targetProxy = E26ABC2D19EC9FA400654D9F /* PBXContainerItemProxy */;
+		};
 		E2B3CEEB19E91784003ED065 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = E26DC16619E8494700C68DDC /* XLFacility (Mac) */;
+			target = E26DC16619E8494700C68DDC /* XLFacility (CLT) */;
 			targetProxy = E2B3CEEA19E91784003ED065 /* PBXContainerItemProxy */;
 		};
 		E2B3CF2B19E9189C003ED065 /* PBXTargetDependency */ = {
@@ -398,7 +509,44 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		E26ABC1519EC9E2D00654D9F /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E26ABC1619EC9E2D00654D9F /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
+		E26ABC2519EC9E2D00654D9F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Mac/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = XLFacility;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E26ABC2619EC9E2D00654D9F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Mac/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = XLFacility;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		E26DC16C19E8494700C68DDC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -497,6 +645,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		E26ABC2419EC9E2D00654D9F /* Build configuration list for PBXNativeTarget "XLFacility (Mac)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E26ABC2519EC9E2D00654D9F /* Debug */,
+				E26ABC2619EC9E2D00654D9F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		E26DC16219E8494700C68DDC /* Build configuration list for PBXProject "XLFacility" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -506,7 +662,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E26DC16E19E8494700C68DDC /* Build configuration list for PBXNativeTarget "XLFacility (Mac)" */ = {
+		E26DC16E19E8494700C68DDC /* Build configuration list for PBXNativeTarget "XLFacility (CLT)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E26DC16F19E8494700C68DDC /* Debug */,

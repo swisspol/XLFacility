@@ -25,8 +25,29 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <Cocoa/Cocoa.h>
+#import "AppDelegate.h"
+#import "XLFacilityMacros.h"
 
-int main(int argc, const char* argv[]) {
-  return NSApplicationMain(argc, argv);
+@implementation AppDelegate
+
+- (IBAction)click:(id)sender {
+  XLOG_INFO(@"%s", __FUNCTION__);
 }
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+  XLOG_INFO(@"%s", __FUNCTION__);
+}
+
+- (void)applicationDidBecomeActive:(NSNotification *)notification {
+  XLOG_INFO(@"%s", __FUNCTION__);
+}
+
+- (void)applicationDidResignActive:(NSNotification *)notification {
+  XLOG_INFO(@"%s", __FUNCTION__);
+}
+
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender {
+  return YES;
+}
+
+@end

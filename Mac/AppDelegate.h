@@ -27,6 +27,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-int main(int argc, const char* argv[]) {
-  return NSApplicationMain(argc, argv);
-}
+@interface AppDelegate : NSObject <NSApplicationDelegate>
+@property(nonatomic, weak) IBOutlet NSWindow* window;
+- (IBAction)click:(id)sender;
+@end
