@@ -69,6 +69,11 @@
 
 @implementation XLTCPServerConnection (Extensions)
 
+- (BOOL)isUsingIPv6 {
+  const struct sockaddr* localSockAddr = _localAddressData.bytes;
+  return (localSockAddr->sa_family == AF_INET6);
+}
+
 static NSString* _StringFromAddressData(NSData* data) {
   NSString* string = nil;
   const struct sockaddr* addr = data.bytes;
@@ -148,9 +153,10 @@ static NSString* _StringFromAddressData(NSData* data) {
 @private
   BOOL _useDatabase;
   dispatch_group_t _syncGroup;
-  dispatch_semaphore_t _sourceSemaphore;
+  dispatch_group_t _sourceGroup;
   NSMutableSet* _connections;
-  dispatch_source_t _source;
+  dispatch_source_t _source4;
+  dispatch_source_t _source6;
 }
 @end
 
@@ -171,7 +177,7 @@ static NSString* _StringFromAddressData(NSData* data) {
     _useDatabase = useDatabaseLogger;
     
     _syncGroup = dispatch_group_create();
-    _sourceSemaphore = dispatch_semaphore_create(0);
+    _sourceGroup = dispatch_group_create();
     _connections = [[NSMutableSet alloc] init];
   }
   return self;
@@ -180,7 +186,7 @@ static NSString* _StringFromAddressData(NSData* data) {
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
 
 - (void)dealloc {
-  dispatch_release(_sourceSemaphore);
+  dispatch_release(_sourceGroup);
   dispatch_release(_syncGroup);
 }
 
@@ -203,9 +209,71 @@ static NSString* _StringFromAddressData(NSData* data) {
   });
 }
 
+- (int)_createListeningSocket:(BOOL)useIPv6 localAddress:(const void*)address length:(socklen_t)length {
+  int listeningSocket = socket(useIPv6 ? PF_INET6 : PF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (listeningSocket > 0) {
+    int yes = 1;
+    setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+    
+    if (bind(listeningSocket, address, length) == 0) {
+      if (listen(listeningSocket, kMaxPendingConnections) == 0) {
+        return listeningSocket;
+      } else {
+        XLOG_INTERNAL(@"Failed starting %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
+        close(listeningSocket);
+      }
+    } else {
+      XLOG_INTERNAL(@"Failed binding %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
+      close(listeningSocket);
+    }
+  } else {
+    XLOG_INTERNAL(@"Failed creating %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
+  }
+  return -1;
+}
+
+- (dispatch_source_t)_createDispatchSourceWithListeningSocket:(int)listeningSocket isIPv6:(BOOL)isIPv6 {
+  dispatch_group_enter(_sourceGroup);
+  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, kDispatchQueue);
+  dispatch_source_set_cancel_handler(source, ^{
+    close(listeningSocket);
+    dispatch_group_leave(_sourceGroup);
+  });
+  dispatch_source_set_event_handler(source, ^{
+    @autoreleasepool {
+      struct sockaddr remoteSockAddr;
+      socklen_t remoteAddrLen = sizeof(remoteSockAddr);
+      int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
+      if (socket > 0) {
+        int noSigPipe = 1;
+        setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
+        
+        NSData* remoteAddress = [NSData dataWithBytes:&remoteSockAddr length:remoteAddrLen];
+        
+        struct sockaddr localSockAddr;
+        socklen_t localAddrLen = sizeof(localSockAddr);
+        NSData* localAddress = nil;
+        if (getsockname(socket, &localSockAddr, &localAddrLen) == 0) {
+          localAddress = [NSData dataWithBytes:&localSockAddr length:localAddrLen];
+        } else {
+          XLOG_INTERNAL(@"Failed retrieving local %s socket address: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
+        }
+        
+        XLTCPServerConnection* connection = [[[[self class] connectionClass] alloc] initWithServer:self localAddress:localAddress remoteAddress:remoteAddress socket:socket];
+        dispatch_sync(self.lockQueue, ^{
+          dispatch_group_enter(_syncGroup);
+          [_connections addObject:connection];
+        });
+        [connection open];
+      } else {
+        XLOG_INTERNAL(@"Failed accepting %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
+      }
+    }
+  });
+  return source;
+}
+
 - (BOOL)open {
-  BOOL success = NO;
-  
   if (_useDatabase) {
     NSString* databasePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
     _databaseLogger = [[XLDatabaseLogger alloc] initWithDatabasePath:databasePath appVersion:0];
@@ -215,79 +283,38 @@ static NSString* _StringFromAddressData(NSData* data) {
     }
   }
   
-  int listeningSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (listeningSocket > 0) {
-    int yes = 1;
-    setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-    
-    struct sockaddr_in addr4;
-    bzero(&addr4, sizeof(addr4));
-    addr4.sin_len = sizeof(addr4);
-    addr4.sin_family = AF_INET;
-    addr4.sin_port = htons(_port);
-    addr4.sin_addr.s_addr = htonl(INADDR_ANY);
-    if (bind(listeningSocket, (void*)&addr4, sizeof(addr4)) == 0) {
-      if (listen(listeningSocket, kMaxPendingConnections) == 0) {
-        _source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, kDispatchQueue);
-        
-        dispatch_source_set_cancel_handler(_source, ^{
-          close(listeningSocket);
-          dispatch_semaphore_signal(_sourceSemaphore);
-        });
-        
-        dispatch_source_set_event_handler(_source, ^{
-          @autoreleasepool {
-            struct sockaddr remoteSockAddr;
-            socklen_t remoteAddrLen = sizeof(remoteSockAddr);
-            int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
-            if (socket > 0) {
-              int noSigPipe = 1;
-              setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
-              
-              NSData* remoteAddress = [NSData dataWithBytes:&remoteSockAddr length:remoteAddrLen];
-              
-              struct sockaddr localSockAddr;
-              socklen_t localAddrLen = sizeof(localSockAddr);
-              NSData* localAddress = nil;
-              if (getsockname(socket, &localSockAddr, &localAddrLen) == 0) {
-                localAddress = [NSData dataWithBytes:&localSockAddr length:localAddrLen];
-              } else {
-                XLOG_INTERNAL(@"Failed retrieving local socket address: %s", strerror(errno));
-              }
-              
-              XLTCPServerConnection* connection = [[[[self class] connectionClass] alloc] initWithServer:self localAddress:localAddress remoteAddress:remoteAddress socket:socket];
-              dispatch_sync(self.lockQueue, ^{
-                dispatch_group_enter(_syncGroup);
-                [_connections addObject:connection];
-              });
-              [connection open];
-            } else {
-              XLOG_INTERNAL(@"Failed accepting socket: %s", strerror(errno));
-            }
-          }
-        });
-        
-        dispatch_resume(_source);
-        success = YES;
-      } else {
-        XLOG_INTERNAL(@"Failed starting listening socket: %s", strerror(errno));
-        close(listeningSocket);
-      }
-    } else {
-      XLOG_INTERNAL(@"Failed binding listening socket: %s", strerror(errno));
-      close(listeningSocket);
+  struct sockaddr_in addr4;
+  bzero(&addr4, sizeof(addr4));
+  addr4.sin_len = sizeof(addr4);
+  addr4.sin_family = AF_INET;
+  addr4.sin_port = htons(_port);
+  addr4.sin_addr.s_addr = htonl(INADDR_ANY);
+  int listeningSocket4 = [self _createListeningSocket:NO localAddress:&addr4 length:sizeof(addr4)];
+  
+  struct sockaddr_in6 addr6;
+  bzero(&addr6, sizeof(addr6));
+  addr6.sin6_len = sizeof(addr6);
+  addr6.sin6_family = AF_INET6;
+  addr6.sin6_port = htons(_port);
+  addr6.sin6_addr = in6addr_any;
+  int listeningSocket6 = [self _createListeningSocket:YES localAddress:&addr6 length:sizeof(addr6)];
+  
+  if ((listeningSocket4 <= 0) || (listeningSocket6 <= 0)) {
+    if (_databaseLogger) {
+      [_databaseLogger close];
+      [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
+      _databaseLogger = nil;
     }
-  } else {
-    XLOG_INTERNAL(@"Failed creating listening socket: %s", strerror(errno));
+    return NO;
   }
   
-  if (_databaseLogger && !success) {
-    [_databaseLogger close];
-    [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
-    _databaseLogger = nil;
-  }
+  _source4 = [self _createDispatchSourceWithListeningSocket:listeningSocket4 isIPv6:NO];
+  dispatch_resume(_source4);
   
-  return success;
+  _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
+  dispatch_resume(_source6);
+  
+  return YES;
 }
 
 - (void)logRecord:(XLLogRecord*)record {
@@ -297,12 +324,17 @@ static NSString* _StringFromAddressData(NSData* data) {
 }
 
 - (void)close {
-  dispatch_source_cancel(_source);
-  dispatch_semaphore_wait(_sourceSemaphore, DISPATCH_TIME_FOREVER);  // Wait until the cancellation handler has been called which guarantees the listening socket is closed
+  dispatch_source_cancel(_source6);
+  dispatch_source_cancel(_source4);
+  dispatch_group_wait(_sourceGroup, DISPATCH_TIME_FOREVER);  // Wait until the cancellation handlers have been called which guarantees the listening sockets are closed
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(_source);
+  dispatch_release(_source6);
 #endif
-  _source = NULL;
+  _source6 = NULL;
+#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+  dispatch_release(_source4);
+#endif
+  _source4 = NULL;
   
   NSSet* connections = self.connections;
   for (XLTCPServerConnection* connection in connections) {  // No need to use "_lockQueue" since no new connections can be created anymore and it would deadlock with -didCloseConnection:

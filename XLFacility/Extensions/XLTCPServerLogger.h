@@ -83,6 +83,11 @@
 @interface XLTCPServerConnection (Extensions)
 
 /**
+ *  Returns YES if the connection is using IPv6.
+ */
+@property(nonatomic, readonly, getter=isUsingIPv6) BOOL usingIPv6;
+
+/**
  *  Returns the address of the local peer (i.e. server) of the connection
  *  as a dotted string.
  */
