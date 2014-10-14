@@ -56,6 +56,7 @@ static ExceptionInitializerIMP _originalExceptionInitializerIMP = NULL;
 
 static dispatch_source_t _stdOutCaptureSource = NULL;
 static dispatch_source_t _stdErrCaptureSource = NULL;
+static NSData* _newlineData = nil;
 
 void XLLogInternalError(NSString* format, ...) {
   va_list arguments;
@@ -356,6 +357,9 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 }
 
 static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel level, BOOL detectNSLogFormatting) {
+  if (_newlineData == nil) {
+    _newlineData = [[NSData alloc] initWithBytes:"\n" length:1];
+  }
   size_t prognameLength = strlen(getprogname());
   
   int fildes[2];
@@ -383,7 +387,7 @@ static dispatch_source_t _CaptureWritingToFileDescriptor(int fd, XLLogLevel leve
       }
       
       while (1) {
-        NSRange range = [data rangeOfData:[NSData dataWithBytes:"\n" length:1] options:0 range:NSMakeRange(0, data.length)];
+        NSRange range = [data rangeOfData:_newlineData options:0 range:NSMakeRange(0, data.length)];
         if (range.location == NSNotFound) {
           break;
         }
