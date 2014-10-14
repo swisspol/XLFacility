@@ -530,12 +530,10 @@
 		E26ABC2519EC9E2D00654D9F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Mac/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = XLFacility;
-				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -543,12 +541,10 @@
 		E26ABC2619EC9E2D00654D9F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Mac/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = XLFacility;
-				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 			};
 			name = Release;
