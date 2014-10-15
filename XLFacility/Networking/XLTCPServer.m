@@ -36,7 +36,6 @@
 #import "XLPrivate.h"
 
 #define kMaxPendingConnections 4
-#define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 
 @interface XLTCPServerConnection ()
 @property(nonatomic, assign) XLTCPServer* server;
@@ -127,7 +126,7 @@
 
 - (dispatch_source_t)_createDispatchSourceWithListeningSocket:(int)listeningSocket isIPv6:(BOOL)isIPv6 {
   dispatch_group_enter(_sourceGroup);
-  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, kDispatchQueue);
+  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, XGLOBAL_DISPATCH_QUEUE);
   dispatch_source_set_cancel_handler(source, ^{
     close(listeningSocket);
     dispatch_group_leave(_sourceGroup);

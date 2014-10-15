@@ -29,6 +29,8 @@
 
 #define XLDISPATCH_QUEUE_LABEL object_getClassName(self)
 
+#define XGLOBAL_DISPATCH_QUEUE dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
+
 #define XLOG_INTERNAL(__FORMAT__, ...) XLLogInternalError(@"%s " __FORMAT__, __FUNCTION__, __VA_ARGS__)
 
 extern int XLOriginalStdOut;
