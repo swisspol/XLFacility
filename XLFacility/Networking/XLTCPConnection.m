@@ -233,8 +233,8 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
   dispatch_sync(_lockQueue, ^{
     if (_state == kXLTCPConnectionState_Opened) {
       dispatch_read(_socket, SIZE_MAX, kDispatchQueue, ^(dispatch_data_t data, int error) {
-        
         @autoreleasepool {
+          
           if (error) {
             XLOG_INTERNAL(@"Failed reading from socket: %s", strerror(error));
             [self close];
@@ -244,12 +244,14 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
           } else if (completion) {
             completion(data);
           }
+          
         }
-        
       });
     } else if (completion) {
       dispatch_async(kDispatchQueue, ^{
-        completion(NULL);
+        @autoreleasepool {
+          completion(NULL);
+        }
       });
     }
   });
@@ -259,8 +261,8 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
   dispatch_sync(_lockQueue, ^{
     if (_state == kXLTCPConnectionState_Opened) {
       dispatch_write(_socket, buffer, kDispatchQueue, ^(dispatch_data_t data, int error) {
-        
         @autoreleasepool {
+          
           if (error) {
             if (error != EPIPE) {
               XLOG_INTERNAL(@"Failed writing to socket: %s", strerror(error));
@@ -272,12 +274,14 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
           } else if (completion) {
             completion(YES);
           }
+          
         }
-        
       });
     } else if (completion) {
       dispatch_async(kDispatchQueue, ^{
-        completion(NO);
+        @autoreleasepool {
+          completion(NO);
+        }
       });
     }
   });

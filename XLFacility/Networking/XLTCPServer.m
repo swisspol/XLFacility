@@ -134,6 +134,7 @@
   });
   dispatch_source_set_event_handler(source, ^{
     @autoreleasepool {
+      
       struct sockaddr remoteSockAddr;
       socklen_t remoteAddrLen = sizeof(remoteSockAddr);
       int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
@@ -148,6 +149,7 @@
       } else {
         XLOG_INTERNAL(@"Failed accepting %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
       }
+      
     }
   });
   return source;
