@@ -37,6 +37,8 @@
 #import "XLFileLogger.h"
 #import "XLDatabaseLogger.h"
 #import "XLASLLogger.h"
+#import "XLTelnetServerLogger.h"
+#import "XLHTTPServerLogger.h"
 
 #define kSleepDelay (100 * 1000)
 
@@ -228,6 +230,64 @@
     ++index;
   }
   asl_free(query);
+  
+  [XLSharedFacility removeLogger:logger];
+}
+
+- (void)testTelnetLogger {
+  XLLogger* logger = [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] initWithPort:3333 preserveHistory:YES]];
+  logger.format = @"[%L] %m";
+  [(XLTelnetServerLogger*)logger setColorize:NO];
+  
+  XLOG_INFO(@"Bonjour le monde!");
+  XLOG_WARNING(@"Hello World!");
+  
+  usleep(kSleepDelay);
+  
+  XCTestExpectation* expectation = [self expectationWithDescription:nil];
+  [XLTCPConnection connectAsynchronouslyToHost:@"localhost" port:3333 timeout:5.0 completion:^(XLTCPConnection* connection) {
+    XCTAssertNotNil(connection);
+    [connection readDataAsynchronously:^(NSData* data1) {
+      XCTAssertNotNil(data1);
+      NSString* string1 = [[NSString alloc] initWithData:data1 encoding:NSUTF8StringEncoding];
+      XCTAssertTrue([string1 hasPrefix:@"You are connected"]);
+      
+      [connection readDataAsynchronously:^(NSData* data2) {
+        XCTAssertNotNil(data2);
+        NSString* string2 = [[NSString alloc] initWithData:data2 encoding:NSUTF8StringEncoding];
+        XCTAssertEqualObjects(string2, @"\
+[INFO     ] Bonjour le monde!\n\
+[WARNING  ] Hello World!\n\
+");
+        
+        [connection close];
+        [expectation fulfill];
+      }];
+      
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:10.0 handler:NULL];
+  
+  [XLSharedFacility removeLogger:logger];
+}
+
+- (void)testHTTPLogger {
+  XLLogger* logger = [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] initWithPort:8888]];
+  
+  XLOG_INFO(@"Bonjour le monde!");
+  XLOG_WARNING(@"Hello World!");
+  
+  usleep(kSleepDelay);
+  
+  NSHTTPURLResponse* response = nil;
+  NSData* data = [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost:8888/"]] returningResponse:&response error:NULL];
+  XCTAssertNotNil(data);
+  XCTAssertEqual(response.statusCode, 200);
+  NSString* string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  NSRange range1 = [string rangeOfString:@"Bonjour le monde!"];
+  XCTAssertNotEqual(range1.location, NSNotFound);
+  NSRange range2 = [string rangeOfString:@"Hello World!"];
+  XCTAssertNotEqual(range2.location, NSNotFound);
   
   [XLSharedFacility removeLogger:logger];
 }
