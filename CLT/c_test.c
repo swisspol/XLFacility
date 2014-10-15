@@ -25,34 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLFacilityMacros.h"
-#import "XLTelnetServerLogger.h"
-#import "XLHTTPServerLogger.h"
+#include "XLFacilityCMacros.h"
 
-extern void c_test();
-
-static int _counter = 0;
-
-static void _RunLoopTimerCallBack(CFRunLoopTimerRef timer, void* info) {
-  if (_counter % 2 == 0) {
-    XLOG_VERBOSE(@"Tick");
-  } else {
-    XLOG_VERBOSE(@"Tock");
-  }
-  _counter += 1;
-}
-
-int main(int argc, const char* argv[]) {
-  @autoreleasepool {
-    [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
-    [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] init]];
-    
-    c_test();
-    
-    CFRunLoopTimerRef timer = CFRunLoopTimerCreate(kCFAllocatorDefault, 0.0, 1.0, 0, 0, _RunLoopTimerCallBack, NULL);
-    CFRunLoopAddTimer(CFRunLoopGetMain(), timer, kCFRunLoopCommonModes);
-    
-    CFRunLoopRun();
-  }
-  return 0;
+void c_test() {
+  XLOG_WARNING("This is a C function called from %s", __FILE__);
 }

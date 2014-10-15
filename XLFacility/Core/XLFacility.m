@@ -60,6 +60,19 @@ static dispatch_source_t _stdOutCaptureSource = NULL;
 static dispatch_source_t _stdErrCaptureSource = NULL;
 static NSData* _newlineData = nil;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+
+void XLLogMessage(int level, const char* format, ...) {
+  va_list arguments;
+  va_start(arguments, format);
+  NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:format] arguments:arguments];
+  va_end(arguments);
+  [XLSharedFacility logMessage:string withLevel:level];
+}
+
+#pragma clang diagnostic pop
+
 void XLLogInternalError(NSString* format, ...) {
   va_list arguments;
   va_start(arguments, format);

@@ -25,34 +25,45 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLFacilityMacros.h"
-#import "XLTelnetServerLogger.h"
-#import "XLHTTPServerLogger.h"
+#ifndef __XLFacilityCMacros__
+#define __XLFacilityCMacros__
 
-extern void c_test();
+/**
+ *  These macros are the C counterpart of the Obj-C ones in XLFacilityMacros.h.
+ */
 
-static int _counter = 0;
+#if DEBUG
+#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= 0) XLLogMessage(0, __VA_ARGS__); } while (0)
+#else
+#define XLOG_DEBUG(...)
+#endif
+#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= 1) XLLogMessage(1, __VA_ARGS__); } while (0)
+#define XLOG_INFO(...) do { if (XLMinLogLevel <= 2) XLLogMessage(2, __VA_ARGS__); } while (0)
+#define XLOG_WARNING(...) do { if (XLMinLogLevel <= 3) XLLogMessage(3, __VA_ARGS__); } while (0)
+#define XLOG_ERROR(...) do { if (XLMinLogLevel <= 4) XLLogMessage(4, __VA_ARGS__); } while (0)
+#define XLOG_ABORT(...) do { if (XLMinLogLevel <= 6) XLLogMessage(6, __VA_ARGS__); } while (0)
 
-static void _RunLoopTimerCallBack(CFRunLoopTimerRef timer, void* info) {
-  if (_counter % 2 == 0) {
-    XLOG_VERBOSE(@"Tick");
-  } else {
-    XLOG_VERBOSE(@"Tock");
-  }
-  _counter += 1;
-}
+#define XLOG_CHECK(__CONDITION__) \
+do { \
+  if (!(__CONDITION__)) { \
+    XLOG_ABORT("Condition failed: \"%s\"", #__CONDITION__); \
+  } \
+} while (0)
 
-int main(int argc, const char* argv[]) {
-  @autoreleasepool {
-    [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
-    [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] init]];
-    
-    c_test();
-    
-    CFRunLoopTimerRef timer = CFRunLoopTimerCreate(kCFAllocatorDefault, 0.0, 1.0, 0, 0, _RunLoopTimerCallBack, NULL);
-    CFRunLoopAddTimer(CFRunLoopGetMain(), timer, kCFRunLoopCommonModes);
-    
-    CFRunLoopRun();
-  }
-  return 0;
-}
+#define XLOG_UNREACHABLE() \
+do { \
+  XLOG_ABORT("Unreachable code executed in '%s': %s:%i", __FUNCTION__, __FILE__, (int)__LINE__); \
+} while (0)
+
+#if DEBUG
+#define XLOG_DEBUG_CHECK(__CONDITION__) XLOG_CHECK(__CONDITION__)
+#define XLOG_DEBUG_UNREACHABLE() XLOG_UNREACHABLE()
+#else
+#define XLOG_DEBUG_CHECK(__CONDITION__)
+#define XLOG_DEBUG_UNREACHABLE()
+#endif
+
+extern int XLMinLogLevel;
+extern void XLLogMessage(int level, const char* format, ...);
+
+#endif // __XLFacilityCMacros__
