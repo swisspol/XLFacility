@@ -21,6 +21,7 @@ Built-in loggers:
 * Local [SQLite](http://www.sqlite.org/) database
 * Telnet server which can be accessed from a terminal on a different computer to monitor log messages as they arrive
 * HTTP server which can be accessed from a web browser on a different computer to browse the past log messages and see live updates
+* Raw TCP connection which can send log messages to a remote server as they happen
 * User interface window overlay for OS X & iOS apps
 
 Requirements:

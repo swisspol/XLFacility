@@ -29,50 +29,31 @@
 #error XLFacility requires ARC
 #endif
 
-#import <net/if.h>
-#import <netdb.h>
+#import <objc/runtime.h>
 
 #import "XLTCPServerLogger.h"
 #import "XLPrivate.h"
 
-#define kMaxPendingConnections 4
-#define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
+static void* _associatedObjectKey = &_associatedObjectKey;
 
-@interface XLTCPServerConnection ()
-@property(nonatomic, assign) XLTCPServerLogger* server;
+@implementation XLTCPServerLoggerConnection
+
+- (XLTCPServerLogger*)logger {
+  return objc_getAssociatedObject(self.server, _associatedObjectKey);
+}
+
 @end
 
 @interface XLTCPServerLogger () {
 @private
   BOOL _useDatabase;
-  dispatch_group_t _syncGroup;
-  dispatch_group_t _sourceGroup;
-  NSMutableSet* _connections;
-  dispatch_source_t _source4;
-  dispatch_source_t _source6;
 }
-- (void)didCloseConnection:(XLTCPServerConnection*)connection;
-@end
-
-@implementation XLTCPServerConnection
-
-- (void)open {
-  ;
-}
-
-- (void)close {
-  [super close];
-  
-  [_server didCloseConnection:self];
-  _server = nil;
-}
-
 @end
 
 @implementation XLTCPServerLogger
 
 + (Class)connectionClass {
-  return [XLTCPServerConnection class];
+  return [XLTCPServerLoggerConnection class];
 }
 
 - (id)init {
@@ -82,97 +63,11 @@
 
 - (instancetype)initWithPort:(NSUInteger)port useDatabaseLogger:(BOOL)useDatabaseLogger {
   if ((self = [super init])) {
-    _port = port;
+    _TCPServer = [[XLTCPServer alloc] initWithConnectionClass:[[self class] connectionClass] port:port];
+    objc_setAssociatedObject(_TCPServer, _associatedObjectKey, self, OBJC_ASSOCIATION_ASSIGN);
     _useDatabase = useDatabaseLogger;
-    
-    _syncGroup = dispatch_group_create();
-    _sourceGroup = dispatch_group_create();
-    _connections = [[NSMutableSet alloc] init];
   }
   return self;
-}
-
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-
-- (void)dealloc {
-  dispatch_release(_sourceGroup);
-  dispatch_release(_syncGroup);
-}
-
-#endif
-
-- (NSSet*)connections {
-  __block NSSet* connections;
-  dispatch_sync(self.lockQueue, ^{
-    connections = [_connections copy];
-  });
-  return connections;
-}
-
-- (void)didCloseConnection:(XLTCPServerConnection*)connection {
-  dispatch_sync(self.lockQueue, ^{
-    if ([_connections containsObject:connection]) {
-      [_connections removeObject:connection];
-      dispatch_group_leave(_syncGroup);
-    }
-  });
-}
-
-- (int)_createListeningSocket:(BOOL)useIPv6 localAddress:(const void*)address length:(socklen_t)length {
-  int listeningSocket = socket(useIPv6 ? PF_INET6 : PF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (listeningSocket > 0) {
-    int yes = 1;
-    setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-    
-    if (bind(listeningSocket, address, length) == 0) {
-      if (listen(listeningSocket, kMaxPendingConnections) == 0) {
-        return listeningSocket;
-      } else {
-        XLOG_INTERNAL(@"Failed starting %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
-        close(listeningSocket);
-      }
-    } else {
-      XLOG_INTERNAL(@"Failed binding %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
-      close(listeningSocket);
-    }
-  } else {
-    XLOG_INTERNAL(@"Failed creating %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
-  }
-  return -1;
-}
-
-- (dispatch_source_t)_createDispatchSourceWithListeningSocket:(int)listeningSocket isIPv6:(BOOL)isIPv6 {
-  dispatch_group_enter(_sourceGroup);
-  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, kDispatchQueue);
-  dispatch_source_set_cancel_handler(source, ^{
-    close(listeningSocket);
-    dispatch_group_leave(_sourceGroup);
-  });
-  dispatch_source_set_event_handler(source, ^{
-    @autoreleasepool {
-      struct sockaddr remoteSockAddr;
-      socklen_t remoteAddrLen = sizeof(remoteSockAddr);
-      int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
-      if (socket > 0) {
-        Class connectionClass = [[self class] connectionClass];
-        XLTCPServerConnection* connection = [[connectionClass alloc] initWithSocket:socket];
-        if (connection) {
-          connection.server = self;
-          dispatch_sync(self.lockQueue, ^{
-            dispatch_group_enter(_syncGroup);
-            [_connections addObject:connection];
-          });
-          [connection open];
-           XLOG_INTERNAL(@"Failed creating %@ instance", NSStringFromClass(connectionClass));
-        } else {
-          close(socket);
-        }
-      } else {
-        XLOG_INTERNAL(@"Failed accepting %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
-      }
-    }
-  });
-  return source;
 }
 
 - (BOOL)open {
@@ -185,38 +80,12 @@
     }
   }
   
-  struct sockaddr_in addr4;
-  bzero(&addr4, sizeof(addr4));
-  addr4.sin_len = sizeof(addr4);
-  addr4.sin_family = AF_INET;
-  addr4.sin_port = htons(_port);
-  addr4.sin_addr.s_addr = htonl(INADDR_ANY);
-  int listeningSocket4 = [self _createListeningSocket:NO localAddress:&addr4 length:sizeof(addr4)];
-  
-  struct sockaddr_in6 addr6;
-  bzero(&addr6, sizeof(addr6));
-  addr6.sin6_len = sizeof(addr6);
-  addr6.sin6_family = AF_INET6;
-  addr6.sin6_port = htons(_port);
-  addr6.sin6_addr = in6addr_any;
-  int listeningSocket6 = [self _createListeningSocket:YES localAddress:&addr6 length:sizeof(addr6)];
-  
-  if ((listeningSocket4 <= 0) || (listeningSocket6 <= 0)) {
-    close(listeningSocket4);
-    close(listeningSocket6);
-    if (_databaseLogger) {
-      [_databaseLogger close];
-      [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
-      _databaseLogger = nil;
-    }
+  if (![_TCPServer start]) {
+    [_databaseLogger close];
+    [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
+    _databaseLogger = nil;
     return NO;
   }
-  
-  _source4 = [self _createDispatchSourceWithListeningSocket:listeningSocket4 isIPv6:NO];
-  dispatch_resume(_source4);
-  
-  _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
-  dispatch_resume(_source6);
   
   return YES;
 }
@@ -228,41 +97,13 @@
 }
 
 - (void)close {
-  dispatch_source_cancel(_source6);
-  dispatch_source_cancel(_source4);
-  dispatch_group_wait(_sourceGroup, DISPATCH_TIME_FOREVER);  // Wait until the cancellation handlers have been called which guarantees the listening sockets are closed
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(_source6);
-#endif
-  _source6 = NULL;
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(_source4);
-#endif
-  _source4 = NULL;
-  
-  NSSet* connections = self.connections;
-  for (XLTCPServerConnection* connection in connections) {  // No need to use "_lockQueue" since no new connections can be created anymore and it would deadlock with -didCloseConnection:
-    [connection close];
-  }
-  dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);  // Wait until all connections are closed
+  [_TCPServer stop];
   
   if (_databaseLogger) {
     [_databaseLogger close];
     [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
     _databaseLogger = nil;
   }
-}
-
-- (void)enumerateConnectionsUsingBlock:(void (^)(XLTCPServerConnection* connection, BOOL* stop))block {
-  dispatch_sync(self.lockQueue, ^{
-    BOOL stop = NO;
-    for (XLTCPServerConnection* connection in _connections) {
-      block(connection, &stop);
-      if (stop) {
-        break;
-      }
-    }
-  });
 }
 
 @end

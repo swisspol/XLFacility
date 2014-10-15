@@ -39,7 +39,7 @@
 @property(nonatomic, readonly) NSDateFormatter* dateFormatterRFC822;
 @end
 
-@interface XLHTTPServerConnection : XLTCPServerConnection
+@interface XLHTTPServerConnection : XLTCPServerLoggerConnection
 @end
 
 @interface XLHTTPServerConnection () {
@@ -57,13 +57,14 @@
 }
 
 - (BOOL)_writeHTMLResponse:(NSString*)htmlString {
+  XLHTTPServerLogger* logger = (XLHTTPServerLogger*)self.logger;
   BOOL success = NO;
   NSData* htmlData = [htmlString dataUsingEncoding:NSUTF8StringEncoding];
   if (htmlData) {
     CFHTTPMessageRef response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, 200, NULL, kCFHTTPVersion1_1);
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Connection"), CFSTR("Close"));
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Server"), (__bridge CFStringRef)NSStringFromClass([self class]));
-    CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Date"), (__bridge CFStringRef)[[(XLHTTPServerLogger*)self.server dateFormatterRFC822] stringFromDate:[NSDate date]]);
+    CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Date"), (__bridge CFStringRef)[logger.dateFormatterRFC822 stringFromDate:[NSDate date]]);
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Type"), CFSTR("text/html; charset=utf-8"));
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Length"), (__bridge CFStringRef)[NSString stringWithFormat:@"%lu", (unsigned long)htmlData.length]);
     CFHTTPMessageSetBody(response, (__bridge CFDataRef)htmlData);
@@ -89,8 +90,9 @@
 }
 
 - (void)_appendLogRecordsToString:(NSMutableString*)string afterAbsoluteTime:(CFAbsoluteTime)time {
+  XLHTTPServerLogger* logger = (XLHTTPServerLogger*)self.logger;
   __block CFAbsoluteTime maxTime = time;
-  [self.server.databaseLogger enumerateRecordsAfterAbsoluteTime:time backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+  [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:time backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
     const char* style = "color: dimgray;";
     if (record.logLevel == kXLLogLevel_Warning) {
       style = "color: orange;";
@@ -99,7 +101,7 @@
     } else if (record.logLevel >= kXLLogLevel_Exception) {
       style = "color: red; font-weight: bold;";
     }
-    NSString* formattedMessage = [self.server formatRecord:record];
+    NSString* formattedMessage = [logger formatRecord:record];
     [string appendFormat:@"<tr style=\"%s\">%@</tr>", style, formattedMessage];
     if (record.absoluteTime > maxTime) {
       maxTime = record.absoluteTime;
@@ -296,7 +298,7 @@
 - (void)logRecord:(XLLogRecord*)record {
   [super logRecord:record];
   
-  [self enumerateConnectionsUsingBlock:^(XLTCPServerConnection* connection, BOOL* stop) {
+  [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPServerConnection* connection, BOOL* stop) {
     [(XLHTTPServerConnection*)connection didReceiveLogRecord];
   }];
 }

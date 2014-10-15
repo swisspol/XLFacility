@@ -32,26 +32,26 @@
 #import "XLTelnetServerLogger.h"
 #import "XLPrivate.h"
 
-@interface XLTelnetServerConnection : XLTCPServerConnection
+@interface XLTelnetServerConnection : XLTCPServerLoggerConnection
 @end
 
 @implementation XLTelnetServerConnection
 
 - (void)open {
-  XLTelnetServerLogger* server = (XLTelnetServerLogger*)self.server;
+  XLTelnetServerLogger* logger = (XLTelnetServerLogger*)self.logger;
   
   char buffer[256];
-  if (server.colorize) {
+  if (logger.colorize) {
     snprintf(buffer, sizeof(buffer), "%sYou are connected to %s[%i] (in color!)%s\n\n", "\x1b[32m", getprogname(), getpid(), "\x1b[0m");
   } else {
     snprintf(buffer, sizeof(buffer), "You are connected to %s[%i]\n\n", getprogname(), getpid());
   }
   [self writeCStringAsynchronously:buffer completion:NULL];
   
-  if (server.databaseLogger) {
+  if (logger.databaseLogger) {
     NSMutableString* history = [[NSMutableString alloc] init];
-    [server.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
-      [history appendString:[server formatRecord:record]];
+    [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+      [history appendString:[logger formatRecord:record]];
     }];
     [self writeDataAsynchronously:XLConvertNSStringToUTF8String(history) completion:NULL];
   }
@@ -99,7 +99,7 @@
   [super logRecord:record];
   
   NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
-  [self enumerateConnectionsUsingBlock:^(XLTCPServerConnection* connection, BOOL* stop) {
+  [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPServerConnection* connection, BOOL* stop) {
     [connection writeDataAsynchronously:data completion:NULL];
   }];
 }

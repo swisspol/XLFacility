@@ -26,7 +26,7 @@
  */
 
 #import "XLDatabaseLogger.h"
-#import "XLTCPConnection.h"
+#import "XLTCPServer.h"
 
 @class XLTCPServerLogger;
 
@@ -34,31 +34,14 @@
  *  The XLTCPServerConnection is an abstract class to implement connections
  *  for XLTCPServerLogger: it cannot be used directly.
  */
-@interface XLTCPServerConnection : XLTCPConnection
+@interface XLTCPServerLoggerConnection : XLTCPServerConnection
 
 /**
  *  Returns the XLTCPServerLogger that owns the connection.
  *
  *  @warning This returns nil after the connection has been closed.
  */
-@property(nonatomic, assign, readonly) XLTCPServerLogger* server;
-
-/**
- *  Called by XLTCPServerLogger to open the connection after it has been created.
- *
- *  Default implementation does nothing but subclasses could override this method
- *  to start reading or writing to the socket.
- */
-- (void)open;
-
-/**
- *  Called by XLTCPServerLogger to close the connection if it's still
- *  opened when the logger is being closed.
- *
- *  Subclasses can call this method directly to close the connection at any
- *  point in time.
- */
-- (void)close;
+@property(nonatomic, assign, readonly) XLTCPServerLogger* logger;
 
 @end
 
@@ -69,16 +52,13 @@
  *  XLTCPServerLogger can optionally use a XLDatabaseLogger instance internally
  *  with a temporary database to preserve the history of log records received
  *  since the logger was opened.
- *
- *  @warning On iOS, connecting to the server will not work while your app has
- *  been suspended by the OS while in background.
  */
 @interface XLTCPServerLogger : XLLogger
 
 /**
- *  Returns the port as specified when the logger was initialized.
+ *  Returns the XLTCPServer used internally.
  */
-@property(nonatomic, readonly) NSUInteger port;
+@property(nonatomic, readonly) XLTCPServer* TCPServer;
 
 /**
  *  Returns the XLDatabaseLogger used internally if any.
@@ -86,14 +66,9 @@
 @property(nonatomic, readonly) XLDatabaseLogger* databaseLogger;
 
 /**
- *  Returns all currently opened server connections.
- */
-@property(nonatomic, readonly) NSSet* connections;
-
-/**
  *  Returns the class to use to instantiate server connections.
  *
- *  The default implementation returns [XLTCPServerConnection class].
+ *  The default implementation returns [XLTCPServerLoggerConnection class].
  */
 + (Class)connectionClass;
 
@@ -103,10 +78,5 @@
  *  @warning The TCP server is not running until the logger is opened.
  */
 - (instancetype)initWithPort:(NSUInteger)port useDatabaseLogger:(BOOL)useDatabaseLogger;
-
-/**
- *  Enumerates all currently opened server connections.
- */
-- (void)enumerateConnectionsUsingBlock:(void (^)(XLTCPServerConnection* connection, BOOL* stop))block;
 
 @end
