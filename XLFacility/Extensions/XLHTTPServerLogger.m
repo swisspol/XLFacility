@@ -214,7 +214,7 @@
 }
 
 - (void)open {
-  [self readDataAsynchronously:^(dispatch_data_t data) {
+  [self readBufferAsynchronously:^(dispatch_data_t data) {
     if (data) {
       BOOL success = NO;
       CFHTTPMessageRef message = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true);

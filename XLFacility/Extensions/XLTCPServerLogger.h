@@ -26,6 +26,7 @@
  */
 
 #import "XLDatabaseLogger.h"
+#import "XLTCPConnection.h"
 
 @class XLTCPServerLogger;
 
@@ -33,7 +34,7 @@
  *  The XLTCPServerConnection is an abstract class to implement connections
  *  for XLTCPServerLogger: it cannot be used directly.
  */
-@interface XLTCPServerConnection : NSObject
+@interface XLTCPServerConnection : XLTCPConnection
 
 /**
  *  Returns the XLTCPServerLogger that owns the connection.
@@ -43,29 +44,10 @@
 @property(nonatomic, assign, readonly) XLTCPServerLogger* server;
 
 /**
- *  Returns the address of the local peer (i.e. server) of the connection
- *  as a raw "struct sockaddr".
- */
-@property(nonatomic, readonly) NSData* localAddressData;
-
-/**
- *  Returns the address of the remote peer (i.e. client) of the connection
- *  as a raw "struct sockaddr".
- */
-@property(nonatomic, readonly) NSData* remoteAddressData;
-
-/**
- *  Returns the underlying socket for the connection.
- *
- *  @warning Do not close the socket directly but use the -close method instead.
- */
-@property(nonatomic, readonly) int socket;
-
-/**
  *  Called by XLTCPServerLogger to open the connection after it has been created.
  *
  *  Default implementation does nothing but subclasses could override this method
- *  to start reading from the socket.
+ *  to start reading or writing to the socket.
  */
 - (void)open;
 
@@ -77,59 +59,6 @@
  *  point in time.
  */
 - (void)close;
-
-@end
-
-@interface XLTCPServerConnection (Extensions)
-
-/**
- *  Returns YES if the connection is using IPv6.
- */
-@property(nonatomic, readonly, getter=isUsingIPv6) BOOL usingIPv6;
-
-/**
- *  Returns the address of the local peer (i.e. server) of the connection
- *  as a dotted string.
- */
-@property(nonatomic, readonly) NSString* localAddressString;
-
-/**
- *  Returns the address of the remote peer (i.e. client) of the connection
- *  as a dotted string.
- */
-@property(nonatomic, readonly) NSString* remoteAddressString;
-
-/**
- *  Convenience method to read data asynchronously from the socket.
- *
- *  @warning The connection will be automatically closed on error right after
- *  the completion block has been called.
- */
-- (void)readDataAsynchronously:(void (^)(dispatch_data_t data))completion;
-
-/**
- *  Convenience method to write a buffer asynchronously to the socket.
- *
- *  @warning The connection will be automatically closed on error right after
- *  the completion block has been called.
- */
-- (void)writeBufferAsynchronously:(dispatch_data_t)buffer completion:(void (^)(BOOL success))completion;
-
-/**
- *  Convenience method to write data asynchronously to the socket.
- *
- *  @warning The connection will be automatically closed on error right after
- *  the completion block has been called.
- */
-- (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion;
-
-/**
- *  Convenience method to write a C string asynchronously to the socket.
- *
- *  @warning The connection will be automatically closed on error right after
- *  the completion block has been called.
- */
-- (void)writeCStringAsynchronously:(const char*)string completion:(void (^)(BOOL success))completion;
 
 @end
 

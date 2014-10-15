@@ -38,115 +38,8 @@
 #define kMaxPendingConnections 4
 #define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 
-@interface XLTCPServerLogger ()
-- (void)didCloseConnection:(XLTCPServerConnection*)connection;
-@end
-
-@implementation XLTCPServerConnection
-
-- (id)initWithServer:(XLTCPServerLogger*)server localAddress:(NSData*)localAddress remoteAddress:(NSData*)remoteAddress socket:(int)socket {
-  if ((self = [super init])) {
-    _server = server;
-    _localAddressData = localAddress;
-    _remoteAddressData = remoteAddress;
-    _socket = socket;
-  }
-  return self;
-}
-
-- (void)open {
-  ;
-}
-
-- (void)close {
-  close(_socket);
-  _socket = 0;
-  [_server didCloseConnection:self];
-  _server = nil;
-}
-
-@end
-
-@implementation XLTCPServerConnection (Extensions)
-
-- (BOOL)isUsingIPv6 {
-  const struct sockaddr* localSockAddr = _localAddressData.bytes;
-  return (localSockAddr->sa_family == AF_INET6);
-}
-
-static NSString* _StringFromAddressData(NSData* data) {
-  NSString* string = nil;
-  const struct sockaddr* addr = data.bytes;
-  char hostBuffer[NI_MAXHOST];
-  char serviceBuffer[NI_MAXSERV];
-  if (getnameinfo(addr, addr->sa_len, hostBuffer, sizeof(hostBuffer), serviceBuffer, sizeof(serviceBuffer), NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN) >= 0) {
-    string = [NSString stringWithFormat:@"%s:%s", hostBuffer, serviceBuffer];
-  } else {
-    XLOG_INTERNAL(@"Failed converting IP address data to string: %s", strerror(errno));
-  }
-  return string;
-}
-
-- (NSString*)localAddressString {
-  return _StringFromAddressData(_localAddressData);
-}
-
-- (NSString*)remoteAddressString {
-  return _StringFromAddressData(_remoteAddressData);
-}
-
-- (void)readDataAsynchronously:(void (^)(dispatch_data_t data))completion {
-  dispatch_read(self.socket, SIZE_MAX, kDispatchQueue, ^(dispatch_data_t data, int error) {
-    @autoreleasepool {
-      if (error) {
-        XLOG_INTERNAL(@"Failed reading socket: %s", strerror(error));
-        if (completion) {
-          completion(NULL);
-        }
-        [self close];
-      } else if (completion) {
-        completion(data);
-      }
-    }
-  });
-}
-
-- (void)writeBufferAsynchronously:(dispatch_data_t)buffer completion:(void (^)(BOOL success))completion {
-  dispatch_write(_socket, buffer, kDispatchQueue, ^(dispatch_data_t data, int error) {
-    @autoreleasepool {
-      if (error) {
-        if (error != EPIPE) {
-          XLOG_INTERNAL(@"Failed writing to socket: %s", strerror(error));
-        }
-        if (completion) {
-          completion(NO);
-        }
-        [self close];
-      } else if (completion) {
-        completion(YES);
-      }
-    }
-  });
-}
-
-- (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion {
-  dispatch_data_t buffer = dispatch_data_create(data.bytes, data.length, kDispatchQueue, ^{
-    [data self];  // Keeps ARC from releasing data too early
-  });
-  [self writeBufferAsynchronously:buffer completion:completion];
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(buffer);
-#endif
-}
-
-- (void)writeCStringAsynchronously:(const char*)string completion:(void (^)(BOOL success))completion {
-  dispatch_data_t buffer = dispatch_data_create(string, strlen(string), NULL, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
-  [self writeBufferAsynchronously:buffer completion:completion];
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(buffer);
-#endif
-}
-
+@interface XLTCPServerConnection ()
+@property(nonatomic, assign) XLTCPServerLogger* server;
 @end
 
 @interface XLTCPServerLogger () {
@@ -158,6 +51,22 @@ static NSString* _StringFromAddressData(NSData* data) {
   dispatch_source_t _source4;
   dispatch_source_t _source6;
 }
+- (void)didCloseConnection:(XLTCPServerConnection*)connection;
+@end
+
+@implementation XLTCPServerConnection
+
+- (void)open {
+  ;
+}
+
+- (void)close {
+  [super close];
+  
+  [_server didCloseConnection:self];
+  _server = nil;
+}
+
 @end
 
 @implementation XLTCPServerLogger
@@ -245,26 +154,19 @@ static NSString* _StringFromAddressData(NSData* data) {
       socklen_t remoteAddrLen = sizeof(remoteSockAddr);
       int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
       if (socket > 0) {
-        int noSigPipe = 1;
-        setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
-        
-        NSData* remoteAddress = [NSData dataWithBytes:&remoteSockAddr length:remoteAddrLen];
-        
-        struct sockaddr localSockAddr;
-        socklen_t localAddrLen = sizeof(localSockAddr);
-        NSData* localAddress = nil;
-        if (getsockname(socket, &localSockAddr, &localAddrLen) == 0) {
-          localAddress = [NSData dataWithBytes:&localSockAddr length:localAddrLen];
+        Class connectionClass = [[self class] connectionClass];
+        XLTCPServerConnection* connection = [[connectionClass alloc] initWithSocket:socket];
+        if (connection) {
+          connection.server = self;
+          dispatch_sync(self.lockQueue, ^{
+            dispatch_group_enter(_syncGroup);
+            [_connections addObject:connection];
+          });
+          [connection open];
+           XLOG_INTERNAL(@"Failed creating %@ instance", NSStringFromClass(connectionClass));
         } else {
-          XLOG_INTERNAL(@"Failed retrieving local %s socket address: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
+          close(socket);
         }
-        
-        XLTCPServerConnection* connection = [[[[self class] connectionClass] alloc] initWithServer:self localAddress:localAddress remoteAddress:remoteAddress socket:socket];
-        dispatch_sync(self.lockQueue, ^{
-          dispatch_group_enter(_syncGroup);
-          [_connections addObject:connection];
-        });
-        [connection open];
       } else {
         XLOG_INTERNAL(@"Failed accepting %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
       }

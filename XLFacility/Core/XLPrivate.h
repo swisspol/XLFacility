@@ -33,6 +33,7 @@ extern int XLOriginalStdOut;
 extern int XLOriginalStdErr;
 
 extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
+extern NSString* XLFacilityStringFromIPAddressData(NSData* data);
 
 @interface XLLogRecord ()
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime

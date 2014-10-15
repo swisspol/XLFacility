@@ -23,6 +23,10 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		E2168F7619EDCD0400865350 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F7519EDCD0400865350 /* XLTCPConnection.m */; };
+		E2168F7719EDCD0400865350 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F7519EDCD0400865350 /* XLTCPConnection.m */; };
+		E2168F7819EDCD0400865350 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F7519EDCD0400865350 /* XLTCPConnection.m */; };
+		E2168F7919EDCD0400865350 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F7519EDCD0400865350 /* XLTCPConnection.m */; };
 		E26ABB5019EC278300654D9F /* XLTCPServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */; };
 		E26ABB5119EC278300654D9F /* XLTCPServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */; };
 		E26ABC1019EC9E2D00654D9F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABC0F19EC9E2D00654D9F /* AppDelegate.m */; };
@@ -113,6 +117,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E2168F7419EDCD0400865350 /* XLTCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPConnection.h; sourceTree = "<group>"; };
+		E2168F7519EDCD0400865350 /* XLTCPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPConnection.m; sourceTree = "<group>"; };
 		E26ABB4E19EC278300654D9F /* XLTCPServerLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPServerLogger.h; sourceTree = "<group>"; };
 		E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPServerLogger.m; sourceTree = "<group>"; };
 		E26ABC0A19EC9E2D00654D9F /* XLFacility.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XLFacility.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -313,6 +319,8 @@
 				E29DC8B119EA425700A1B39F /* XLDatabaseLogger.m */,
 				E29DC8B219EA425700A1B39F /* XLHTTPServerLogger.h */,
 				E29DC8B319EA425700A1B39F /* XLHTTPServerLogger.m */,
+				E2168F7419EDCD0400865350 /* XLTCPConnection.h */,
+				E2168F7519EDCD0400865350 /* XLTCPConnection.m */,
 				E26ABB4E19EC278300654D9F /* XLTCPServerLogger.h */,
 				E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */,
 				E29DC8B419EA425700A1B39F /* XLTelnetServerLogger.h */,
@@ -500,6 +508,7 @@
 				E26ABC4419ECBE2900654D9F /* XLAppKitOverlayLogger.m in Sources */,
 				E26ABC3619EC9FF700654D9F /* XLDatabaseLogger.m in Sources */,
 				E26ABC3319EC9FF700654D9F /* XLLogger.m in Sources */,
+				E2168F7819EDCD0400865350 /* XLTCPConnection.m in Sources */,
 				E26ABC3819EC9FF700654D9F /* XLTCPServerLogger.m in Sources */,
 				E26ABC3119EC9FF700654D9F /* XLFacility.m in Sources */,
 				E26ABC3519EC9FF700654D9F /* XLStandardLogger.m in Sources */,
@@ -524,6 +533,7 @@
 				E26ABB5019EC278300654D9F /* XLTCPServerLogger.m in Sources */,
 				E29DC8C819EA425700A1B39F /* XLTelnetServerLogger.m in Sources */,
 				E29DC8C219EA425700A1B39F /* XLStandardLogger.m in Sources */,
+				E2168F7619EDCD0400865350 /* XLTCPConnection.m in Sources */,
 				E29DC8C619EA425700A1B39F /* XLHTTPServerLogger.m in Sources */,
 				E29DC8C019EA425700A1B39F /* XLLogRecord.m in Sources */,
 				E29DC8BC19EA425700A1B39F /* XLFileLogger.m in Sources */,
@@ -543,6 +553,7 @@
 				E298C47B19ED890500C76821 /* XLASLLogger.m in Sources */,
 				E298C47A19ED866100C76821 /* XLFacility_Tests.m in Sources */,
 				E298C48519ED890500C76821 /* XLTelnetServerLogger.m in Sources */,
+				E2168F7919EDCD0400865350 /* XLTCPConnection.m in Sources */,
 				E298C47C19ED890500C76821 /* XLCallbackLogger.m in Sources */,
 				E298C48419ED890500C76821 /* XLTCPServerLogger.m in Sources */,
 				E298C47E19ED890500C76821 /* XLFileLogger.m in Sources */,
@@ -559,6 +570,7 @@
 				E29DC8C519EA425700A1B39F /* XLDatabaseLogger.m in Sources */,
 				E29DC8BB19EA425700A1B39F /* XLFacility.m in Sources */,
 				E29DC8C319EA425700A1B39F /* XLStandardLogger.m in Sources */,
+				E2168F7719EDCD0400865350 /* XLTCPConnection.m in Sources */,
 				E29DC8B919EA425700A1B39F /* XLCallbackLogger.m in Sources */,
 				E29DC8C719EA425700A1B39F /* XLHTTPServerLogger.m in Sources */,
 				E29DC8BF19EA425700A1B39F /* XLLogger.m in Sources */,
