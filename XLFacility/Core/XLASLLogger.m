@@ -54,7 +54,7 @@
 - (BOOL)open {
   _client = asl_open(NULL, NULL, ASL_OPT_NO_DELAY);
   if (!_client) {
-    XLOG_INTERNAL(@"%@", @"Failed connecting to the ASL server");
+    XLOG_INTERNAL(@"Failed connecting to the ASL server", NULL);
     return NO;
   }
   asl_set_filter(_client, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG));  // Default is ASL_LEVEL_NOTICE

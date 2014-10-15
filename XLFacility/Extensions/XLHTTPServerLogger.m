@@ -79,12 +79,12 @@
       CFRelease(data);
       success = YES;
     } else {
-      XLOG_INTERNAL(@"%@", @"Failed serializing HTTP response");
+      XLOG_INTERNAL(@"Failed serializing HTTP response", NULL);
     }
     
     CFRelease(response);
   } else {
-    XLOG_INTERNAL(@"%@", @"Failed generating HTML response");
+    XLOG_INTERNAL(@"Failed generating HTML response", NULL);
   }
   return success;
 }
@@ -227,7 +227,7 @@
       if (CFHTTPMessageIsHeaderComplete(message)) {
         success = [self _processHTTPRequest:message];
       } else {
-        XLOG_INTERNAL(@"%@", @"Failed parsing HTTP request headers");
+        XLOG_INTERNAL(@"Failed parsing HTTP request headers", NULL);
       }
       CFRelease(message);
       if (!success) {
