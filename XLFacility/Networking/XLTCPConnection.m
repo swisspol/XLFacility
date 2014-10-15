@@ -155,6 +155,16 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
   });
 }
 
+- (void)_setSocketOption:(int)option valuePtr:(const void*)valuePtr valueLength:(socklen_t)valueLength {
+  if (setsockopt(_socket, SOL_SOCKET, option, valuePtr, valueLength)) {
+    XLOG_INTERNAL(@"Failed setting socket option: %s", strerror(errno));
+  }
+}
+
+- (void)_setSocketOption:(int)option withIntValue:(int)value {
+  [self _setSocketOption:option valuePtr:&value valueLength:sizeof(int)];
+}
+
 - (id)init {
   [self doesNotRecognizeSelector:_cmd];
   return nil;
@@ -163,15 +173,11 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 - (instancetype)initWithSocket:(int)socket {
   if ((self = [super init])) {
     _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
-    _writeGroup = dispatch_group_create();
     _state = kXLTCPConnectionState_Initialized;
     _socket = socket;
     
-    int noSigPipe = 1;
-    setsockopt(_socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE when closed
-    
-    int keepAlive = 1;
-    setsockopt(socket, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(keepAlive));
+    [self _setSocketOption:SO_NOSIGPIPE withIntValue:1];  // Make sure this socket cannot generate SIG_PIPE when closed
+    [self _setSocketOption:SO_KEEPALIVE withIntValue:1];
     
     struct sockaddr localSockAddr;
     socklen_t localAddrLen = sizeof(localSockAddr);
@@ -201,7 +207,6 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
     [self didClose];
   }
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(_writeGroup);
   dispatch_release(_lockQueue);
 #endif
 }
@@ -227,14 +232,43 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
   }
 }
 
-- (void)readBufferAsynchronously:(void (^)(dispatch_data_t buffer))completion {
+- (NSData*)readData:(NSUInteger)maxLength withTimeout:(NSTimeInterval)timeout {
+  __block NSMutableData* data = nil;
+  __block BOOL shouldClose = NO;
+  dispatch_sync(_lockQueue, ^{
+    if (_state == kXLTCPConnectionState_Opened) {
+      struct timeval tv;
+      tv.tv_sec = timeout;
+      tv.tv_usec = fmod(timeout * 1000000.0, 1.0);
+      [self _setSocketOption:SO_RCVTIMEO valuePtr:&tv valueLength:sizeof(tv)];
+      
+      data = [[NSMutableData alloc] initWithLength:maxLength];
+      ssize_t len = recv(_socket, data.mutableBytes, data.length, 0);
+      if (len >= 0) {
+        data.length = len;
+      } else {
+        if (errno != EAGAIN) {
+          XLOG_INTERNAL(@"Failed reading synchronously from socket: %s", strerror(errno));
+          shouldClose = YES;
+        }
+        data = nil;
+      }
+    }
+  });
+  if (shouldClose) {
+    [self close];
+  }
+  return data;
+}
+
+- (void)_readBufferAsynchronously:(void (^)(dispatch_data_t buffer))completion {
   dispatch_sync(_lockQueue, ^{
     if (_state == kXLTCPConnectionState_Opened) {
       dispatch_read(_socket, SIZE_MAX, XGLOBAL_DISPATCH_QUEUE, ^(dispatch_data_t data, int error) {
         @autoreleasepool {
           
           if (error) {
-            XLOG_INTERNAL(@"Failed reading from socket: %s", strerror(error));
+            XLOG_INTERNAL(@"Failed reading asynchronously from socket: %s", strerror(error));
             [self close];
             if (completion) {
               completion(NULL);
@@ -255,7 +289,47 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
   });
 }
 
-- (void)writeBufferAsynchronously:(dispatch_data_t)buffer completion:(void (^)(BOOL success))completion {
+- (void)readDataAsynchronously:(void (^)(NSData* data))completion {
+  [self _readBufferAsynchronously:^(dispatch_data_t buffer) {
+    if (buffer) {
+      NSMutableData* data = [[NSMutableData alloc] init];
+      dispatch_data_apply(buffer, ^bool(dispatch_data_t region, size_t offset, const void* bytes, size_t length) {
+        [data appendBytes:bytes length:length];
+        return true;
+      });
+      completion(data);
+    } else {
+      completion(nil);
+    }
+  }];
+}
+
+- (BOOL)writeData:(NSData*)data withTimeout:(NSTimeInterval)timeout {
+  __block BOOL result = NO;
+  __block BOOL shouldClose = NO;
+  dispatch_sync(_lockQueue, ^{
+    if (_state == kXLTCPConnectionState_Opened) {
+      struct timeval tv;
+      tv.tv_sec = timeout;
+      tv.tv_usec = fmod(timeout * 1000000.0, 1.0);
+      [self _setSocketOption:SO_SNDTIMEO valuePtr:&tv valueLength:sizeof(tv)];
+      
+      ssize_t len = send(_socket, data.bytes, data.length, 0);
+      if (len == (ssize_t)data.length) {
+        result = YES;
+      } else if (errno != EAGAIN) {
+        XLOG_INTERNAL(@"Failed writing synchronously to socket: %s", strerror(errno));
+        shouldClose = YES;
+      }
+    }
+  });
+  if (shouldClose) {
+    [self close];
+  }
+  return result;
+}
+
+- (void)_writeBufferAsynchronously:(dispatch_data_t)buffer completion:(void (^)(BOOL success))completion {
   dispatch_sync(_lockQueue, ^{
     if (_state == kXLTCPConnectionState_Opened) {
       dispatch_write(_socket, buffer, XGLOBAL_DISPATCH_QUEUE, ^(dispatch_data_t data, int error) {
@@ -263,7 +337,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
           
           if (error) {
             if (error != EPIPE) {
-              XLOG_INTERNAL(@"Failed writing to socket: %s", strerror(error));
+              XLOG_INTERNAL(@"Failed writing asynchronously to socket: %s", strerror(error));
             }
             [self close];
             if (completion) {
@@ -283,6 +357,16 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
       });
     }
   });
+}
+
+- (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion {
+  dispatch_data_t buffer = dispatch_data_create(data.bytes, data.length, XGLOBAL_DISPATCH_QUEUE, ^{
+    [data self];  // Keeps ARC from releasing data too early
+  });
+  [self _writeBufferAsynchronously:buffer completion:completion];
+#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+  dispatch_release(buffer);
+#endif
 }
 
 - (void)close {
@@ -327,42 +411,6 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 
 - (NSString*)remoteAddressString {
   return XLFacilityStringFromIPAddress(_remoteAddressData.bytes);
-}
-
-- (void)readDataAsynchronously:(void (^)(NSData* data))completion {
-  [self readBufferAsynchronously:^(dispatch_data_t buffer) {
-    if (buffer) {
-      NSMutableData* data = [[NSMutableData alloc] init];
-      dispatch_data_apply(buffer, ^bool(dispatch_data_t region, size_t offset, const void* bytes, size_t length) {
-        [data appendBytes:bytes length:length];
-        return true;
-      });
-      completion(data);
-    } else {
-      completion(nil);
-    }
-  }];
-}
-
-- (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion {
-  dispatch_data_t buffer = dispatch_data_create(data.bytes, data.length, XGLOBAL_DISPATCH_QUEUE, ^{
-    [data self];  // Keeps ARC from releasing data too early
-  });
-  [self writeBufferAsynchronously:buffer completion:completion];
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(buffer);
-#endif
-}
-
-- (BOOL)writeData:(NSData*)data {
-  __block BOOL result;
-  dispatch_group_enter(_writeGroup);
-  [self writeDataAsynchronously:data completion:^(BOOL success) {
-    result = success;
-    dispatch_group_leave(_writeGroup);
-  }];
-  dispatch_group_wait(_writeGroup, DISPATCH_TIME_FOREVER);
-  return result;
 }
 
 @end

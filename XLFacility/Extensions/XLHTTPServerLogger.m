@@ -218,14 +218,11 @@
 - (void)didOpen {
   [super didOpen];
   
-  [self readBufferAsynchronously:^(dispatch_data_t data) {
+  [self readDataAsynchronously:^(NSData* data) {
     if (data) {
       BOOL success = NO;
       CFHTTPMessageRef message = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true);
-      dispatch_data_apply(data, ^bool(dispatch_data_t region, size_t offset, const void* buffer, size_t length) {
-        CFHTTPMessageAppendBytes(message, buffer, length);
-        return true;
-      });
+      CFHTTPMessageAppendBytes(message, data.bytes, data.length);
       if (CFHTTPMessageIsHeaderComplete(message)) {
         success = [self _processHTTPRequest:message];
       } else {

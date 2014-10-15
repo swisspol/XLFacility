@@ -106,7 +106,7 @@
     if (_usesAsynchronousLogging) {
       [connection writeDataAsynchronously:data completion:NULL];
     } else {
-      [connection writeData:data];
+      [connection writeData:data withTimeout:0.0];
     }
   }];
 }

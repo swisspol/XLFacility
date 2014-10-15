@@ -39,6 +39,7 @@
 #import "XLTelnetServerLogger.h"
 #import "XLHTTPServerLogger.h"
 #import "XLTCPClientLogger.h"
+#import "XLTCPClient.h"
 
 #define kLoggingDelay (100 * 1000)
 
@@ -336,6 +337,44 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   [self waitForExpectationsWithTimeout:10.0 handler:NULL];
   
   [XLSharedFacility removeLogger:logger];
+}
+
+- (void)testTCP {
+  __block XLTCPServerConnection* inConnection = nil;
+  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(XLTCPServerConnection* connection) {
+    inConnection = connection;
+  }];
+  XCTAssertTrue([server start]);
+  
+  XLTCPClient* client = [[XLTCPClient alloc] initWithConnectionClass:[XLTCPClientConnection class] host:@"localhost" port:4444];
+  XCTAssertTrue([client start]);
+  
+  sleep(1);
+  
+  XCTAssertNotNil(inConnection);
+  XLTCPClientConnection* outConnection = client.connection;
+  XCTAssertNotNil(outConnection);
+  
+  NSData* data1 = [outConnection readData:1024 withTimeout:3.0];
+  XCTAssertNil(data1);
+  
+  XCTestExpectation* expectation = [self expectationWithDescription:nil];
+  [inConnection readDataAsynchronously:^(NSData* data) {
+    XCTAssertNotNil(data);
+    NSString* string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(string, @"Hello World!\n");
+    
+    [expectation fulfill];
+  }];
+  BOOL success = [outConnection writeData:[@"Hello World!\n" dataUsingEncoding:NSUTF8StringEncoding] withTimeout:3.0];
+  XCTAssertTrue(success);
+  [self waitForExpectationsWithTimeout:10.0 handler:NULL];
+  
+  [outConnection close];
+  [inConnection close];
+  
+  [client stop];
+  [server stop];
 }
 
 - (void)testTCPClientLogger {

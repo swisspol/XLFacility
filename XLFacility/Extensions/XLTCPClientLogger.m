@@ -72,7 +72,7 @@ static void* _associatedObjectKey = &_associatedObjectKey;
   if (_usesAsynchronousLogging) {
     [_TCPClient.connection writeDataAsynchronously:data completion:NULL];
   } else {
-    [_TCPClient.connection writeData:data];
+    [_TCPClient.connection writeData:data withTimeout:0.0];
   }
 }
 

@@ -93,20 +93,36 @@ extern NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address);
 - (void)open;
 
 /**
- *  Reads a buffer asynchronously from the socket.
+ *  Reads data synchronously to the socket.
  *
- *  @warning The connection will be automatically closed on error right after
- *  the completion block has been called.
+ *  Pass 0 as "timeout" to block indefinitely.
+ *
+ *  @warning The connection will be automatically closed on error.
  */
-- (void)readBufferAsynchronously:(void (^)(dispatch_data_t buffer))completion;
+- (NSData*)readData:(NSUInteger)maxLength withTimeout:(NSTimeInterval)timeout;
 
 /**
- *  Writes a buffer asynchronously to the socket.
+ *  Reads data asynchronously from the socket.
  *
- *  @warning The connection will be automatically closed on error right after
- *  the completion block has been called.
+ *  @warning The connection will be automatically closed on error.
  */
-- (void)writeBufferAsynchronously:(dispatch_data_t)buffer completion:(void (^)(BOOL success))completion;
+- (void)readDataAsynchronously:(void (^)(NSData* data))completion;
+
+/**
+ *  Writes data synchronously to the socket.
+ *
+ *  Pass 0 as "timeout" to block indefinitely.
+ *
+ *  @warning The connection will be automatically closed on error.
+ */
+- (BOOL)writeData:(NSData*)data withTimeout:(NSTimeInterval)timeout;
+
+/**
+ *  Writes data asynchronously to the socket.
+ *
+ *  @warning The connection will be automatically closed on error.
+ */
+- (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion;
 
 /**
  *  Closes the connection.
@@ -149,20 +165,5 @@ extern NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address);
  *  Returns the address of the remote peer of the connection as a string.
  */
 @property(nonatomic, readonly) NSString* remoteAddressString;
-
-/**
- *  Reads data asynchronously from the socket.
- */
-- (void)readDataAsynchronously:(void (^)(NSData* data))completion;
-
-/**
- *  Writes data asynchronously to the socket.
- */
-- (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion;
-
-/**
- *  Writes data synchronously to the socket.
- */
-- (BOOL)writeData:(NSData*)data;
 
 @end
