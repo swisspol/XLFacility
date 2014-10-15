@@ -269,7 +269,9 @@ static void _ExitHandler() {
 }
 
 - (void)logMessage:(NSString*)message withLevel:(XLLogLevel)level {
-  [self _logMessage:message withLevel:level callstack:nil];
+  if (level >= _minLogLevel) {
+    [self _logMessage:message withLevel:level callstack:nil];
+  }
 }
 
 #define LOG_MESSAGE_WITH_LEVEL(__LEVEL__, __CALLSTACK__) \
