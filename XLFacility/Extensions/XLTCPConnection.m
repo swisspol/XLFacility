@@ -37,64 +37,93 @@
 
 #define kDispatchQueue dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 
+typedef union {
+  struct sockaddr addr;
+  struct sockaddr_in addr4;
+  struct sockaddr_in6 addr6;
+} SocketAddress;
+
 @implementation XLTCPConnection
+
+static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* addr, socklen_t len, NSTimeInterval timeout, BOOL isIPv6) {
+  int connectedSocket = socket(isIPv6 ? PF_INET6 : PF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (connectedSocket >= 0) {
+    BOOL success = NO;
+    fcntl(connectedSocket, F_SETFL, O_NONBLOCK);
+    
+    int result = connect(connectedSocket, addr, len);
+    if ((result == -1) && (errno == EINPROGRESS)) {
+      fd_set fdset;
+      FD_ZERO(&fdset);
+      FD_SET(connectedSocket, &fdset);
+      struct timeval tv;
+      tv.tv_sec = timeout;
+      tv.tv_usec = fmod(timeout * 1000000.0, 1.0);
+      result = select(connectedSocket + 1, NULL, &fdset, NULL, &tv);
+      if (result == 1) {
+        
+        int error;
+        socklen_t errorlen = sizeof(error);
+        result = getsockopt(connectedSocket, SOL_SOCKET, SO_ERROR, &error, &errorlen);
+        if (result == 0) {
+          if (error == 0) {
+            success = YES;
+          } else {
+            XLOG_INTERNAL(@"Failed connecting %s socket to \"%@\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr), strerror(error));
+          }
+        } else {
+          XLOG_INTERNAL(@"Failed retrieving %s socket option: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
+        }
+        
+      } else if (result == 0) {
+        XLOG_INTERNAL(@"Timed out connecting %s socket to \"%@\" (%@)", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr));
+      }
+    } else {
+      XLOG_INTERNAL(@"Failed connecting %s socket to \"%@\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr), strerror(errno));
+    }
+    
+    if (success) {
+      fcntl(connectedSocket, F_SETFL, 0);
+    } else {
+      close(connectedSocket);
+      connectedSocket = -1;
+    }
+  } else {
+    XLOG_INTERNAL(@"Failed creating %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
+  }
+  return connectedSocket;
+}
 
 + (void)connectAsynchronouslyToHost:(NSString*)hostname port:(NSUInteger)port timeout:(NSTimeInterval)timeout completion:(void (^)(XLTCPConnection* connection))completion {
   dispatch_async(kDispatchQueue, ^{
     XLTCPConnection* connection = nil;
     
-    CFHostRef host = CFHostCreateWithName(kCFAllocatorDefault, (__bridge CFStringRef)hostname);
+    CFHostRef host = CFHostCreateWithName(kCFAllocatorDefault, (__bridge CFStringRef)hostname);  // Consider using low-level getaddrinfo() instead
     CFStreamError error = {0};
     if (CFHostStartInfoResolution(host, kCFHostAddresses, &error)) {
       NSArray* addressing = (__bridge NSArray*)CFHostGetAddressing(host, NULL);
-      for (NSData* address in addressing) {
-        const struct sockaddr* addr = address.bytes;
-        if ((addr->sa_family == AF_INET) && (addr->sa_len == sizeof(struct sockaddr_in))) {  // Connect to IPv4 hosts only
+      for (NSData* addressData in addressing) {
+        SocketAddress address;
+        bcopy(addressData.bytes, &address, addressData.length);
+        if (((address.addr.sa_family == AF_INET) && (address.addr.sa_len == sizeof(struct sockaddr_in)))  // Allow IPv4 hosts
+            || ((address.addr.sa_family == AF_INET6) && (address.addr.sa_len == sizeof(struct sockaddr_in6)))) {  // Allow IPv6 hosts
           
-          int connectedSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-          if (connectedSocket >= 0) {
-            fcntl(connectedSocket, F_SETFL, O_NONBLOCK);
-            
-            struct sockaddr_in addr4;
-            bcopy(addr, &addr4, sizeof(addr4));
-            addr4.sin_port = htons(port);
-            int result = connect(connectedSocket, (const struct sockaddr*)&addr4, sizeof(addr4));
-            if ((result == -1) && (errno == EINPROGRESS)) {
-              fd_set fdset;
-              FD_ZERO(&fdset);
-              FD_SET(connectedSocket, &fdset);
-              struct timeval tv;
-              tv.tv_sec = timeout;
-              tv.tv_usec = fmod(timeout * 1000000.0, 1.0);
-              result = select(connectedSocket + 1, NULL, &fdset, NULL, &tv);  // TODO: Can we use a GCD dispatch source instead?
-              if (result == 1) {
-                socklen_t len = sizeof(result);
-                getsockopt(connectedSocket, SOL_SOCKET, SO_ERROR, &result, &len);
-                if (result == 0) {
-                  
-                  fcntl(connectedSocket, F_SETFL, 0);
-                  connection = [[self alloc] initWithSocket:connectedSocket];
-                  if (connection == nil) {
-                    XLOG_INTERNAL(@"Failed creating %@ instance with connected socket", NSStringFromClass([self class]));
-                  }
-                  
-                }
-              } else if (result == 0) {
-                XLOG_INTERNAL(@"Timed out connecting to host \"%@\"", hostname);
-              }
-            }
-            if (result < 0) {
-              XLOG_INTERNAL(@"Failed connecting to host \"%@\": %s", hostname, strerror(errno));
-            }
-            
-            if (connection == nil) {
-              close(connectedSocket);
-            }
+          if (address.addr.sa_family == AF_INET6) {
+            address.addr6.sin6_port = htons(port);
           } else {
-            XLOG_INTERNAL(@"Failed creating connecting socket: %s", strerror(errno));
+            address.addr4.sin_port = htons(port);
+          }
+          int socket = _CreateConnectedSocket(hostname, &address.addr, address.addr.sa_len, timeout, address.addr.sa_family == AF_INET6);
+          if (socket > 0) {
+            connection = [[self alloc] initWithSocket:socket];
+            if (connection) {
+              break;
+            } else {
+              XLOG_INTERNAL(@"Failed creating %@ instance with connected socket", NSStringFromClass([self class]));
+              close(socket);
+            }
           }
           
-          break;
         }
       }
     } else {
