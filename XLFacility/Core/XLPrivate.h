@@ -27,6 +27,8 @@
 
 #import "XLLogger.h"
 
+#define XLDISPATCH_QUEUE_LABEL object_getClassName(self)
+
 #define XLOG_INTERNAL(__FORMAT__, ...) XLLogInternalError(@"%s " __FORMAT__, __FUNCTION__, __VA_ARGS__)
 
 extern int XLOriginalStdOut;

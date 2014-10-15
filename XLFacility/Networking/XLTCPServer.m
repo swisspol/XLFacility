@@ -76,7 +76,7 @@
     _connectionClass = connectionClass;
     _port = port;
     
-    _lockQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
+    _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _syncGroup = dispatch_group_create();
     _sourceGroup = dispatch_group_create();
     _connections = [[NSMutableSet alloc] init];

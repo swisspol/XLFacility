@@ -72,7 +72,7 @@
     _host = [hostname copy];
     _port = port;
     
-    _lockQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
+    _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _connectionTimeout = 10.0;
     _automaticallyReconnects = YES;
     _minReconnectInterval = 1.0;
