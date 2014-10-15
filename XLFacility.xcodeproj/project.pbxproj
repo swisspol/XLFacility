@@ -16,6 +16,8 @@
 				E2B3CEEB19E91784003ED065 /* PBXTargetDependency */,
 				E2B3CF2B19E9189C003ED065 /* PBXTargetDependency */,
 				E26ABC2E19EC9FA400654D9F /* PBXTargetDependency */,
+				E2168F9619EE04B200865350 /* PBXTargetDependency */,
+				E2168F9819EE04B700865350 /* PBXTargetDependency */,
 			);
 			name = "Build All";
 			productName = "Build All";
@@ -23,14 +25,17 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		E2168F7619EDCD0400865350 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F7519EDCD0400865350 /* XLTCPConnection.m */; };
-		E2168F7719EDCD0400865350 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F7519EDCD0400865350 /* XLTCPConnection.m */; };
-		E2168F7819EDCD0400865350 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F7519EDCD0400865350 /* XLTCPConnection.m */; };
-		E2168F7919EDCD0400865350 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F7519EDCD0400865350 /* XLTCPConnection.m */; };
-		E2168F8719EDF42E00865350 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F8619EDF42E00865350 /* XLTCPServer.m */; };
-		E2168F8819EDF42E00865350 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F8619EDF42E00865350 /* XLTCPServer.m */; };
-		E2168F8919EDF42E00865350 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F8619EDF42E00865350 /* XLTCPServer.m */; };
-		E2168F8A19EDF42E00865350 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F8619EDF42E00865350 /* XLTCPServer.m */; };
+		E2168F7019EDC8FF00865350 /* XLTCPClientLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F6F19EDC8FF00865350 /* XLTCPClientLogger.m */; };
+		E2168F7119EDC8FF00865350 /* XLTCPClientLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F6F19EDC8FF00865350 /* XLTCPClientLogger.m */; };
+		E2168F7219EDC8FF00865350 /* XLTCPClientLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F6F19EDC8FF00865350 /* XLTCPClientLogger.m */; };
+		E2168F7319EDC8FF00865350 /* XLTCPClientLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F6F19EDC8FF00865350 /* XLTCPClientLogger.m */; };
+		E2168F8C19EE01B200865350 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E2168F8019EDF2C000865350 /* main.m */; };
+		E2168F8E19EE02B500865350 /* XLFacility.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A419EA425700A1B39F /* XLFacility.m */; };
+		E2168F9019EE033100865350 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1319E9FF5000D85595 /* CFNetwork.framework */; };
+		E2168F9119EE034000865350 /* XLLogRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8AC19EA425700A1B39F /* XLLogRecord.m */; };
+		E2168F9219EE034500865350 /* XLStandardLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8AE19EA425700A1B39F /* XLStandardLogger.m */; };
+		E2168F9319EE034E00865350 /* XLFileLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A619EA425700A1B39F /* XLFileLogger.m */; };
+		E2168F9419EE035800865350 /* XLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A819EA425700A1B39F /* XLLogger.m */; };
 		E26ABB5019EC278300654D9F /* XLTCPServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */; };
 		E26ABB5119EC278300654D9F /* XLTCPServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */; };
 		E26ABC1019EC9E2D00654D9F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABC0F19EC9E2D00654D9F /* AppDelegate.m */; };
@@ -94,9 +99,37 @@
 		E2B3CF2D19E91990003ED065 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E2B3CF2C19E91990003ED065 /* libsqlite3.dylib */; };
 		E2B3CF3019E919DD003ED065 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2B3CF2F19E919DD003ED065 /* UIKit.framework */; };
 		E2BBC7FE19EAF0E90082CB48 /* XLUIKitOverlayLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E2BBC7FD19EAF0E90082CB48 /* XLUIKitOverlayLogger.m */; };
+		E2D21F8919EEDDD200491EF8 /* XLTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8419EEDDD200491EF8 /* XLTCPClient.m */; };
+		E2D21F8A19EEDDD200491EF8 /* XLTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8419EEDDD200491EF8 /* XLTCPClient.m */; };
+		E2D21F8B19EEDDD200491EF8 /* XLTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8419EEDDD200491EF8 /* XLTCPClient.m */; };
+		E2D21F8C19EEDDD200491EF8 /* XLTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8419EEDDD200491EF8 /* XLTCPClient.m */; };
+		E2D21F8D19EEDDD200491EF8 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */; };
+		E2D21F8E19EEDDD200491EF8 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */; };
+		E2D21F8F19EEDDD200491EF8 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */; };
+		E2D21F9019EEDDD200491EF8 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */; };
+		E2D21F9119EEDDD200491EF8 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */; };
+		E2D21F9219EEDDD200491EF8 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */; };
+		E2D21F9319EEDDD200491EF8 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */; };
+		E2D21F9419EEDDD200491EF8 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */; };
+		E2D21F9519EEDEC500491EF8 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */; };
+		E2D21F9619EEDECC00491EF8 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		E2168F9519EE04B200865350 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E26DC15F19E8494700C68DDC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E298C46B19ED859F00C76821;
+			remoteInfo = "XLFacility (Tests)";
+		};
+		E2168F9719EE04B700865350 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E26DC15F19E8494700C68DDC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E2168F7D19EDF2C000865350;
+			remoteInfo = TCPServer;
+		};
 		E26ABC2D19EC9FA400654D9F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E26DC15F19E8494700C68DDC /* Project object */;
@@ -121,10 +154,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		E2168F7419EDCD0400865350 /* XLTCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPConnection.h; sourceTree = "<group>"; };
-		E2168F7519EDCD0400865350 /* XLTCPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPConnection.m; sourceTree = "<group>"; };
-		E2168F8519EDF42E00865350 /* XLTCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPServer.h; sourceTree = "<group>"; };
-		E2168F8619EDF42E00865350 /* XLTCPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPServer.m; sourceTree = "<group>"; };
+		E2168F6E19EDC8FF00865350 /* XLTCPClientLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPClientLogger.h; sourceTree = "<group>"; };
+		E2168F6F19EDC8FF00865350 /* XLTCPClientLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPClientLogger.m; sourceTree = "<group>"; };
+		E2168F7E19EDF2C000865350 /* TCPServer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TCPServer; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2168F8019EDF2C000865350 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E26ABB4E19EC278300654D9F /* XLTCPServerLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPServerLogger.h; sourceTree = "<group>"; };
 		E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPServerLogger.m; sourceTree = "<group>"; };
 		E26ABC0A19EC9E2D00654D9F /* XLFacility.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XLFacility.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -176,9 +209,23 @@
 		E2BBC7FC19EAF0E90082CB48 /* XLUIKitOverlayLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLUIKitOverlayLogger.h; sourceTree = "<group>"; };
 		E2BBC7FD19EAF0E90082CB48 /* XLUIKitOverlayLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLUIKitOverlayLogger.m; sourceTree = "<group>"; };
 		E2BBC7FF19EB1C320082CB48 /* XLFacility.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = XLFacility.podspec; sourceTree = "<group>"; };
+		E2D21F8319EEDDD200491EF8 /* XLTCPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPClient.h; sourceTree = "<group>"; };
+		E2D21F8419EEDDD200491EF8 /* XLTCPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPClient.m; sourceTree = "<group>"; };
+		E2D21F8519EEDDD200491EF8 /* XLTCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPConnection.h; sourceTree = "<group>"; };
+		E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPConnection.m; sourceTree = "<group>"; };
+		E2D21F8719EEDDD200491EF8 /* XLTCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPServer.h; sourceTree = "<group>"; };
+		E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPServer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E2168F7B19EDF2C000865350 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2168F9019EE033100865350 /* CFNetwork.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E26ABC0719EC9E2D00654D9F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -220,6 +267,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E2168F7F19EDF2C000865350 /* TCPServer */ = {
+			isa = PBXGroup;
+			children = (
+				E2168F8019EDF2C000865350 /* main.m */,
+			);
+			path = TCPServer;
+			sourceTree = "<group>";
+		};
 		E26ABC0B19EC9E2D00654D9F /* Mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -250,6 +305,7 @@
 				E2B3CF1619E91825003ED065 /* iOS */,
 				E26ABC0B19EC9E2D00654D9F /* Mac */,
 				E298C47719ED866100C76821 /* Tests */,
+				E2168F7F19EDF2C000865350 /* TCPServer */,
 				E26DC19E19E883CC00C68DDC /* Mac Frameworks and Libraries */,
 				E2B3CF2E19E919AC003ED065 /* iOS Frameworks and Libraries */,
 				E26DC16819E8494700C68DDC /* Products */,
@@ -263,6 +319,7 @@
 				E2B3CEF019E917BB003ED065 /* XLFacility.app */,
 				E26ABC0A19EC9E2D00654D9F /* XLFacility.app */,
 				E298C46C19ED859F00C76821 /* Tests.xctest */,
+				E2168F7E19EDF2C000865350 /* TCPServer */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -290,6 +347,7 @@
 			children = (
 				E29DC89E19EA425700A1B39F /* Core */,
 				E29DC8AF19EA425700A1B39F /* Extensions */,
+				E2D21F8219EEDDD200491EF8 /* Networking */,
 				E2BBC7FB19EAF0E90082CB48 /* UserInterface */,
 			);
 			path = XLFacility;
@@ -325,10 +383,8 @@
 				E29DC8B119EA425700A1B39F /* XLDatabaseLogger.m */,
 				E29DC8B219EA425700A1B39F /* XLHTTPServerLogger.h */,
 				E29DC8B319EA425700A1B39F /* XLHTTPServerLogger.m */,
-				E2168F7419EDCD0400865350 /* XLTCPConnection.h */,
-				E2168F7519EDCD0400865350 /* XLTCPConnection.m */,
-				E2168F8519EDF42E00865350 /* XLTCPServer.h */,
-				E2168F8619EDF42E00865350 /* XLTCPServer.m */,
+				E2168F6E19EDC8FF00865350 /* XLTCPClientLogger.h */,
+				E2168F6F19EDC8FF00865350 /* XLTCPClientLogger.m */,
 				E26ABB4E19EC278300654D9F /* XLTCPServerLogger.h */,
 				E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */,
 				E29DC8B419EA425700A1B39F /* XLTelnetServerLogger.h */,
@@ -369,9 +425,38 @@
 			path = UserInterface;
 			sourceTree = "<group>";
 		};
+		E2D21F8219EEDDD200491EF8 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				E2D21F8319EEDDD200491EF8 /* XLTCPClient.h */,
+				E2D21F8419EEDDD200491EF8 /* XLTCPClient.m */,
+				E2D21F8519EEDDD200491EF8 /* XLTCPConnection.h */,
+				E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */,
+				E2D21F8719EEDDD200491EF8 /* XLTCPServer.h */,
+				E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		E2168F7D19EDF2C000865350 /* TCPServer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2168F8219EDF2C000865350 /* Build configuration list for PBXNativeTarget "TCPServer" */;
+			buildPhases = (
+				E2168F7A19EDF2C000865350 /* Sources */,
+				E2168F7B19EDF2C000865350 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TCPServer;
+			productName = TCPServer;
+			productReference = E2168F7E19EDF2C000865350 /* TCPServer */;
+			productType = "com.apple.product-type.tool";
+		};
 		E26ABC0919EC9E2D00654D9F /* XLFacility (Mac) */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E26ABC2419EC9E2D00654D9F /* Build configuration list for PBXNativeTarget "XLFacility (Mac)" */;
@@ -447,6 +532,9 @@
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
+					E2168F7D19EDF2C000865350 = {
+						CreatedOnToolsVersion = 6.1;
+					};
 					E26ABC0919EC9E2D00654D9F = {
 						CreatedOnToolsVersion = 6.1;
 					};
@@ -483,6 +571,7 @@
 				E2B3CEEF19E917BB003ED065 /* XLFacility (iOS) */,
 				E26ABC0919EC9E2D00654D9F /* XLFacility (Mac) */,
 				E298C46B19ED859F00C76821 /* XLFacility (Tests) */,
+				E2168F7D19EDF2C000865350 /* TCPServer */,
 			);
 		};
 /* End PBXProject section */
@@ -506,23 +595,40 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E2168F7A19EDF2C000865350 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2168F8C19EE01B200865350 /* main.m in Sources */,
+				E2168F8E19EE02B500865350 /* XLFacility.m in Sources */,
+				E2168F9119EE034000865350 /* XLLogRecord.m in Sources */,
+				E2168F9419EE035800865350 /* XLLogger.m in Sources */,
+				E2168F9319EE034E00865350 /* XLFileLogger.m in Sources */,
+				E2168F9219EE034500865350 /* XLStandardLogger.m in Sources */,
+				E2D21F9619EEDECC00491EF8 /* XLTCPConnection.m in Sources */,
+				E2D21F9519EEDEC500491EF8 /* XLTCPServer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E26ABC0619EC9E2D00654D9F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2D21F9319EEDDD200491EF8 /* XLTCPServer.m in Sources */,
 				E26ABC1219EC9E2D00654D9F /* main.m in Sources */,
 				E26ABC3919EC9FF700654D9F /* XLTelnetServerLogger.m in Sources */,
 				E26ABC2F19EC9FF700654D9F /* XLASLLogger.m in Sources */,
 				E26ABC4419ECBE2900654D9F /* XLAppKitOverlayLogger.m in Sources */,
 				E26ABC3619EC9FF700654D9F /* XLDatabaseLogger.m in Sources */,
+				E2D21F8B19EEDDD200491EF8 /* XLTCPClient.m in Sources */,
+				E2168F7219EDC8FF00865350 /* XLTCPClientLogger.m in Sources */,
 				E26ABC3319EC9FF700654D9F /* XLLogger.m in Sources */,
-				E2168F7819EDCD0400865350 /* XLTCPConnection.m in Sources */,
 				E26ABC3819EC9FF700654D9F /* XLTCPServerLogger.m in Sources */,
+				E2D21F8F19EEDDD200491EF8 /* XLTCPConnection.m in Sources */,
 				E26ABC3119EC9FF700654D9F /* XLFacility.m in Sources */,
 				E26ABC3519EC9FF700654D9F /* XLStandardLogger.m in Sources */,
 				E26ABC3019EC9FF700654D9F /* XLCallbackLogger.m in Sources */,
 				E26ABC3419EC9FF700654D9F /* XLLogRecord.m in Sources */,
-				E2168F8919EDF42E00865350 /* XLTCPServer.m in Sources */,
 				E26ABC3719EC9FF700654D9F /* XLHTTPServerLogger.m in Sources */,
 				E26ABC1019EC9E2D00654D9F /* AppDelegate.m in Sources */,
 				E26ABC3219EC9FF700654D9F /* XLFileLogger.m in Sources */,
@@ -542,10 +648,12 @@
 				E26ABB5019EC278300654D9F /* XLTCPServerLogger.m in Sources */,
 				E29DC8C819EA425700A1B39F /* XLTelnetServerLogger.m in Sources */,
 				E29DC8C219EA425700A1B39F /* XLStandardLogger.m in Sources */,
-				E2168F7619EDCD0400865350 /* XLTCPConnection.m in Sources */,
+				E2D21F8D19EEDDD200491EF8 /* XLTCPConnection.m in Sources */,
+				E2D21F8919EEDDD200491EF8 /* XLTCPClient.m in Sources */,
 				E29DC8C619EA425700A1B39F /* XLHTTPServerLogger.m in Sources */,
 				E29DC8C019EA425700A1B39F /* XLLogRecord.m in Sources */,
-				E2168F8719EDF42E00865350 /* XLTCPServer.m in Sources */,
+				E2D21F9119EEDDD200491EF8 /* XLTCPServer.m in Sources */,
+				E2168F7019EDC8FF00865350 /* XLTCPClientLogger.m in Sources */,
 				E29DC8BC19EA425700A1B39F /* XLFileLogger.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -563,10 +671,12 @@
 				E298C47B19ED890500C76821 /* XLASLLogger.m in Sources */,
 				E298C47A19ED866100C76821 /* XLFacility_Tests.m in Sources */,
 				E298C48519ED890500C76821 /* XLTelnetServerLogger.m in Sources */,
-				E2168F7919EDCD0400865350 /* XLTCPConnection.m in Sources */,
+				E2D21F9019EEDDD200491EF8 /* XLTCPConnection.m in Sources */,
+				E2D21F8C19EEDDD200491EF8 /* XLTCPClient.m in Sources */,
 				E298C47C19ED890500C76821 /* XLCallbackLogger.m in Sources */,
 				E298C48419ED890500C76821 /* XLTCPServerLogger.m in Sources */,
-				E2168F8A19EDF42E00865350 /* XLTCPServer.m in Sources */,
+				E2D21F9419EEDDD200491EF8 /* XLTCPServer.m in Sources */,
+				E2168F7319EDC8FF00865350 /* XLTCPClientLogger.m in Sources */,
 				E298C47E19ED890500C76821 /* XLFileLogger.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -575,19 +685,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2D21F9219EEDDD200491EF8 /* XLTCPServer.m in Sources */,
 				E2B3CF1D19E91825003ED065 /* main.m in Sources */,
 				E26ABB5119EC278300654D9F /* XLTCPServerLogger.m in Sources */,
 				E2B3CF1B19E91825003ED065 /* AppDelegate.m in Sources */,
 				E29DC8C519EA425700A1B39F /* XLDatabaseLogger.m in Sources */,
 				E29DC8BB19EA425700A1B39F /* XLFacility.m in Sources */,
+				E2D21F8A19EEDDD200491EF8 /* XLTCPClient.m in Sources */,
+				E2168F7119EDC8FF00865350 /* XLTCPClientLogger.m in Sources */,
 				E29DC8C319EA425700A1B39F /* XLStandardLogger.m in Sources */,
-				E2168F7719EDCD0400865350 /* XLTCPConnection.m in Sources */,
 				E29DC8B919EA425700A1B39F /* XLCallbackLogger.m in Sources */,
+				E2D21F8E19EEDDD200491EF8 /* XLTCPConnection.m in Sources */,
 				E29DC8C719EA425700A1B39F /* XLHTTPServerLogger.m in Sources */,
 				E29DC8BF19EA425700A1B39F /* XLLogger.m in Sources */,
 				E29DC8C919EA425700A1B39F /* XLTelnetServerLogger.m in Sources */,
 				E29DC8C119EA425700A1B39F /* XLLogRecord.m in Sources */,
-				E2168F8819EDF42E00865350 /* XLTCPServer.m in Sources */,
 				E29DC8BD19EA425700A1B39F /* XLFileLogger.m in Sources */,
 				E29DC8B719EA425700A1B39F /* XLASLLogger.m in Sources */,
 				E2BBC7FE19EAF0E90082CB48 /* XLUIKitOverlayLogger.m in Sources */,
@@ -597,6 +709,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		E2168F9619EE04B200865350 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E298C46B19ED859F00C76821 /* XLFacility (Tests) */;
+			targetProxy = E2168F9519EE04B200865350 /* PBXContainerItemProxy */;
+		};
+		E2168F9819EE04B700865350 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E2168F7D19EDF2C000865350 /* TCPServer */;
+			targetProxy = E2168F9719EE04B700865350 /* PBXContainerItemProxy */;
+		};
 		E26ABC2E19EC9FA400654D9F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E26ABC0919EC9E2D00654D9F /* XLFacility (Mac) */;
@@ -626,6 +748,24 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		E2168F8319EDF2C000865350 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E2168F8419EDF2C000865350 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		E26ABC2519EC9E2D00654D9F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -669,6 +809,7 @@
 					"-Wno-switch-enum",
 					"-Wno-assign-enum",
 					"-Wno-documentation-unknown-command",
+					"-Wno-gnu-statement-expression",
 				);
 			};
 			name = Debug;
@@ -773,6 +914,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		E2168F8219EDF2C000865350 /* Build configuration list for PBXNativeTarget "TCPServer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2168F8319EDF2C000865350 /* Debug */,
+				E2168F8419EDF2C000865350 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E26ABC2419EC9E2D00654D9F /* Build configuration list for PBXNativeTarget "XLFacility (Mac)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

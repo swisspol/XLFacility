@@ -48,6 +48,14 @@
 @property(nonatomic) BOOL colorize;
 
 /**
+ *  Configures if the Telnet server blocks when sending new log records to the
+ *  connected terminals.
+ *
+ *  The default value is NO.
+ */
+@property(nonatomic) BOOL usesAsynchronousLogging;
+
+/**
  *  Initializes a Telnet server on port 2323 that preserves history.
  */
 - (instancetype)init;

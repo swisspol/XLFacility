@@ -12,24 +12,31 @@ Pod::Spec.new do |s|
   s.license  = { :type => 'BSD', :file => 'LICENSE' }
   s.homepage = 'https://github.com/swisspol/XLFacility'
   s.summary  = 'Elegant and extensive logging facility for OS X & iOS (includes database, Telnet and HTTP servers)'
-  
+
   s.source   = { :git => 'https://github.com/swisspol/XLFacility.git', :tag => s.version.to_s }
   s.ios.deployment_target = '5.0'
   s.osx.deployment_target = '10.7'
   s.requires_arc = true
-  
+
   s.subspec 'Core' do |cs|
     cs.source_files = 'XLFacility/Core/*.{h,m}'
     cs.private_header_files = "XLFacility/Core/XLPrivate.h"
     cs.requires_arc = true
   end
-  
+
+  s.subspec 'Networking' do |cs|
+    cs.dependency 'XLFacility/Core'
+    cs.source_files = 'XLFacility/Networking/*.{h,m}'
+    cs.requires_arc = true
+    cs.ios.frameworks = 'CFNetwork'
+  end
+
   s.subspec 'Extensions' do |cs|
     cs.dependency 'XLFacility/Core'
+    cs.dependency 'XLFacility/Networking'
     cs.source_files = 'XLFacility/Extensions/*.{h,m}'
     cs.requires_arc = true
     cs.ios.library = 'sqlite3'
-    cs.ios.frameworks = 'CFNetwork'
     cs.osx.library = 'sqlite3'
   end
 
@@ -40,5 +47,5 @@ Pod::Spec.new do |s|
     cs.osx.exclude_files = 'XLFacility/UserInterface/XLUIKitOverlayLogger.{h,m}'
     cs.requires_arc = true
   end
-  
+
 end

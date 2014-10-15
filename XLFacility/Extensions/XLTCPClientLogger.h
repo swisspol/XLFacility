@@ -26,26 +26,58 @@
  */
 
 #import "XLLogger.h"
+#import "XLTCPClient.h"
 
-#define XLOG_INTERNAL(__FORMAT__, ...) XLLogInternalError(@"%s " __FORMAT__, __FUNCTION__, __VA_ARGS__)
+@class XLTCPClientLogger;
 
-extern int XLOriginalStdOut;
-extern int XLOriginalStdErr;
+/**
+ *  The XLTCPClientLoggerConnection is an abstract class to implement connections
+ *  for XLTCPClientLogger: it cannot be used directly.
+ */
+@interface XLTCPClientLoggerConnection : XLTCPClientConnection
 
-extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
+/**
+ *  Returns the XLTCPClientLogger that owns the connection.
+ *
+ *  @warning This returns nil after the connection has been closed.
+ */
+@property(nonatomic, assign, readonly) XLTCPClientLogger* logger;
 
-@interface XLLogRecord ()
-- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                  logLevel:(XLLogLevel)logLevel
-                   message:(NSString*)message
-             capturedErrno:(int)capturedErrno
-          capturedThreadID:(int)capturedThreadID
-        capturedQueueLabel:(NSString*)capturedQueueLabel
-                 callstack:(NSArray*)callstack;
-- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime logLevel:(XLLogLevel)logLevel message:(NSString*)message callstack:(NSArray*)callstack;
 @end
 
-@interface XLLogger ()
-@property(nonatomic, readonly) dispatch_queue_t serialQueue;
-- (BOOL)shouldLogRecord:(XLLogRecord*)record;
+/**
+ *  The XLTCPClientLogger class is a base class for loggers that connect
+ *  to TCP servers.
+ *
+ *  It simply sends log records formatted as a string to the server.
+ */
+@interface XLTCPClientLogger : XLLogger
+
+/**
+ *  Returns the XLTCPClient used internally.
+ */
+@property(nonatomic, readonly) XLTCPClient* TCPClient;
+
+/**
+ *  Configures if the TCP client blocks when sending new log records to the
+ *  connected server.
+ *
+ *  The default value is NO.
+ */
+@property(nonatomic) BOOL usesAsynchronousLogging;
+
+/**
+ *  Returns the class to use to instantiate client connections.
+ *
+ *  The default implementation returns [XLTCPClientLoggerConnection class].
+ */
++ (Class)connectionClass;
+
+/**
+ *  This method is the designated initializer for the class.
+ *
+ *  @warning The TCP client is not running until the logger is opened.
+ */
+- (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port;
+
 @end

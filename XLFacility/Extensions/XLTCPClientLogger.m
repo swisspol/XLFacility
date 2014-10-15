@@ -25,27 +25,59 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLLogger.h"
+#if !__has_feature(objc_arc)
+#error XLFacility requires ARC
+#endif
 
-#define XLOG_INTERNAL(__FORMAT__, ...) XLLogInternalError(@"%s " __FORMAT__, __FUNCTION__, __VA_ARGS__)
+#import <objc/runtime.h>
 
-extern int XLOriginalStdOut;
-extern int XLOriginalStdErr;
+#import "XLTCPClientLogger.h"
+#import "XLPrivate.h"
 
-extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
+static void* _associatedObjectKey = &_associatedObjectKey;
 
-@interface XLLogRecord ()
-- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                  logLevel:(XLLogLevel)logLevel
-                   message:(NSString*)message
-             capturedErrno:(int)capturedErrno
-          capturedThreadID:(int)capturedThreadID
-        capturedQueueLabel:(NSString*)capturedQueueLabel
-                 callstack:(NSArray*)callstack;
-- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime logLevel:(XLLogLevel)logLevel message:(NSString*)message callstack:(NSArray*)callstack;
+@implementation XLTCPClientLoggerConnection
+
+- (XLTCPClientLogger*)logger {
+  return objc_getAssociatedObject(self.client, _associatedObjectKey);
+}
+
 @end
 
-@interface XLLogger ()
-@property(nonatomic, readonly) dispatch_queue_t serialQueue;
-- (BOOL)shouldLogRecord:(XLLogRecord*)record;
+@implementation XLTCPClientLogger
+
++ (Class)connectionClass {
+  return [XLTCPClientLoggerConnection class];
+}
+
+- (id)init {
+  [self doesNotRecognizeSelector:_cmd];
+  return nil;
+}
+
+- (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port {
+  if ((self = [super init])) {
+    _TCPClient = [[XLTCPClient alloc] initWithConnectionClass:[[self class] connectionClass] host:hostname port:port];
+    objc_setAssociatedObject(_TCPClient, _associatedObjectKey, self, OBJC_ASSOCIATION_ASSIGN);
+  }
+  return self;
+}
+
+- (BOOL)open {
+  return [_TCPClient start];
+}
+
+- (void)logRecord:(XLLogRecord*)record {
+  NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
+  if (_usesAsynchronousLogging) {
+    [_TCPClient.connection writeDataAsynchronously:data completion:NULL];
+  } else {
+    [_TCPClient.connection writeData:data];
+  }
+}
+
+- (void)close {
+  [_TCPClient stop];
+}
+
 @end

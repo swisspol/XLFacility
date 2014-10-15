@@ -43,6 +43,28 @@ typedef union {
   struct sockaddr_in6 addr6;
 } SocketAddress;
 
+NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address) {
+  NSString* string = nil;
+  if (address) {
+    char hostBuffer[NI_MAXHOST];
+    char serviceBuffer[NI_MAXSERV];
+    if (getnameinfo(address, address->sa_len, hostBuffer, sizeof(hostBuffer), serviceBuffer, sizeof(serviceBuffer), NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN) >= 0) {
+      string = [NSString stringWithFormat:@"%s:%s", hostBuffer, serviceBuffer];
+    } else {
+      XLOG_INTERNAL(@"Failed converting IP address data to string: %s", strerror(errno));
+    }
+  }
+  return string;
+}
+
+@interface XLTCPConnection () {
+@private
+  dispatch_queue_t _lockQueue;
+  XLTCPConnectionState _state;
+  dispatch_group_t _writeGroup;
+}
+@end
+
 @implementation XLTCPConnection
 
 static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* addr, socklen_t len, NSTimeInterval timeout, BOOL isIPv6) {
@@ -114,7 +136,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
             address.addr4.sin_port = htons(port);
           }
           int socket = _CreateConnectedSocket(hostname, &address.addr, address.addr.sa_len, timeout, address.addr.sa_family == AF_INET6);
-          if (socket > 0) {
+          if (socket >= 0) {
             connection = [[self alloc] initWithSocket:socket];
             if (connection) {
               break;
@@ -142,6 +164,9 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 
 - (instancetype)initWithSocket:(int)socket {
   if ((self = [super init])) {
+    _lockQueue = dispatch_queue_create(object_getClassName([self class]), DISPATCH_QUEUE_SERIAL);
+    _writeGroup = dispatch_group_create();
+    _state = kXLTCPConnectionState_Initialized;
     _socket = socket;
     
     int noSigPipe = 1;
@@ -169,52 +194,125 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
   return self;
 }
 
+- (void)dealloc {
+  if (_socket >= 0) {
+    close(_socket);
+  }
+  if (_state == kXLTCPConnectionState_Opened) {
+    _state = kXLTCPConnectionState_Closed;
+    [self didClose];
+  }
+#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+  dispatch_release(_writeGroup);
+  dispatch_release(_lockQueue);
+#endif
+}
+
+- (XLTCPConnectionState)state {
+  __block XLTCPConnectionState state;
+  dispatch_sync(_lockQueue, ^{
+    state = _state;
+  });
+  return state;
+}
+
+- (void)open {
+  __block BOOL didOpen = NO;
+  dispatch_sync(_lockQueue, ^{
+    if (_state == kXLTCPConnectionState_Initialized) {
+      _state = kXLTCPConnectionState_Opened;
+      didOpen = YES;
+    }
+  });
+  if (didOpen) {
+    [self didOpen];
+  }
+}
+
 - (void)readBufferAsynchronously:(void (^)(dispatch_data_t buffer))completion {
-  dispatch_read(self.socket, SIZE_MAX, kDispatchQueue, ^(dispatch_data_t data, int error) {
-    @autoreleasepool {
-      if (error) {
-        XLOG_INTERNAL(@"Failed reading socket: %s", strerror(error));
-        if (completion) {
-          completion(NULL);
+  dispatch_sync(_lockQueue, ^{
+    if (_state == kXLTCPConnectionState_Opened) {
+      dispatch_read(_socket, SIZE_MAX, kDispatchQueue, ^(dispatch_data_t data, int error) {
+        
+        @autoreleasepool {
+          if (error) {
+            XLOG_INTERNAL(@"Failed reading from socket: %s", strerror(error));
+            [self close];
+            if (completion) {
+              completion(NULL);
+            }
+          } else if (completion) {
+            completion(data);
+          }
         }
-        [self close];
-      } else if (completion) {
-        completion(data);
-      }
+        
+      });
+    } else if (completion) {
+      dispatch_async(kDispatchQueue, ^{
+        completion(NULL);
+      });
     }
   });
 }
 
 - (void)writeBufferAsynchronously:(dispatch_data_t)buffer completion:(void (^)(BOOL success))completion {
-  dispatch_write(_socket, buffer, kDispatchQueue, ^(dispatch_data_t data, int error) {
-    @autoreleasepool {
-      if (error) {
-        if (error != EPIPE) {
-          XLOG_INTERNAL(@"Failed writing to socket: %s", strerror(error));
+  dispatch_sync(_lockQueue, ^{
+    if (_state == kXLTCPConnectionState_Opened) {
+      dispatch_write(_socket, buffer, kDispatchQueue, ^(dispatch_data_t data, int error) {
+        
+        @autoreleasepool {
+          if (error) {
+            if (error != EPIPE) {
+              XLOG_INTERNAL(@"Failed writing to socket: %s", strerror(error));
+            }
+            [self close];
+            if (completion) {
+              completion(NO);
+            }
+          } else if (completion) {
+            completion(YES);
+          }
         }
-        if (completion) {
-          completion(NO);
-        }
-        [self close];
-      } else if (completion) {
-        completion(YES);
-      }
+        
+      });
+    } else if (completion) {
+      dispatch_async(kDispatchQueue, ^{
+        completion(NO);
+      });
     }
   });
 }
 
 - (void)close {
-  close(_socket);
-  _socket = 0;
+  __block BOOL didClose = NO;
+  dispatch_sync(_lockQueue, ^{
+    if (_state == kXLTCPConnectionState_Opened) {
+      close(_socket);
+      _socket = -1;
+      _state = kXLTCPConnectionState_Closed;
+      didClose = YES;
+    }
+  });
+  if (didClose) {
+    [self didClose];
+  }
+}
+
+@end
+
+@implementation XLTCPConnection (Subclassing)
+
+- (void)didOpen {
+  ;
+}
+
+- (void)didClose {
+  ;
 }
 
 @end
 
 @implementation XLTCPConnection (Extensions)
-
-- (BOOL)isClosed {
-  return (_socket <= 0);
-}
 
 - (BOOL)isUsingIPv6 {
   const struct sockaddr* localSockAddr = _localAddressData.bytes;
@@ -254,12 +352,15 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 #endif
 }
 
-- (void)writeCStringAsynchronously:(const char*)string completion:(void (^)(BOOL success))completion {
-  dispatch_data_t buffer = dispatch_data_create(string, strlen(string), NULL, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
-  [self writeBufferAsynchronously:buffer completion:completion];
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-  dispatch_release(buffer);
-#endif
+- (BOOL)writeData:(NSData*)data {
+  __block BOOL result;
+  dispatch_group_enter(_writeGroup);
+  [self writeDataAsynchronously:data completion:^(BOOL success) {
+    result = success;
+    dispatch_group_leave(_writeGroup);
+  }];
+  dispatch_group_wait(_writeGroup, DISPATCH_TIME_FOREVER);
+  return result;
 }
 
 @end

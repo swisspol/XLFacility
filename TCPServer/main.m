@@ -25,27 +25,49 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLLogger.h"
+#import "XLTCPServer.h"
 
-#define XLOG_INTERNAL(__FORMAT__, ...) XLLogInternalError(@"%s " __FORMAT__, __FUNCTION__, __VA_ARGS__)
-
-extern int XLOriginalStdOut;
-extern int XLOriginalStdErr;
-
-extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
-
-@interface XLLogRecord ()
-- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                  logLevel:(XLLogLevel)logLevel
-                   message:(NSString*)message
-             capturedErrno:(int)capturedErrno
-          capturedThreadID:(int)capturedThreadID
-        capturedQueueLabel:(NSString*)capturedQueueLabel
-                 callstack:(NSArray*)callstack;
-- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime logLevel:(XLLogLevel)logLevel message:(NSString*)message callstack:(NSArray*)callstack;
+@interface ServerConnection : XLTCPServerConnection
 @end
 
-@interface XLLogger ()
-@property(nonatomic, readonly) dispatch_queue_t serialQueue;
-- (BOOL)shouldLogRecord:(XLLogRecord*)record;
+@implementation ServerConnection
+
+- (void)_readForever {
+  [self readDataAsynchronously:^(NSData* data) {
+    if (data) {
+      if (write(STDOUT_FILENO, data.bytes, data.length) <= 0) {
+        [self close];
+      } else {
+        [self _readForever];
+      }
+    }
+  }];
+}
+
+- (void)didOpen {
+  [super didOpen];
+  
+  fprintf(stdout, "\n=== CONNECTION OPENED ===\n\n");
+  [self _readForever];
+}
+
+- (void)didClose {
+  [super didClose];
+  
+  fprintf(stdout, "\n=== CONNECTION CLOSED ===\n\n");
+}
+
 @end
+
+int main(int argc, const char* argv[]) {
+  @autoreleasepool {
+    XLTCPServer* server = [[XLTCPServer alloc] initWithConnectionClass:[ServerConnection class] port:8888];
+    if (![server start]) {
+      abort();
+    }
+    
+    fprintf(stdout, "Server is running...\n\n");
+    CFRunLoopRun();
+  }
+  return 0;
+}

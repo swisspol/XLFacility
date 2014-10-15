@@ -42,23 +42,6 @@
  */
 @property(nonatomic, assign, readonly) XLTCPServer* server;
 
-/**
- *  Called by XLTCPServer to open the connection after it has been created.
- *
- *  Default implementation does nothing but subclasses could override this method
- *  to start reading or writing to the socket.
- */
-- (void)open;
-
-/**
- *  Called by XLTCPServer to close the connection if it's still
- *  opened when the logger is being closed.
- *
- *  Subclasses can call this method directly to close the connection at any
- *  point in time.
- */
-- (void)close;
-
 @end
 
 /**
@@ -90,8 +73,6 @@
  *  This method is the designated initializer for the class.
  *
  *  Connection class must be [XLTCPServerConnection class] or a subclass of it.
- *
- *  @warning The TCP server until -start has been called.
  */
 - (instancetype)initWithConnectionClass:(Class)connectionClass port:(NSUInteger)port;
 

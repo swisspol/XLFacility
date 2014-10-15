@@ -26,7 +26,6 @@
  */
 
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#pragma clang diagnostic ignored "-Wgnu-statement-expression"
 #pragma clang diagnostic ignored "-Wsign-compare"
 
 #import <XCTest/XCTest.h>
@@ -39,8 +38,34 @@
 #import "XLASLLogger.h"
 #import "XLTelnetServerLogger.h"
 #import "XLHTTPServerLogger.h"
+#import "XLTCPClientLogger.h"
 
-#define kSleepDelay (100 * 1000)
+#define kLoggingDelay (100 * 1000)
+
+typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
+
+@interface TCPServer : XLTCPServer
+@end
+
+@implementation TCPServer {
+@private
+  XTCPServerConnectionBlock _block;
+}
+
+- (id)initWithPort:(NSUInteger)port connectionBlock:(XTCPServerConnectionBlock)block {
+  if ((self = [super initWithConnectionClass:[XLTCPServerConnection class] port:port])) {
+    _block = block;
+  }
+  return self;
+}
+
+- (void)willOpenConnection:(XLTCPServerConnection*)connection {
+  [super willOpenConnection:connection];
+  
+  _block(connection);
+}
+
+@end
 
 @interface XLFacility_Tests : XCTestCase
 @end
@@ -69,8 +94,7 @@
   XLOG_INFO(@"Hello Info World!");
   XLOG_WARNING(@"Hello Warning World!");
   XLOG_ERROR(@"Hello Error World!");
-  
-  usleep(kSleepDelay);
+  usleep(kLoggingDelay);
   
   XCTAssertEqual(_capturedRecords.count, 5);
   XLLogRecord* record = _capturedRecords[2];
@@ -87,8 +111,7 @@
   @catch (NSException* exception) {
 #pragma unused(exception)
   }
-  
-  usleep(kSleepDelay);
+  usleep(kLoggingDelay);
   
   XCTAssertEqual(_capturedRecords.count, 1);
   XLLogRecord* record = _capturedRecords[0];
@@ -104,8 +127,7 @@
   @catch (NSException* exception) {
 #pragma unused(exception)
   }
-  
-  usleep(kSleepDelay);
+  usleep(kLoggingDelay);
   
   XCTAssertEqual(_capturedRecords.count, 1);
 }
@@ -116,8 +138,7 @@
   fprintf(stdout, "Hello stdout!\n");
   fprintf(stdout, "Bonjour stdout!\n");
   fflush(stdout);
-  
-  usleep(kSleepDelay);
+  usleep(kLoggingDelay);
   
   XCTAssertEqual(_capturedRecords.count, 2);
   XLLogRecord* record1 = _capturedRecords[0];
@@ -129,22 +150,20 @@
   
   fprintf(stdout, "Hello again!\n");
   fflush(stdout);
-  
-  usleep(kSleepDelay);
+  usleep(kLoggingDelay);
   
   XCTAssertEqual(_capturedRecords.count, 2);
 }
 
 - (void)testFileLogger {
   NSString* filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
-  XLLogger* logger = [XLSharedFacility addLogger:[[XLFileLogger alloc] initWithFilePath:filePath append:NO]];
+  XLFileLogger* logger = (XLFileLogger*)[XLSharedFacility addLogger:[[XLFileLogger alloc] initWithFilePath:filePath append:NO]];
   logger.format = @"[%L] %m";
   
   for (int i = 0; i < 10; ++i) {
     [XLSharedFacility logMessageWithLevel:(i % 5) format:@"Hello World #%i!", i + 1];
   }
-  
-  usleep(kSleepDelay);
+  usleep(kLoggingDelay);
   
   NSString* contents = [[NSString alloc] initWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:NULL];
   XCTAssertEqualObjects(contents, @"\
@@ -171,8 +190,7 @@
   for (int i = 0; i < 10; ++i) {
     [XLSharedFacility logMessageWithLevel:(i % 5) format:@"Hello World #%i!", i + 1];
   }
-  
-  usleep(kSleepDelay);
+  usleep(kLoggingDelay);
   
   __block int index = 0;
   [logger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
@@ -187,12 +205,11 @@
 }
 
 - (void)testASLLogger {
-  XLLogger* logger = [XLSharedFacility addLogger:[XLASLLogger sharedLogger]];
+  XLASLLogger* logger = (XLASLLogger*)[XLSharedFacility addLogger:[XLASLLogger sharedLogger]];
   
   XLOG_INFO(@"Bonjour le monde!");
   XLOG_WARNING(@"Hello World!");
-  
-  usleep(kSleepDelay);
+  usleep(kLoggingDelay);
   
   fprintf(stderr, "Querying ASL - please wait...\n");
   
@@ -235,18 +252,18 @@
 }
 
 - (void)testTelnetLogger {
-  XLLogger* logger = [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] initWithPort:3333 preserveHistory:YES]];
+  XLTelnetServerLogger* logger = (XLTelnetServerLogger*)[XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] initWithPort:3333 preserveHistory:YES]];
   logger.format = @"[%L] %m";
-  [(XLTelnetServerLogger*)logger setColorize:NO];
+  logger.colorize = NO;
   
   XLOG_INFO(@"Bonjour le monde!");
   XLOG_WARNING(@"Hello World!");
-  
-  usleep(kSleepDelay);
+  usleep(kLoggingDelay);
   
   XCTestExpectation* expectation = [self expectationWithDescription:nil];
   [XLTCPConnection connectAsynchronouslyToHost:@"localhost" port:3333 timeout:5.0 completion:^(XLTCPConnection* connection) {
     XCTAssertNotNil(connection);
+    [connection open];
     [connection readDataAsynchronously:^(NSData* data1) {
       XCTAssertNotNil(data1);
       NSString* string1 = [[NSString alloc] initWithData:data1 encoding:NSUTF8StringEncoding];
@@ -260,8 +277,18 @@
 [WARNING  ] Hello World!\n\
 ");
         
-        [connection close];
-        [expectation fulfill];
+        XLOG_ERROR(@"Hello again!");
+        usleep(kLoggingDelay);
+        
+        [connection readDataAsynchronously:^(NSData* data3) {
+          XCTAssertNotNil(data3);
+          NSString* string3 = [[NSString alloc] initWithData:data3 encoding:NSUTF8StringEncoding];
+          XCTAssertEqualObjects(string3, @"[ERROR    ] Hello again!\n");
+          
+          [connection close];
+          [expectation fulfill];
+        }];
+        
       }];
       
     }];
@@ -272,24 +299,112 @@
 }
 
 - (void)testHTTPLogger {
-  XLLogger* logger = [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] initWithPort:8888]];
+  XLLogger* logger = (XLHTTPServerLogger*)[XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] initWithPort:8888]];
   
   XLOG_INFO(@"Bonjour le monde!");
   XLOG_WARNING(@"Hello World!");
+  usleep(kLoggingDelay);
   
-  usleep(kSleepDelay);
+  CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
   
-  NSHTTPURLResponse* response = nil;
-  NSData* data = [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost:8888/"]] returningResponse:&response error:NULL];
-  XCTAssertNotNil(data);
-  XCTAssertEqual(response.statusCode, 200);
-  NSString* string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  NSRange range1 = [string rangeOfString:@"Bonjour le monde!"];
+  NSHTTPURLResponse* response1 = nil;
+  NSURL* url1 = [NSURL URLWithString:@"http://localhost:8888/"];
+  NSData* data1 = [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:url1] returningResponse:&response1 error:NULL];
+  XCTAssertNotNil(data1);
+  XCTAssertEqual(response1.statusCode, 200);
+  NSString* string1 = [[NSString alloc] initWithData:data1 encoding:NSUTF8StringEncoding];
+  NSRange range1 = [string1 rangeOfString:@"Bonjour le monde!"];
   XCTAssertNotEqual(range1.location, NSNotFound);
-  NSRange range2 = [string rangeOfString:@"Hello World!"];
+  NSRange range2 = [string1 rangeOfString:@"Hello World!"];
   XCTAssertNotEqual(range2.location, NSNotFound);
   
+  XCTestExpectation* expectation = [self expectationWithDescription:nil];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+    NSHTTPURLResponse* response2 = nil;
+    NSURL* url2 = [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:8888/log?after=%f", time]];
+    NSData* data2 = [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:url2] returningResponse:&response2 error:NULL];
+    XCTAssertNotNil(data2);
+    XCTAssertEqual(response2.statusCode, 200);
+    NSString* string2 = [[NSString alloc] initWithData:data2 encoding:NSUTF8StringEncoding];
+    NSRange range3 = [string2 rangeOfString:@"Hello again!"];
+    XCTAssertNotEqual(range3.location, NSNotFound);
+    
+    [expectation fulfill];
+  });
+  sleep(5);
+  XLOG_ERROR(@"Hello again!");
+  [self waitForExpectationsWithTimeout:10.0 handler:NULL];
+  
   [XLSharedFacility removeLogger:logger];
+}
+
+- (void)testTCPClientLogger {
+  __block XLTCPServerConnection* connection = nil;
+  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(XLTCPServerConnection* newConnection) {
+    connection = newConnection;
+  }];
+  XCTAssertTrue([server start]);
+  
+  XLTCPClientLogger* logger = (XLTCPClientLogger*)[XLSharedFacility addLogger:[[XLTCPClientLogger alloc] initWithHost:@"localhost" port:4444]];
+  logger.format = @"[%L] %m";
+  logger.TCPClient.minReconnectInterval = 1.0;
+  logger.TCPClient.maxReconnectInterval = 1.0;
+  
+  sleep(1);
+  XCTAssertNotNil(connection);
+  
+  XLOG_INFO(@"Bonjour le monde!");
+  XLOG_WARNING(@"Hello World!");
+  usleep(kLoggingDelay);
+  
+  XCTestExpectation* expectation1 = [self expectationWithDescription:nil];
+  [connection readDataAsynchronously:^(NSData* data) {
+    XCTAssertNotNil(data);
+    NSString* string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(string, @"\
+[INFO     ] Bonjour le monde!\n\
+[WARNING  ] Hello World!\n\
+");
+    
+    [connection close];
+    connection = nil;
+    
+    [expectation1 fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:10.0 handler:NULL];
+  XCTAssertNil(connection);
+  
+  for (int i = 0; i < 10; ++i) {
+    XLOG_DEBUG(@"HEY THERE");
+  }
+  usleep(kLoggingDelay);
+  
+  XCTAssertNil(logger.TCPClient.connection);
+  
+  sleep(2);
+  
+  XCTAssertNotNil(connection);
+  
+  XLOG_ERROR(@"Hello again!");
+  usleep(kLoggingDelay);
+  
+  XCTestExpectation* expectation2 = [self expectationWithDescription:nil];
+  [connection readDataAsynchronously:^(NSData* data) {
+    XCTAssertNotNil(data);
+    NSString* string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(string, @"[ERROR    ] Hello again!\n");
+    
+    [connection close];
+    connection = nil;
+    
+    [expectation2 fulfill];
+  }];
+  [self waitForExpectationsWithTimeout:10.0 handler:NULL];
+  XCTAssertNil(connection);
+  
+  [XLSharedFacility removeLogger:logger];
+  
+  [server stop];
 }
 
 @end

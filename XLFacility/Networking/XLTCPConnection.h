@@ -26,11 +26,31 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <sys/socket.h>
+
+/**
+ *  Constants representing the state of a XLTCPConnection.
+ */
+typedef NS_ENUM(int, XLTCPConnectionState) {
+  kXLTCPConnectionState_Closed = -1,
+  kXLTCPConnectionState_Initialized = 0,
+  kXLTCPConnectionState_Opened = 1
+};
+
+/**
+ *  Converts an IP address to a string.
+ */
+extern NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address);
 
 /**
  *  The XLTCPConnection is a base class that handles TCP connections.
  */
 @interface XLTCPConnection : NSObject
+
+/**
+ *  Returns the state of the connection.
+ */
+@property(nonatomic, readonly) XLTCPConnectionState state;
 
 /**
  *  Returns the address of the local peer of the connection
@@ -68,6 +88,11 @@
 - (instancetype)initWithSocket:(int)socket;
 
 /**
+ *  Opens the connection (required before reading or writing from it).
+ */
+- (void)open;
+
+/**
  *  Reads a buffer asynchronously from the socket.
  *
  *  @warning The connection will be automatically closed on error right after
@@ -90,12 +115,25 @@
 
 @end
 
-@interface XLTCPConnection (Extensions)
+@interface XLTCPConnection (Subclassing)
 
 /**
- *  Returns YES if the connection is closed.
+ *  Called after the underlying socket was opened.
+ *
+ *  The default implementation does nothing.
  */
-@property(nonatomic, readonly, getter=isClosed) BOOL closed;
+- (void)didOpen;
+
+/**
+ *  Called after the underlying socket was closed.
+ *
+ *  The default implementation does nothing.
+ */
+- (void)didClose;
+
+@end
+
+@interface XLTCPConnection (Extensions)
 
 /**
  *  Returns YES if the connection is using IPv6.
@@ -103,39 +141,28 @@
 @property(nonatomic, readonly, getter=isUsingIPv6) BOOL usingIPv6;
 
 /**
- *  Returns the address of the local peer of the connection
- *  as a string.
+ *  Returns the address of the local peer of the connection as a string.
  */
 @property(nonatomic, readonly) NSString* localAddressString;
 
 /**
- *  Returns the address of the remote peer of the connection
- *  as a string.
+ *  Returns the address of the remote peer of the connection as a string.
  */
 @property(nonatomic, readonly) NSString* remoteAddressString;
 
 /**
  *  Reads data asynchronously from the socket.
- *
- *  @warning The connection will be automatically closed on error right after
- *  the completion block has been called.
  */
 - (void)readDataAsynchronously:(void (^)(NSData* data))completion;
 
 /**
  *  Writes data asynchronously to the socket.
- *
- *  @warning The connection will be automatically closed on error right after
- *  the completion block has been called.
  */
 - (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion;
 
 /**
- *  Writes a C string asynchronously to the socket.
- *
- *  @warning The connection will be automatically closed on error right after
- *  the completion block has been called.
+ *  Writes data synchronously to the socket.
  */
-- (void)writeCStringAsynchronously:(const char*)string completion:(void (^)(BOOL success))completion;
+- (BOOL)writeData:(NSData*)data;
 
 @end

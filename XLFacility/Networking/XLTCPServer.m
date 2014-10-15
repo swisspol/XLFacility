@@ -55,12 +55,8 @@
 
 @implementation XLTCPServerConnection
 
-- (void)open {
-  ;
-}
-
-- (void)close {
-  [super close];
+- (void)didClose {
+  [super didClose];
   
   [_server didCloseConnection:self];
   _server = nil;
@@ -108,7 +104,7 @@
 
 - (int)_createListeningSocket:(BOOL)useIPv6 localAddress:(const void*)address length:(socklen_t)length {
   int listeningSocket = socket(useIPv6 ? PF_INET6 : PF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (listeningSocket > 0) {
+  if (listeningSocket >= 0) {
     int yes = 1;
     setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
     
@@ -141,7 +137,7 @@
       struct sockaddr remoteSockAddr;
       socklen_t remoteAddrLen = sizeof(remoteSockAddr);
       int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
-      if (socket > 0) {
+      if (socket >= 0) {
         XLTCPServerConnection* connection = [[_connectionClass alloc] initWithSocket:socket];
         if (connection) {
           [self willOpenConnection:connection];
@@ -174,7 +170,7 @@
   addr6.sin6_addr = in6addr_any;
   int listeningSocket6 = [self _createListeningSocket:YES localAddress:&addr6 length:sizeof(addr6)];
   
-  if ((listeningSocket4 <= 0) || (listeningSocket6 <= 0)) {
+  if ((listeningSocket4 < 0) || (listeningSocket6 < 0)) {
     close(listeningSocket4);
     close(listeningSocket6);
     return NO;

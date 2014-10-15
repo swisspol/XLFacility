@@ -215,7 +215,9 @@
   return success;
 }
 
-- (void)open {
+- (void)didOpen {
+  [super didOpen];
+  
   [self readBufferAsynchronously:^(dispatch_data_t data) {
     if (data) {
       BOOL success = NO;
@@ -237,8 +239,8 @@
   }];
 }
 
-- (void)close {
-  [super close];
+- (void)didClose {
+  [super didClose];
   
   if (_pollingSemaphore) {
     dispatch_semaphore_signal(_pollingSemaphore);

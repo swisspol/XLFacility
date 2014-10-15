@@ -37,24 +37,27 @@
 
 @implementation XLTelnetServerConnection
 
-- (void)open {
-  XLTelnetServerLogger* logger = (XLTelnetServerLogger*)self.logger;
+- (void)didOpen {
+  [super didOpen];
   
-  char buffer[256];
-  if (logger.colorize) {
-    snprintf(buffer, sizeof(buffer), "%sYou are connected to %s[%i] (in color!)%s\n\n", "\x1b[32m", getprogname(), getpid(), "\x1b[0m");
+  NSString* welcome;
+  if ([(XLTelnetServerLogger*)self.logger colorize]) {
+    welcome = [[NSString alloc] initWithFormat:@"%sYou are connected to %s[%i] (in color!)%s\n\n", "\x1b[32m", getprogname(), getpid(), "\x1b[0m"];
   } else {
-    snprintf(buffer, sizeof(buffer), "You are connected to %s[%i]\n\n", getprogname(), getpid());
+    welcome = [[NSString alloc] initWithFormat:@"You are connected to %s[%i]\n\n", getprogname(), getpid()];
   }
-  [self writeCStringAsynchronously:buffer completion:NULL];
-  
-  if (logger.databaseLogger) {
-    NSMutableString* history = [[NSMutableString alloc] init];
-    [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
-      [history appendString:[logger formatRecord:record]];
-    }];
-    [self writeDataAsynchronously:XLConvertNSStringToUTF8String(history) completion:NULL];
-  }
+  [self writeDataAsynchronously:XLConvertNSStringToUTF8String(welcome) completion:^(BOOL success) {
+    
+    XLTelnetServerLogger* logger = (XLTelnetServerLogger*)self.logger;
+    if (logger.databaseLogger) {
+      NSMutableString* history = [[NSMutableString alloc] init];
+      [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+        [history appendString:[logger formatRecord:record]];
+      }];
+      [self writeDataAsynchronously:XLConvertNSStringToUTF8String(history) completion:NULL];
+    }
+    
+  }];
 }
 
 @end
@@ -100,7 +103,11 @@
   
   NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
   [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPServerConnection* connection, BOOL* stop) {
-    [connection writeDataAsynchronously:data completion:NULL];
+    if (_usesAsynchronousLogging) {
+      [connection writeDataAsynchronously:data completion:NULL];
+    } else {
+      [connection writeData:data];
+    }
   }];
 }
 
