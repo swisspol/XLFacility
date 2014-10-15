@@ -193,11 +193,11 @@
 }
 
 - (NSString*)localAddressString {
-  return XLFacilityStringFromIPAddressData(_localAddressData);
+  return XLFacilityStringFromIPAddress(_localAddressData.bytes);
 }
 
 - (NSString*)remoteAddressString {
-  return XLFacilityStringFromIPAddressData(_remoteAddressData);
+  return XLFacilityStringFromIPAddress(_remoteAddressData.bytes);
 }
 
 - (void)readDataAsynchronously:(void (^)(NSData* data))completion {

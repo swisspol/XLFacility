@@ -110,15 +110,16 @@ const char* XLConvertNSStringToUTF8CString(NSString* string) {
   return utf8String;
 }
 
-NSString* XLFacilityStringFromIPAddressData(NSData* data) {
+NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address) {
   NSString* string = nil;
-  const struct sockaddr* addr = data.bytes;
-  char hostBuffer[NI_MAXHOST];
-  char serviceBuffer[NI_MAXSERV];
-  if (getnameinfo(addr, addr->sa_len, hostBuffer, sizeof(hostBuffer), serviceBuffer, sizeof(serviceBuffer), NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN) >= 0) {
-    string = [NSString stringWithFormat:@"%s:%s", hostBuffer, serviceBuffer];
-  } else {
-    XLOG_INTERNAL(@"Failed converting IP address data to string: %s", strerror(errno));
+  if (address) {
+    char hostBuffer[NI_MAXHOST];
+    char serviceBuffer[NI_MAXSERV];
+    if (getnameinfo(address, address->sa_len, hostBuffer, sizeof(hostBuffer), serviceBuffer, sizeof(serviceBuffer), NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN) >= 0) {
+      string = [NSString stringWithFormat:@"%s:%s", hostBuffer, serviceBuffer];
+    } else {
+      XLOG_INTERNAL(@"Failed converting IP address data to string: %s", strerror(errno));
+    }
   }
   return string;
 }

@@ -25,6 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <sys/socket.h>
+
 #import "XLLogger.h"
 
 #define XLOG_INTERNAL(__FORMAT__, ...) XLLogInternalError(@"%s " __FORMAT__, __FUNCTION__, __VA_ARGS__)
@@ -33,7 +35,7 @@ extern int XLOriginalStdOut;
 extern int XLOriginalStdErr;
 
 extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
-extern NSString* XLFacilityStringFromIPAddressData(NSData* data);
+extern NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address);
 
 @interface XLLogRecord ()
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
