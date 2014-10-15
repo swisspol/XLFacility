@@ -52,7 +52,7 @@ typedef void (^XLCallbackLoggerLogRecordBlock)(XLCallbackLogger* logger, XLLogRe
 typedef void (^XLCallbackLoggerCloseBlock)(XLCallbackLogger* logger);
 
 /**
- *  The XLCallbackLogger subclass of XLLogger implements a logger through GCD callbacks.
+ *  The XLCallbackLogger class implements a custom logger through GCD callbacks.
  */
 @interface XLCallbackLogger : XLLogger
 

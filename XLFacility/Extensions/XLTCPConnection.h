@@ -28,8 +28,7 @@
 #import <Foundation/Foundation.h>
 
 /**
- *  The XLTCPConnection is a convenience class to handle TCP
- *  connections.
+ *  The XLTCPConnection is a base class that handles TCP connections.
  */
 @interface XLTCPConnection : NSObject
 

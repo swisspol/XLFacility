@@ -28,8 +28,8 @@
 #import "XLLogger.h"
 
 /**
- *  The XLDatabaseLogger subclass of XLLogger saves logs records to a
- *  SQLite database which can be queried afterwards.
+ *  The XLDatabaseLogger class saves logs records to a SQLite database which
+ *  can be queried afterwards.
  *
  *  The "appVersion" argument can be used to keep track of which version of
  *  your app generated a given log record.

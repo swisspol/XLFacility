@@ -62,10 +62,9 @@
 @end
 
 /**
- *  The XLTCPServer is a class that implements a basic TCP server.
- *
- *  It listens for IPv4 or IPv6 TCP connections on a port and then creates
- *  XLTCPServerConnection instances for each.
+ *  The XLTCPServer is a base class that implements a TCP server. It listens for
+ *  IPv4 or IPv6 TCP connections on a port and then creates XLTCPServerConnection
+ *  instances for each.
  *
  *  @warning On iOS, connecting to the server will not work while your app has
  *  been suspended by the OS while in background.

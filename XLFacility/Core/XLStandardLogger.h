@@ -28,8 +28,8 @@
 #import "XLFileLogger.h"
 
 /**
- *  The XLStandardLogger subclass of XLLogger logs records to the standard
- *  output or standard error.
+ *  The XLStandardLogger class sends logs records to the standard output or
+ *  standard error.
  *
  *  @warning XLStandardLogger duplicates the stdout and stderr file descriptors
  *  when the process starts to still be able to write to them even if they are

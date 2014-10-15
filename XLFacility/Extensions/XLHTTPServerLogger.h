@@ -28,9 +28,9 @@
 #import "XLTCPServerLogger.h"
 
 /**
- *  The XLHTTPServerLogger subclass of XLTCPServerLogger runs a simple HTTP server
- *  you can connect to in your web browser by visiting "http://IP_ADDRESS:PORT/".
- *  Log records received by the logger are then printed directly in the connected.
+ *  The XLHTTPServerLogger runs a simple HTTP server you can connect to in your
+ *  web browser by visiting "http://IP_ADDRESS:PORT/". Log records received by
+ *  the logger are then printed directly in the connected.
  *
  *  XLHTTPServerLogger preserves the history of log records received since the
  *  logger was opened. When visiting the server URL, the webpage can therefore

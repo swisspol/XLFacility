@@ -29,8 +29,8 @@
 #import "XLLogger.h"
 
 /**
- *  The XLAppKitOverlayLogger subclass of XLLogger displays an overlay window
- *  on top of the entire app user interface whenever log records are received.
+ *  The XLAppKitOverlayLogger class displays an overlay window on top of the
+ *  entire app user interface whenever log records are received.
  */
 @interface XLAppKitOverlayLogger : XLLogger
 

@@ -28,7 +28,7 @@
 #import "XLLogger.h"
 
 /**
- *  The XLASLLogger subclass of XLLogger logs records to the Apple System Logger.
+ *  The XLASLLogger sends log records to the Apple System Logger.
  *
  *  @warning XLASLLogger does not format records in any way and ignores the
  *  "format" property of XLLogger: it justs passes the record message to ASL.

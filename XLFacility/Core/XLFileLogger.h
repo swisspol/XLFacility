@@ -28,7 +28,7 @@
 #import "XLLogger.h"
 
 /**
- *  The XLFileLogger subclass of XLLogger writes logs records to a file.
+ *  The XLFileLogger class writes logs records to a file.
  *
  *  @warning XLFileLogger does not perform any buffering when writing to the
  *  file i.e. log records are written to disk immediately.

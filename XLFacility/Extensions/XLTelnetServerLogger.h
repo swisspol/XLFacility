@@ -28,10 +28,9 @@
 #import "XLTCPServerLogger.h"
 
 /**
- *  The XLTelnetServerLogger subclass of XLTCPServerLogger runs a Telnet-like
- *  server you can connect to using "$ telnet IP_ADDRESS PORT" from a terminal.
- *  Log records received by the logger are then printed directly in the connected
- *  terminal.
+ *  The XLTelnetServerLogger class runs a Telnet-like server you can connect to
+ *  using "$ telnet IP_ADDRESS PORT" from a terminal. Log records received by
+ *  the logger are then printed directly in the connected terminal.
  *
  *  XLTelnetServerLogger can optionally preserve the history of log records
  *  received since the logger was opened. If this feature is enabled, when

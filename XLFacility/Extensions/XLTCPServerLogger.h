@@ -46,8 +46,8 @@
 @end
 
 /**
- *  The XLTCPServerLogger subclass of XLLogger is an abstract class for loggers
- *  that implement TCP servers: it cannot be used directly.
+ *  The XLTCPServerLogger class is an abstract class for loggers that
+ *  implement TCP servers: it cannot be used directly.
  *
  *  XLTCPServerLogger can optionally use a XLDatabaseLogger instance internally
  *  with a temporary database to preserve the history of log records received
