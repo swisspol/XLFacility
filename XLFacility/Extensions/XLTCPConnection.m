@@ -116,7 +116,10 @@
     _socket = socket;
     
     int noSigPipe = 1;
-    setsockopt(_socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE
+    setsockopt(_socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, sizeof(noSigPipe));  // Make sure this socket cannot generate SIG_PIPE when closed
+    
+    int keepAlive = 1;
+    setsockopt(socket, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(keepAlive));
     
     struct sockaddr localSockAddr;
     socklen_t localAddrLen = sizeof(localSockAddr);
