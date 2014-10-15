@@ -255,7 +255,7 @@ static void _ExitHandler() {
   XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time logLevel:level message:message callstack:callstack];
   dispatch_sync(_lockQueue, ^{
     
-    // Call loggers asynchronously
+    // Call each logger asynchronously on its own serial queue
     for (XLLogger* logger in _loggers) {
       if ([logger shouldLogRecord:record]) {
         dispatch_group_async(_syncGroup, logger.serialQueue, ^{
