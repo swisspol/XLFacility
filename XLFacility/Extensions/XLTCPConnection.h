@@ -69,7 +69,7 @@
 - (instancetype)initWithSocket:(int)socket;
 
 /**
- *  Read a buffer asynchronously from the socket.
+ *  Reads a buffer asynchronously from the socket.
  *
  *  @warning The connection will be automatically closed on error right after
  *  the completion block has been called.
@@ -77,7 +77,7 @@
 - (void)readBufferAsynchronously:(void (^)(dispatch_data_t buffer))completion;
 
 /**
- *  Write a buffer asynchronously to the socket.
+ *  Writes a buffer asynchronously to the socket.
  *
  *  @warning The connection will be automatically closed on error right after
  *  the completion block has been called.
@@ -85,7 +85,7 @@
 - (void)writeBufferAsynchronously:(dispatch_data_t)buffer completion:(void (^)(BOOL success))completion;
 
 /**
- *  Close the connection.
+ *  Closes the connection.
  */
 - (void)close;
 
@@ -116,7 +116,7 @@
 @property(nonatomic, readonly) NSString* remoteAddressString;
 
 /**
- *  Convenience method to read data asynchronously from the socket.
+ *  Reads data asynchronously from the socket.
  *
  *  @warning The connection will be automatically closed on error right after
  *  the completion block has been called.
@@ -124,7 +124,7 @@
 - (void)readDataAsynchronously:(void (^)(NSData* data))completion;
 
 /**
- *  Convenience method to write data asynchronously to the socket.
+ *  Writes data asynchronously to the socket.
  *
  *  @warning The connection will be automatically closed on error right after
  *  the completion block has been called.
@@ -132,7 +132,7 @@
 - (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion;
 
 /**
- *  Convenience method to write a C string asynchronously to the socket.
+ *  Writes a C string asynchronously to the socket.
  *
  *  @warning The connection will be automatically closed on error right after
  *  the completion block has been called.
