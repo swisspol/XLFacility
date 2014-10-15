@@ -45,16 +45,16 @@
  */
 
 #if DEBUG
-#define XLOG_DEBUG(...) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Debug) [XLSharedFacility logDebug:__VA_ARGS__]; } while (0)
+#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= kXLLogLevel_Debug) [XLSharedFacility logDebug:__VA_ARGS__]; } while (0)
 #else
 #define XLOG_DEBUG(...)
 #endif
-#define XLOG_VERBOSE(...) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Verbose) [XLSharedFacility logVerbose:__VA_ARGS__]; } while (0)
-#define XLOG_INFO(...) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Info) [XLSharedFacility logInfo:__VA_ARGS__]; } while (0)
-#define XLOG_WARNING(...) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Warning) [XLSharedFacility logWarning:__VA_ARGS__]; } while (0)
-#define XLOG_ERROR(...) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Error) [XLSharedFacility logError:__VA_ARGS__]; } while (0)
-#define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:__EXCEPTION__]; } while (0)
-#define XLOG_ABORT(...) do { if (XLSharedFacility.minLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logAbort:__VA_ARGS__]; } while (0)
+#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= kXLLogLevel_Verbose) [XLSharedFacility logVerbose:__VA_ARGS__]; } while (0)
+#define XLOG_INFO(...) do { if (XLMinLogLevel <= kXLLogLevel_Info) [XLSharedFacility logInfo:__VA_ARGS__]; } while (0)
+#define XLOG_WARNING(...) do { if (XLMinLogLevel <= kXLLogLevel_Warning) [XLSharedFacility logWarning:__VA_ARGS__]; } while (0)
+#define XLOG_ERROR(...) do { if (XLMinLogLevel <= kXLLogLevel_Error) [XLSharedFacility logError:__VA_ARGS__]; } while (0)
+#define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLMinLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:__EXCEPTION__]; } while (0)
+#define XLOG_ABORT(...) do { if (XLMinLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logAbort:__VA_ARGS__]; } while (0)
 
 /**
  *  These other macros let you easily check conditions inside your code and

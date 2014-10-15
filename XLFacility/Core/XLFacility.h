@@ -226,6 +226,11 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @end
 
 /**
+ *  Convenience global variable to access the global minimum log level.
+ */
+extern XLLogLevel XLMinLogLevel;
+
+/**
  *  Convenience global variable to access the shared XLFacility instance.
  */
 extern XLFacility* XLSharedFacility;

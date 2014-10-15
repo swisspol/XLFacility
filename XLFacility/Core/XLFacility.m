@@ -48,6 +48,7 @@
 
 typedef id (*ExceptionInitializerIMP)(id self, SEL cmd, NSString* name, NSString* reason, NSDictionary* userInfo);
 
+XLLogLevel XLMinLogLevel = 0;
 XLFacility* XLSharedFacility = nil;
 int XLOriginalStdOut = 0;
 int XLOriginalStdErr = 0;
@@ -131,6 +132,16 @@ static void _ExitHandler() {
   XLOriginalStdOut = dup(STDOUT_FILENO);
   XLOriginalStdErr = dup(STDERR_FILENO);
   
+#if DEBUG
+  XLMinLogLevel = kXLLogLevel_Debug;
+#else
+  XLMinLogLevel= kXLLogLevel_Info;
+#endif
+  const char* logLevel = getenv(kMinLogLevelEnvironmentVariable);
+  if (logLevel) {
+    XLMinLogLevel = atoi(logLevel);
+  }
+  
   XLSharedFacility = [[XLFacility alloc] init];
   
   atexit(_ExitHandler);
@@ -142,15 +153,6 @@ static void _ExitHandler() {
 
 - (id)init {
   if ((self = [super init])) {
-#if DEBUG
-    _minLogLevel = kXLLogLevel_Debug;
-#else
-    _minLogLevel= kXLLogLevel_Info;
-#endif
-    const char* logLevel = getenv(kMinLogLevelEnvironmentVariable);
-    if (logLevel) {
-      _minLogLevel = atoi(logLevel);
-    }
     _minCaptureCallstackLevel = kXLLogLevel_Exception;
     
     _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
@@ -162,6 +164,14 @@ static void _ExitHandler() {
     }
   }
   return self;
+}
+
+- (XLLogLevel)minLogLevel {
+  return XLMinLogLevel;
+}
+
+- (void)setMinLogLevel:(XLLogLevel)level {
+  XLMinLogLevel = level;
 }
 
 - (NSSet*)loggers {
@@ -269,13 +279,13 @@ static void _ExitHandler() {
 }
 
 - (void)logMessage:(NSString*)message withLevel:(XLLogLevel)level {
-  if (level >= _minLogLevel) {
+  if (level >= XLMinLogLevel) {
     [self _logMessage:message withLevel:level callstack:nil];
   }
 }
 
 #define LOG_MESSAGE_WITH_LEVEL(__LEVEL__, __CALLSTACK__) \
-  if (__LEVEL__ >= _minLogLevel) { \
+  if (__LEVEL__ >= XLMinLogLevel) { \
     va_list arguments; \
     va_start(arguments, format); \
     NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments]; \
