@@ -71,6 +71,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
     BOOL success = NO;
     fcntl(connectedSocket, F_SETFL, O_NONBLOCK);
     
+    XLOG_DEBUG(@"Connecting %s socket to \"%@\" (%@)...", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr));
     int result = connect(connectedSocket, addr, len);
     if ((result == -1) && (errno == EINPROGRESS)) {
       fd_set fdset;
@@ -390,11 +391,11 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 @implementation XLTCPConnection (Subclassing)
 
 - (void)didOpen {
-  ;
+  XLOG_DEBUG(@"%@ did open over %s from \"%@\" to \"%@\"", [self class], self.usingIPv6 ? "IPv6" : "IPv4", self.localAddressString, self.remoteAddressString);
 }
 
 - (void)didClose {
-  ;
+  XLOG_DEBUG(@"%@ did close over %s from \"%@\" to \"%@\"", [self class], self.usingIPv6 ? "IPv6" : "IPv4", self.localAddressString, self.remoteAddressString);
 }
 
 @end

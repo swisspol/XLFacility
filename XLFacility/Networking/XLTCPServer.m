@@ -212,6 +212,7 @@
 @implementation XLTCPServer (Subclassing)
 
 - (void)willOpenConnection:(XLTCPServerConnection*)connection {
+  XLOG_DEBUG(@"%@ did connect to \"%@\"", [self class], connection.remoteAddressString);
   connection.server = self;
   dispatch_sync(_lockQueue, ^{
     dispatch_group_enter(_syncGroup);
@@ -227,6 +228,7 @@
       dispatch_group_leave(_syncGroup);
     }
   });
+  XLOG_DEBUG(@"%@ did disconnect from \"%@\"", [self class], connection.remoteAddressString);
 }
 
 @end

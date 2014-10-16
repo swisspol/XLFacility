@@ -103,6 +103,7 @@
 
 // Must be called inside lock queue
 - (void)_scheduleReconnection {
+  XLOG_DEBUG(@"%@ will attempt to reconnect to \"%@:%i\" in %.0f seconds", [self class], _host, (int)_port, _reconnectionDelay);
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_reconnectionDelay * NSEC_PER_SEC)), XLGLOBAL_DISPATCH_QUEUE, ^{
     dispatch_sync(_lockQueue, ^{
       if (_reconnectionDelay > 0.0) {
@@ -114,6 +115,7 @@
 }
 
 - (void)_reconnect {
+  XLOG_DEBUG(@"%@ attempting to connect to \"%@:%i\"", [self class], _host, (int)_port);
   _generation += 1;
   NSUInteger lastGeneration = _generation;
   [_connectionClass connectAsynchronouslyToHost:_host port:_port timeout:_connectionTimeout completion:^(XLTCPConnection* connection) {
@@ -127,7 +129,7 @@
         });
         
       } else {
-        XLOG_WARNING(@"Ignoring TCP connection opened too late");
+        XLOG_DEBUG(@"%@ ignoring stalled connection to \"%@:%i\"", [self class], _host, (int)_port);
         [connection close];
       }
     } else if (_automaticallyReconnects) {
@@ -164,6 +166,7 @@
 @implementation XLTCPClient (Subclassing)
 
 - (void)willOpenConnection:(XLTCPClientConnection*)connection {
+  XLOG_DEBUG(@"%@ did connect to \"%@:%i\"", [self class], _host, (int)_port);
   connection.client = self;
   dispatch_sync(_lockQueue, ^{
     dispatch_group_enter(_syncGroup);
@@ -182,6 +185,7 @@
       [self _scheduleReconnection];
     }
   });
+  XLOG_DEBUG(@"%@ did disconnect from \"%@:%i\"", [self class], _host, (int)_port);
 }
 
 @end
