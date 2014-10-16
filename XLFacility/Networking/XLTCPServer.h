@@ -74,6 +74,26 @@
  */
 @property(nonatomic, readonly) NSSet* connections;
 
+#if TARGET_OS_IPHONE
+/**
+ *  Sets if the server automatically stops and starts while entering background
+ *  and foreground on iOS.
+ *
+ *  When an app enters background on iOS and is suspended, it cannot leave
+ *  listening sockets open, so it must either close them or start a background
+ *  task to prevent the app from getting suspended while in background.
+ *
+ *  If this property is set to NO then the server will automatically create a
+ *  background task when it is started and end it when it is stopped. Note that
+ *  this task can only run for a limited time while the app is in background
+ *  before iOS eventually force ends it. At this point the server will be stopped
+ *  no matter what.
+ *
+ *  The default value is NO.
+ */
+@property(nonatomic) BOOL suspendInBackground;
+#endif
+
 /**
  *  This method is the designated initializer for the class.
  *

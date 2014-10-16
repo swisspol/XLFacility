@@ -29,6 +29,10 @@
 #error XLFacility requires ARC
 #endif
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 #import "XLTCPClient.h"
 #import "XLPrivate.h"
 
@@ -43,6 +47,10 @@
   XLTCPClientConnection* _connection;
   NSUInteger _generation;
   NSTimeInterval _reconnectionDelay;
+#if TARGET_OS_IPHONE
+  UIBackgroundTaskIdentifier _backgroundTask;
+  BOOL _restart;
+#endif
 }
 @end
 
@@ -80,6 +88,9 @@
     _maxReconnectInterval = 300.0;
     _reconnectionDelay = 1.0;
     _syncGroup = dispatch_group_create();
+#if TARGET_OS_IPHONE
+    _backgroundTask = UIBackgroundTaskInvalid;
+#endif
   }
   return self;
 }
@@ -149,11 +160,52 @@
   
   [self _reconnect];
   
+#if TARGET_OS_IPHONE
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+  if (!_suspendInBackground) {
+    _backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+      [self stop];
+      _restart = YES;
+      
+      [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
+      _backgroundTask = UIBackgroundTaskInvalid;
+    }];
+  }
+  _restart = NO;
+#endif
+  
   _running = YES;
   return YES;
 }
 
+#if TARGET_OS_IPHONE
+
+- (void)_didEnterBackground:(NSNotification*)notification {
+  if (_running && _suspendInBackground) {
+    [self stop];
+    _restart = YES;
+  }
+}
+
+- (void)_willEnterForeground:(NSNotification*)notification {
+  if (_restart) {
+    [self start];  // Not much we can do on failure
+  }
+}
+
+#endif
+
 - (void)stop {
+#if TARGET_OS_IPHONE
+  if (_backgroundTask != UIBackgroundTaskInvalid) {
+    [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
+    _backgroundTask = UIBackgroundTaskInvalid;
+  }
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+#endif
+  
   dispatch_sync(_lockQueue, ^{
     _reconnectionDelay = 0.0;
   });

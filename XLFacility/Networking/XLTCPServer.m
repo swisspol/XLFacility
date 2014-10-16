@@ -29,6 +29,10 @@
 #error XLFacility requires ARC
 #endif
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 #import <net/if.h>
 #import <netdb.h>
 
@@ -49,6 +53,10 @@
   NSMutableSet* _connections;
   dispatch_source_t _source4;
   dispatch_source_t _source6;
+#if TARGET_OS_IPHONE
+  UIBackgroundTaskIdentifier _backgroundTask;
+  BOOL _restart;
+#endif
 }
 @end
 
@@ -80,6 +88,9 @@
     _syncGroup = dispatch_group_create();
     _sourceGroup = dispatch_group_create();
     _connections = [[NSMutableSet alloc] init];
+#if TARGET_OS_IPHONE
+    _backgroundTask = UIBackgroundTaskInvalid;
+#endif
   }
   return self;
 }
@@ -184,11 +195,52 @@
   _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
   dispatch_resume(_source6);
   
+#if TARGET_OS_IPHONE
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+  if (!_suspendInBackground) {
+    _backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+      [self stop];
+      _restart = YES;
+      
+      [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
+      _backgroundTask = UIBackgroundTaskInvalid;
+    }];
+  }
+  _restart = NO;
+#endif
+  
   _running = YES;
   return YES;
 }
 
+#if TARGET_OS_IPHONE
+
+- (void)_didEnterBackground:(NSNotification*)notification {
+  if (_running && _suspendInBackground) {
+    [self stop];
+    _restart = YES;
+  }
+}
+
+- (void)_willEnterForeground:(NSNotification*)notification {
+  if (_restart) {
+    [self start];  // Not much we can do on failure
+  }
+}
+
+#endif
+
 - (void)stop {
+#if TARGET_OS_IPHONE
+  if (_backgroundTask != UIBackgroundTaskInvalid) {
+    [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
+    _backgroundTask = UIBackgroundTaskInvalid;
+  }
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+#endif
+  
   dispatch_source_cancel(_source6);
   dispatch_source_cancel(_source4);
   dispatch_group_wait(_sourceGroup, DISPATCH_TIME_FOREVER);  // Wait until the cancellation handlers have been called which guarantees the listening sockets are closed
