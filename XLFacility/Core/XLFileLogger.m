@@ -88,8 +88,12 @@
   if (_fd >= 0) {
     NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
     if (write(_fd, data.bytes, data.length) < 0) {
-      XLOG_ERROR(@"Failed writing to log file at \"%@\": %s", _filePath, strerror(errno));
-      close(_fd);
+      if (_filePath) {
+        XLOG_ERROR(@"Failed writing to log file at \"%@\": %s", _filePath, strerror(errno));
+        close(_fd);
+      } else {
+        XLOG_ERROR(@"Failed writing to file descriptor: %s", strerror(errno));
+      }
       _fd = -1;
     }
   }
