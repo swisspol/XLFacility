@@ -28,6 +28,7 @@
 #import "AppDelegate.h"
 #import "XLFacilityMacros.h"
 #import "XLUIKitOverlayLogger.h"
+#import "XLTelnetServerLogger.h"
 
 @implementation AppDelegate
 
@@ -49,8 +50,9 @@
   [button sizeToFit];
   [_window.rootViewController.view addSubview:button];
   
-  [[XLUIKitOverlayLogger sharedLogger] setOverlayOpacity:0.66];
+  [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
   [XLSharedFacility addLogger:[XLUIKitOverlayLogger sharedLogger]];
+  [[XLUIKitOverlayLogger sharedLogger] setOverlayOpacity:0.66];
   
   XLOG_INFO(@"%s", __FUNCTION__);
   
@@ -63,6 +65,14 @@
 
 - (void)applicationWillResignActive:(UIApplication*)application {
   XLOG_INFO(@"%s", __FUNCTION__);
+}
+
+- (void)applicationDidEnterBackground:(UIApplication*)application {
+  XLOG_WARNING(@"%s", __FUNCTION__);
+}
+
+- (void)applicationWillEnterForeground:(UIApplication*)application {
+  XLOG_WARNING(@"%s", __FUNCTION__);
 }
 
 @end

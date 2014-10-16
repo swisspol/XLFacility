@@ -28,6 +28,7 @@
 #import "AppDelegate.h"
 #import "XLFacilityMacros.h"
 #import "XLAppKitOverlayLogger.h"
+#import "XLTelnetServerLogger.h"
 
 @implementation AppDelegate
 
@@ -36,6 +37,7 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
+  [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
   [XLSharedFacility addLogger:[XLAppKitOverlayLogger sharedLogger]];
   
   XLOG_INFO(@"%s", __FUNCTION__);
