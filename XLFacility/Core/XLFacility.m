@@ -197,6 +197,23 @@ static void _ExitHandler() {
     }
   }
   
+#if DEBUG
+  // Clean up the tag if it looks like it was generated from the __FILE__ preprocessor macro
+  if (tag.length && ([tag characterAtIndex:0] == '/')) {
+    const char* tagUTF8 = [tag UTF8String];
+    const char* tagPtr = tagUTF8;
+    const char* filePtr = __FILE__;
+    while (*tagPtr && *filePtr) {
+      if (*(tagPtr + 1) != *(filePtr + 1)) {
+        break;
+      }
+      ++tagPtr;
+      ++filePtr;
+    }
+    tag = [NSString stringWithUTF8String:tagPtr];  // Strip the common prefix between the tag and __FILE__ for this very file
+  }
+#endif
+  
   // Create the log record and dispatch to all loggers
   XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time tag:tag level:level message:message callstack:callstack];
   dispatch_sync(_lockQueue, ^{
