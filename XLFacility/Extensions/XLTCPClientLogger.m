@@ -57,6 +57,7 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 }
 
 - (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port {
+  XLOG_DEBUG_CHECK([[[self class] connectionClass] isSubclassOfClass:[XLTCPClientLoggerConnection class]]);
   if ((self = [super init])) {
     _TCPClient = [[XLTCPClient alloc] initWithConnectionClass:[[self class] connectionClass] host:hostname port:port];
     objc_setAssociatedObject(_TCPClient, _associatedObjectKey, self, OBJC_ASSOCIATION_ASSIGN);

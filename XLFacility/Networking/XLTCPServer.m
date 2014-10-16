@@ -71,6 +71,7 @@
 }
 
 - (instancetype)initWithConnectionClass:(Class)connectionClass port:(NSUInteger)port {
+  XLOG_DEBUG_CHECK([connectionClass isSubclassOfClass:[XLTCPServerConnection class]]);
   if ((self = [super init])) {
     _connectionClass = connectionClass;
     _port = port;

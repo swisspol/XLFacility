@@ -171,6 +171,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 }
 
 - (instancetype)initWithSocket:(int)socket {
+  XLOG_DEBUG_CHECK(socket >= 0);
   if ((self = [super init])) {
     _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _state = kXLTCPConnectionState_Initialized;

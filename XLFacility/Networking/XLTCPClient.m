@@ -65,6 +65,9 @@
 }
 
 - (instancetype)initWithConnectionClass:(Class)connectionClass host:(NSString*)hostname port:(NSUInteger)port {
+  XLOG_DEBUG_CHECK([connectionClass isSubclassOfClass:[XLTCPClientConnection class]]);
+  XLOG_DEBUG_CHECK(hostname);
+  XLOG_DEBUG_CHECK(port > 0);
   if ((self = [super init])) {
     _connectionClass = connectionClass;
     _host = [hostname copy];

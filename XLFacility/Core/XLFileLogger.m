@@ -49,6 +49,7 @@
 }
 
 - (instancetype)initWithFilePath:(NSString*)path append:(BOOL)append {
+  XLOG_DEBUG_CHECK(path);
   if ((self = [super init])) {
     _filePath = [path copy];
     _append = append;
@@ -57,6 +58,7 @@
 }
 
 - (instancetype)initWithFileDescriptor:(int)fd closeOnDealloc:(BOOL)close {
+  XLOG_DEBUG_CHECK(fd >= 0);
   if ((self = [super init])) {
     _fileDescriptor = fd;
     _close = close;

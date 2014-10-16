@@ -197,6 +197,10 @@ static void _ExitHandler() {
 @implementation XLFacility (Logging)
 
 - (void)_logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level callstack:(NSArray*)callstack {
+  if (message == nil) {
+    XLOG_DEBUG_UNREACHABLE();
+    return;
+  }
   if (level < kXLMinLogLevel) {
     level = kXLMinLogLevel;
   } else if (level > kXLMaxLogLevel) {
