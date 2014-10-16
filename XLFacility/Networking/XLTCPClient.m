@@ -148,6 +148,8 @@
   });
   
   [self _reconnect];
+  
+  _running = YES;
   return YES;
 }
 
@@ -159,6 +161,8 @@
   XLTCPClientConnection* connection = self.connection;
   [connection close];  // No need to use "lockQueue" since no new connection can be created and it would deadlock with -didCloseConnection:
   dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);  // Wait until connection is closed
+  
+  _running = NO;
 }
 
 @end

@@ -67,6 +67,11 @@
 @property(nonatomic, readonly) NSUInteger port;
 
 /**
+ *  Returns YES if the client is running.
+ */
+@property(nonatomic, readonly, getter=isRunning) BOOL running;
+
+/**
  *  Sets the connection timeout.
  *
  *  The default value is 10 seconds.

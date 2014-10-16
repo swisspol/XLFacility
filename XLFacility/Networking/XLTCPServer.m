@@ -184,6 +184,7 @@
   _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
   dispatch_resume(_source6);
   
+  _running = YES;
   return YES;
 }
 
@@ -205,6 +206,8 @@
     [connection close];
   }
   dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);  // Wait until all connections are closed
+  
+  _running = NO;
 }
 
 @end

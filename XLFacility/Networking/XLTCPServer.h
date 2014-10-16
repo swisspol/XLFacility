@@ -65,6 +65,11 @@
 @property(nonatomic, readonly) NSUInteger port;
 
 /**
+ *  Returns YES if the server is running.
+ */
+@property(nonatomic, readonly, getter=isRunning) BOOL running;
+
+/**
  *  Returns all currently opened server connections.
  */
 @property(nonatomic, readonly) NSSet* connections;
