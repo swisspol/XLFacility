@@ -234,7 +234,7 @@ static NSString* _uid = nil;
 }
 
 - (void)setCallstackHeader:(NSString*)string {
-  _callstackHeader = string;
+  _callstackHeader = [string copy];
 }
 
 - (NSString*)callstackHeader {
@@ -242,7 +242,7 @@ static NSString* _uid = nil;
 }
 
 - (void)setCallstackFooter:(NSString*)string {
-  _callstackFooter = string;
+  _callstackFooter = [string copy];
 }
 
 - (NSString*)callstackFooter {
@@ -250,7 +250,7 @@ static NSString* _uid = nil;
 }
 
 - (void)setMultilinesPrefix:(NSString*)string {
-  _multilinesPrefix = string;
+  _multilinesPrefix = [string copy];
 }
 
 - (NSString*)multilinesPrefix {
