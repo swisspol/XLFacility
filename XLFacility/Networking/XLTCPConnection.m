@@ -177,7 +177,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
     _socket = socket;
     
     [self _setSocketOption:SO_NOSIGPIPE withIntValue:1];  // Make sure this socket cannot generate SIG_PIPE when closed
-    [self _setSocketOption:SO_KEEPALIVE withIntValue:1];
+    [self _setSocketOption:SO_KEEPALIVE withIntValue:1];  // Enable TCP keep-alive
     
     struct sockaddr localSockAddr;
     socklen_t localAddrLen = sizeof(localSockAddr);

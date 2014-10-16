@@ -124,7 +124,7 @@
         });
         
       } else {
-        XLOG_WARNING(@"TCP connection opened too late");
+        XLOG_WARNING(@"Ignoring TCP connection opened too late");
         [connection close];
       }
     } else if (_automaticallyReconnects) {
