@@ -3,7 +3,8 @@ Overview
 
 [![Build Status](https://travis-ci.org/swisspol/XLFacility.svg?branch=master)](https://travis-ci.org/swisspol/XLFacility)
 [![Version](http://cocoapod-badges.herokuapp.com/v/XLFacility/badge.png)](http://cocoadocs.org/docsets/XLFacility)
-[![Platform](http://cocoapod-badges.herokuapp.com/p/XLFacility/badge.png)](http://cocoadocs.org/docsets/XLFacility)
+[![Platform](http://cocoapod-badges.herokuapp.com/p/XLFacility/badge.png)](https://github.com/swisspol/XLFacility)
+[![License](http://img.shields.io/cocoapods/l/XLFacility.svg)](LICENSE)
 
 XLFacility, which stands for *Extensive Logging Facility*, is an elegant and powerful logging facility for OS X & iOS. It was written from scratch with the following goals in mind:
 * Drop-in replacement of `NSLog()` along with trivial to use macros to log messages anywhere in your app without impacting performance
