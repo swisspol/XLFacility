@@ -191,7 +191,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
     
     struct sockaddr remoteSockAddr;
     socklen_t remoteAddrLen = sizeof(remoteSockAddr);
-    if (getsockname(_socket, &remoteSockAddr, &remoteAddrLen) == 0) {
+    if (getpeername(_socket, &remoteSockAddr, &remoteAddrLen) == 0) {
       _remoteAddressData = [[NSData alloc] initWithBytes:&remoteSockAddr length:remoteAddrLen];
     } else {
       XLOG_ERROR(@"Failed retrieving remote socket address: %s", strerror(errno));
