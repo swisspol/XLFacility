@@ -94,11 +94,11 @@
   __block CFAbsoluteTime maxTime = time;
   [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:time backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
     const char* style = "color: dimgray;";
-    if (record.logLevel == kXLLogLevel_Warning) {
+    if (record.level == kXLLogLevel_Warning) {
       style = "color: orange;";
-    } else if (record.logLevel == kXLLogLevel_Error) {
+    } else if (record.level == kXLLogLevel_Error) {
       style = "color: red;";
-    } else if (record.logLevel >= kXLLogLevel_Exception) {
+    } else if (record.level >= kXLLogLevel_Exception) {
       style = "color: red; font-weight: bold;";
     }
     NSString* formattedMessage = [logger formatRecord:record];

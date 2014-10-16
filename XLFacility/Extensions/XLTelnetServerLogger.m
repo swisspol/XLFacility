@@ -84,11 +84,11 @@
   NSString* formattedMessage = [super formatRecord:record];
   if (_colorize) {
     const char* code = NULL;
-    if (record.logLevel == kXLLogLevel_Warning) {
+    if (record.level == kXLLogLevel_Warning) {
       code = "\x1b[33m";  // Yellow
-    } else if (record.logLevel == kXLLogLevel_Error) {
+    } else if (record.level == kXLLogLevel_Error) {
       code = "\x1b[31m";  // Red
-    } else if (record.logLevel >= kXLLogLevel_Exception) {
+    } else if (record.level >= kXLLogLevel_Exception) {
       code = "\x1b[31;1m";  // Bold red
     }
     if (code) {

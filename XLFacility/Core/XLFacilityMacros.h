@@ -31,30 +31,40 @@
  *  These macros which are used like NSLog() are the most efficient way to log
  *  messages with XLFacility.
  *
- *  It's highly recommended you use them instead of calling the -[log...]
- *  methods on the shared XLFacility instance. Not only are they quite easier
- *  to the eye but most importantly they avoid evaluating their arguments
- *  unless necessary.
- 
- *  For instance, if the log level for XLFacility is set to ERROR, calling
- *  XLOG_WARNING(@"Unexpected value: %@", value)` will almost be a no-op
- *  while [XLSharedFacility logWarning:@"Unexpected value: %@", value]
+ *  It's highly recommended you use them instead of calling the logging methods
+ *  on the shared XLFacility instance. Not only are they faster to type and
+ *  quite easier to the eye, but most importantly they avoid evaluating their
+ *  arguments unless necessary. For instance, if the log level for XLFacility
+ *  is set to ERROR, calling:
+ *
+ *    XLOG_WARNING(@"Unexpected value: %@", value)`
+ *
+ *  will almost be a no-op while calling the method:
+ *
+ *    [XLSharedFacility logMessageWithNamespace:nil
+ *                                        level:kXLLogLevel_Warning
+ *                                       format:@"Unexpected value: %@", value]
+ *
  *  will still evaluate all the arguments (which can be quite expensive),
  *  compute the format string, and finally pass everything to the XLFacility
  *  shared instance where it will be ignored anyway.
  */
 
+#ifndef XLOG_NAMESPACE
+#define XLOG_NAMESPACE nil
+#endif
+
 #if DEBUG
-#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= kXLLogLevel_Debug) [XLSharedFacility logDebug:__VA_ARGS__]; } while (0)
+#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= kXLLogLevel_Debug) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Debug format:__VA_ARGS__]; } while (0)
 #else
 #define XLOG_DEBUG(...)
 #endif
-#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= kXLLogLevel_Verbose) [XLSharedFacility logVerbose:__VA_ARGS__]; } while (0)
-#define XLOG_INFO(...) do { if (XLMinLogLevel <= kXLLogLevel_Info) [XLSharedFacility logInfo:__VA_ARGS__]; } while (0)
-#define XLOG_WARNING(...) do { if (XLMinLogLevel <= kXLLogLevel_Warning) [XLSharedFacility logWarning:__VA_ARGS__]; } while (0)
-#define XLOG_ERROR(...) do { if (XLMinLogLevel <= kXLLogLevel_Error) [XLSharedFacility logError:__VA_ARGS__]; } while (0)
-#define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLMinLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:__EXCEPTION__]; } while (0)
-#define XLOG_ABORT(...) do { if (XLMinLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logAbort:__VA_ARGS__]; } while (0)
+#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= kXLLogLevel_Verbose) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Verbose format:__VA_ARGS__]; } while (0)
+#define XLOG_INFO(...) do { if (XLMinLogLevel <= kXLLogLevel_Info) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Info format:__VA_ARGS__]; } while (0)
+#define XLOG_WARNING(...) do { if (XLMinLogLevel <= kXLLogLevel_Warning) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Warning format:__VA_ARGS__]; } while (0)
+#define XLOG_ERROR(...) do { if (XLMinLogLevel <= kXLLogLevel_Error) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Error format:__VA_ARGS__]; } while (0)
+#define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLMinLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:kXLLogLevel_Exception withNamespace:XLOG_NAMESPACE]; } while (0)
+#define XLOG_ABORT(...) do { if (XLMinLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:XLSharedFacility format:__VA_ARGS__]; } while (0)
 
 /**
  *  These other macros let you easily check conditions inside your code and

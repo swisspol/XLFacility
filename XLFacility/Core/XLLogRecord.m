@@ -36,7 +36,8 @@
 @implementation XLLogRecord
 
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                  logLevel:(XLLogLevel)logLevel
+                 namespace:(NSString*)namespace
+                     level:(XLLogLevel)level
                    message:(NSString*)message
              capturedErrno:(int)capturedErrno
           capturedThreadID:(int)capturedThreadID
@@ -44,7 +45,8 @@
                  callstack:(NSArray*)callstack {
   if ((self = [super init])) {
     _absoluteTime = absoluteTime;
-    _logLevel = logLevel;
+    _namespace = namespace;
+    _level = level;
     _message = message;
     _capturedErrno = capturedErrno;
     _capturedThreadID = capturedThreadID;
@@ -54,12 +56,17 @@
   return self;
 }
 
-- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime logLevel:(XLLogLevel)logLevel message:(NSString*)message callstack:(NSArray*)callstack {
+- (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
+                 namespace:(NSString*)namespace
+                     level:(XLLogLevel)level
+                   message:(NSString*)message
+                 callstack:(NSArray*)callstack {
   const char* label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
   uint64_t threadID = 0;
   pthread_threadid_np(pthread_self(), &threadID);
   return [self initWithAbsoluteTime:absoluteTime
-                           logLevel:logLevel
+                          namespace:namespace
+                              level:level
                             message:message
                       capturedErrno:errno
                    capturedThreadID:(int)threadID

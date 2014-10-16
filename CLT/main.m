@@ -25,7 +25,10 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define XLOG_NAMESPACE @"objc-test"
+
 #import "XLFacilityMacros.h"
+#import "XLStandardLogger.h"
 #import "XLTelnetServerLogger.h"
 #import "XLHTTPServerLogger.h"
 
@@ -44,6 +47,7 @@ static void _RunLoopTimerCallBack(CFRunLoopTimerRef timer, void* info) {
 
 int main(int argc, const char* argv[]) {
   @autoreleasepool {
+    [[XLStandardLogger sharedErrorLogger] setFormat:@"%t (%n) %l > %m%c"];
     [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
     [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] init]];
     

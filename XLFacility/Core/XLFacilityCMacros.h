@@ -30,18 +30,24 @@
 
 /**
  *  These macros are the C counterpart of the Obj-C ones in XLFacilityMacros.h.
+ *
+ *  See XLFacilityMacros.h for more information.
  */
 
+#ifndef XLOG_NAMESPACE
+#define XLOG_NAMESPACE 0
+#endif
+
 #if DEBUG
-#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= 0) XLLogMessage(0, __VA_ARGS__); } while (0)
+#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= 0) XLLogCMessage(XLOG_NAMESPACE, 0, __VA_ARGS__); } while (0)
 #else
 #define XLOG_DEBUG(...)
 #endif
-#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= 1) XLLogMessage(1, __VA_ARGS__); } while (0)
-#define XLOG_INFO(...) do { if (XLMinLogLevel <= 2) XLLogMessage(2, __VA_ARGS__); } while (0)
-#define XLOG_WARNING(...) do { if (XLMinLogLevel <= 3) XLLogMessage(3, __VA_ARGS__); } while (0)
-#define XLOG_ERROR(...) do { if (XLMinLogLevel <= 4) XLLogMessage(4, __VA_ARGS__); } while (0)
-#define XLOG_ABORT(...) do { if (XLMinLogLevel <= 6) XLLogMessage(6, __VA_ARGS__); } while (0)
+#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= 1) XLLogCMessage(XLOG_NAMESPACE, 1, __VA_ARGS__); } while (0)
+#define XLOG_INFO(...) do { if (XLMinLogLevel <= 2) XLLogCMessage(XLOG_NAMESPACE, 2, __VA_ARGS__); } while (0)
+#define XLOG_WARNING(...) do { if (XLMinLogLevel <= 3) XLLogCMessage(XLOG_NAMESPACE, 3, __VA_ARGS__); } while (0)
+#define XLOG_ERROR(...) do { if (XLMinLogLevel <= 4) XLLogCMessage(XLOG_NAMESPACE, 4, __VA_ARGS__); } while (0)
+#define XLOG_ABORT(...) do { if (XLMinLogLevel <= 6) XLLogCMessage(XLOG_NAMESPACE, 6, __VA_ARGS__); } while (0)
 
 #define XLOG_CHECK(__CONDITION__) \
 do { \
@@ -64,6 +70,6 @@ do { \
 #endif
 
 extern int XLMinLogLevel;
-extern void XLLogMessage(int level, const char* format, ...);
+extern void XLLogCMessage(const char* namespace, int level, const char* format, ...);
 
 #endif // __XLFacilityCMacros__

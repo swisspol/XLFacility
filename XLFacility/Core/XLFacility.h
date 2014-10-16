@@ -43,6 +43,15 @@ typedef NS_ENUM(int, XLLogLevel) {
 };
 
 /**
+ *  Constants representing the built-in logging namespaces in XLFacility.
+ */
+extern NSString* const XLFacilityNamespace_Internal;
+extern NSString* const XLFacilityNamespace_CapturedStdOut;
+extern NSString* const XLFacilityNamespace_CapturedStdErr;
+extern NSString* const XLFacilityNamespace_UncaughtExceptions;
+extern NSString* const XLFacilityNamespace_InitializedExceptions;
+
+/**
  *  Converts a NSString to an UTF-8 string.
  *
  *  Contrary to -[NSString dataUsingEncoding:] this function is guaranteed
@@ -132,51 +141,23 @@ extern const char* XLConvertNSStringToUTF8CString(NSString* string);
 @interface XLFacility (Logging)
 
 /**
- *  Logs a message with a specific log level.
+ *  Logs a message in a given namespace and with a specific log level.
  */
-- (void)logMessage:(NSString*)message withLevel:(XLLogLevel)level;
+- (void)logMessage:(NSString*)message withNamespace:(NSString*)namespace level:(XLLogLevel)level;
 
 /**
- *  Logs a message as a format string with a specific log level.
+ *  Logs a message as a format string in a given namespace and with a specific
+ *  log level.
  */
-- (void)logMessageWithLevel:(XLLogLevel)level format:(NSString*)format, ... NS_FORMAT_FUNCTION(2, 3);
+- (void)logMessageWithNamespace:(NSString*)namespace level:(XLLogLevel)level format:(NSString*)format, ... NS_FORMAT_FUNCTION(3, 4);
 
 /**
- *  Logs a message as a format string with the DEBUG log level.
- */
-- (void)logDebug:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
-
-/**
- *  Logs a message as a format string with the VERBOSE log level.
- */
-- (void)logVerbose:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
-
-/**
- *  Logs a message as a format string with the INFO log level.
- */
-- (void)logInfo:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
-
-/**
- *  Logs a message as a format string with the WARNING log level.
- */
-- (void)logWarning:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
-
-/**
- *  Logs a message as a format string with the ERROR log level.
- */
-- (void)logError:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
-
-/**
- *  Logs an exception the DEBUG log level.
+ *  Logs an exception in a given namespace and with the EXCEPTION log level.
  *
- *  The log message is automatically generated.
+ *  The log message is automatically generated and the exception callstack is
+ *  extracted.
  */
-- (void)logException:(NSException*)exception;
-
-/**
- *  Logs a message as a format string with the ABORT log level.
- */
-- (void)logAbort:(NSString*)format, ... NS_FORMAT_FUNCTION(1,2);
+- (void)logException:(NSException*)exception withNamespace:(NSString*)namespace;
 
 @end
 

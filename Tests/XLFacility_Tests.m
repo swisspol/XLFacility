@@ -28,6 +28,8 @@
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #pragma clang diagnostic ignored "-Wsign-compare"
 
+#define XLOG_NAMESPACE @"unit-tests"
+
 #import <XCTest/XCTest.h>
 #import <asl.h>
 
@@ -99,7 +101,7 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   
   XCTAssertEqual(_capturedRecords.count, 5);
   XLLogRecord* record = _capturedRecords[2];
-  XCTAssertEqual(record.logLevel, kXLLogLevel_Info);
+  XCTAssertEqual(record.level, kXLLogLevel_Info);
   XCTAssertEqualObjects(record.message, @"Hello Info World!");
 }
 
@@ -116,7 +118,8 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   
   XCTAssertEqual(_capturedRecords.count, 1);
   XLLogRecord* record = _capturedRecords[0];
-  XCTAssertEqual(record.logLevel, kXLLogLevel_Exception);
+  XCTAssertEqual(record.namespace, XLFacilityNamespace_InitializedExceptions);
+  XCTAssertEqual(record.level, kXLLogLevel_Exception);
   XCTAssertTrue([record.message hasPrefix:@"NSRangeException *** "]);
   XCTAssertNotNil(record.callstack);
   
@@ -143,9 +146,13 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   
   XCTAssertEqual(_capturedRecords.count, 2);
   XLLogRecord* record1 = _capturedRecords[0];
-  XCTAssertEqual(record1.logLevel, kXLLogLevel_Info);
+  XCTAssertEqualObjects(record1.namespace, XLFacilityNamespace_CapturedStdOut);
+  XCTAssertEqual(record1.level, kXLLogLevel_Info);
+  XCTAssertEqualObjects(record1.message, @"Hello stdout!");
   XLLogRecord* record2 = _capturedRecords[1];
-  XCTAssertEqual(record2.logLevel, kXLLogLevel_Info);
+  XCTAssertEqualObjects(record2.namespace, XLFacilityNamespace_CapturedStdOut);
+  XCTAssertEqual(record2.level, kXLLogLevel_Info);
+  XCTAssertEqualObjects(record2.message, @"Bonjour stdout!");
   
   [XLSharedFacility setCapturesStandardOutput:NO];
   
@@ -162,7 +169,7 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   logger.format = @"[%L] %m";
   
   for (int i = 0; i < 10; ++i) {
-    [XLSharedFacility logMessageWithLevel:(i % 5) format:@"Hello World #%i!", i + 1];
+    [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:(i % 5) format:@"Hello World #%i!", i + 1];
   }
   usleep(kLoggingDelay);
   
@@ -189,13 +196,13 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   XLDatabaseLogger* logger = (XLDatabaseLogger*)[XLSharedFacility addLogger:[[XLDatabaseLogger alloc] initWithDatabasePath:databasePath appVersion:0]];
   
   for (int i = 0; i < 10; ++i) {
-    [XLSharedFacility logMessageWithLevel:(i % 5) format:@"Hello World #%i!", i + 1];
+    [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:(i % 5) format:@"Hello World #%i!", i + 1];
   }
   usleep(kLoggingDelay);
   
   __block int index = 0;
   [logger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
-    XCTAssertEqual(record.logLevel, index % 5);
+    XCTAssertEqual(record.level, index % 5);
     NSString* message = [NSString stringWithFormat:@"Hello World #%i!", index + 1];
     XCTAssertEqualObjects(record.message, message);
     ++index;

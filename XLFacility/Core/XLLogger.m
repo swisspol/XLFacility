@@ -37,11 +37,14 @@
 
 typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_Unknown = 0,
+  
   kFormatToken_Newline,
   kFormatToken_Return,
   kFormatToken_Tab,
   kFormatToken_Percent,
   kFormatToken_Backslash,
+  
+  kFormatToken_Namespace,
   kFormatToken_LevelName,
   kFormatToken_PaddedLevelName,
   kFormatToken_Message,
@@ -56,6 +59,7 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_ErrnoValue,
   kFormatToken_ErrnoString,
   kFormatToken_Callstack,
+  
   kFormatToken_StringLUT  // Must be last token
 };
 
@@ -121,7 +125,7 @@ static NSString* _uid = nil;
 #endif
 
 - (BOOL)shouldLogRecord:(XLLogRecord*)record {
-  if ((record.logLevel < _minLogLevel) || (record.logLevel > _maxLogLevel)) {
+  if ((record.level < _minLogLevel) || (record.level > _maxLogLevel)) {
     return NO;
   }
   if (_logRecordFilter && !_logRecordFilter(self, record)) {
@@ -192,6 +196,7 @@ static NSString* _uid = nil;
         }
       } else {
         switch (character) {
+          case 'n': token = kFormatToken_Namespace; break;
           case 'l': token = kFormatToken_LevelName; break;
           case 'L': token = kFormatToken_PaddedLevelName; break;
           case 'm': token = kFormatToken_Message; break;
@@ -284,13 +289,20 @@ static NSString* _uid = nil;
         break;
       }
       
+      case kFormatToken_Namespace: {
+        if (record.namespace) {
+          [string appendString:record.namespace];
+        }
+        break;
+      }
+      
       case kFormatToken_LevelName: {
-        [string appendString:_logLevelNames[record.logLevel]];
+        [string appendString:_logLevelNames[record.level]];
         break;
       }
       
       case kFormatToken_PaddedLevelName: {
-        [string appendString:_paddedLogLevelNames[record.logLevel]];
+        [string appendString:_paddedLogLevelNames[record.level]];
         break;
       }
       

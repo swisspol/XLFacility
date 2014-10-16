@@ -25,6 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define XLOG_NAMESPACE "c-test"
+
 #include "XLFacilityCMacros.h"
 
 void c_test() {

@@ -34,7 +34,7 @@
 #import "XLDatabaseLogger.h"
 #import "XLPrivate.h"
 
-#define kTableName "records_v1"
+#define kTableName "records_v2"
 
 @interface XLDatabaseLogger () {
 @private
@@ -61,11 +61,11 @@
 - (BOOL)open {
   int result = sqlite3_open([_databasePath fileSystemRepresentation], &_database);
   if (result == SQLITE_OK) {
-    result = sqlite3_exec(_database, "CREATE TABLE IF NOT EXISTS " kTableName " (version INTEGER, time REAL, level INTEGER, message TEXT, errno INTEGER, thread INTEGER, queue TEXT, callstack TEXT)",
+    result = sqlite3_exec(_database, "CREATE TABLE IF NOT EXISTS " kTableName " (version INTEGER, time REAL, namespace TEXT, level INTEGER, message TEXT, errno INTEGER, thread INTEGER, queue TEXT, callstack TEXT)",
                           NULL, NULL, NULL);
   }
   if (result == SQLITE_OK) {
-    NSString* statement = [NSString stringWithFormat:@"INSERT INTO " kTableName " (version, time, level, message, errno, thread, queue, callstack) VALUES (%i, ?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+    NSString* statement = [NSString stringWithFormat:@"INSERT INTO " kTableName " (version, time, namespace, level, message, errno, thread, queue, callstack) VALUES (%i, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
                            (int)_appVersion];
     result = sqlite3_prepare_v2(_database, [statement UTF8String], -1, &_statement, NULL);
   }
@@ -80,21 +80,27 @@
 
 - (void)logRecord:(XLLogRecord*)record {
   sqlite3_bind_double(_statement, 1, record.absoluteTime);
-  sqlite3_bind_int(_statement, 2, record.logLevel);
-  sqlite3_bind_text(_statement, 3, XLConvertNSStringToUTF8CString(record.message), -1, SQLITE_STATIC);
-  sqlite3_bind_int(_statement, 4, record.capturedErrno);
-  sqlite3_bind_int(_statement, 5, record.capturedThreadID);
+  const char* namespace = XLConvertNSStringToUTF8CString(record.namespace);
+  if (namespace) {
+    sqlite3_bind_text(_statement, 2, namespace, -1, SQLITE_STATIC);
+  } else {
+    sqlite3_bind_null(_statement, 2);
+  }
+  sqlite3_bind_int(_statement, 3, record.level);
+  sqlite3_bind_text(_statement, 4, XLConvertNSStringToUTF8CString(record.message), -1, SQLITE_STATIC);
+  sqlite3_bind_int(_statement, 5, record.capturedErrno);
+  sqlite3_bind_int(_statement, 6, record.capturedThreadID);
   const char* label = XLConvertNSStringToUTF8CString(record.capturedQueueLabel);
   if (label) {
-    sqlite3_bind_text(_statement, 6, label, -1, SQLITE_STATIC);
+    sqlite3_bind_text(_statement, 7, label, -1, SQLITE_STATIC);
   } else {
-    sqlite3_bind_null(_statement, 6);
+    sqlite3_bind_null(_statement, 7);
   }
   const char* callstack = XLConvertNSStringToUTF8CString([record.callstack componentsJoinedByString:@"\n"]);
   if (callstack) {
-    sqlite3_bind_text(_statement, 7, callstack, -1, SQLITE_STATIC);
+    sqlite3_bind_text(_statement, 8, callstack, -1, SQLITE_STATIC);
   } else {
-    sqlite3_bind_null(_statement, 7);
+    sqlite3_bind_null(_statement, 8);
   }
   if (sqlite3_step(_statement) != SQLITE_DONE) {
     XLOG_INTERNAL(@"Failed writing to database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
@@ -139,7 +145,7 @@
   sqlite3* database = NULL;
   int result = sqlite3_open([_databasePath fileSystemRepresentation], &database);
   if (result == SQLITE_OK) {
-    NSString* string = [NSString stringWithFormat:@"SELECT version, time, level, message, errno, thread, queue, callstack FROM " kTableName " WHERE %@ ORDER BY time %@",
+    NSString* string = [NSString stringWithFormat:@"SELECT version, time, namespace, level, message, errno, thread, queue, callstack FROM " kTableName " WHERE %@ ORDER BY time %@",
                                                   time > 0.0 ? [NSString stringWithFormat:@"time > %f", time] : @"1",
                                                   backward ? @"DESC" : @"ASC"];
     if (limit > 0) {
@@ -154,25 +160,30 @@
         if (result != SQLITE_ROW) {
           break;
         }
+        
         int version = sqlite3_column_int(statement, 0);
         double absoluteTime = sqlite3_column_double(statement, 1);
-        int logLevel = sqlite3_column_int(statement, 2);
-        const unsigned char* messageUTF8 = sqlite3_column_text(statement, 3);
-        int capturedErrno = sqlite3_column_int(statement, 4);
-        int capturedThreadID = sqlite3_column_int(statement, 5);
-        const unsigned char* capturedQueueLabelUTF8 = sqlite3_column_text(statement, 6);
-        const unsigned char* callstackUTF8 = sqlite3_column_text(statement, 7);
+        const unsigned char* namespaceUTF8 = sqlite3_column_text(statement, 2);
+        int level = sqlite3_column_int(statement, 3);
+        const unsigned char* messageUTF8 = sqlite3_column_text(statement, 4);
+        int capturedErrno = sqlite3_column_int(statement, 5);
+        int capturedThreadID = sqlite3_column_int(statement, 6);
+        const unsigned char* capturedQueueLabelUTF8 = sqlite3_column_text(statement, 7);
+        const unsigned char* callstackUTF8 = sqlite3_column_text(statement, 8);
+        
+        NSString* namespace = namespaceUTF8 ? [NSString stringWithUTF8String:(char*)namespaceUTF8] : nil;
         NSString* message = messageUTF8 ? [NSString stringWithUTF8String:(char*)messageUTF8] : nil;
         NSString* capturedQueueLabel = capturedQueueLabelUTF8 ? [NSString stringWithUTF8String:(char*)capturedQueueLabelUTF8] : nil;
         NSArray* callstack = [(callstackUTF8 ? [NSString stringWithUTF8String:(char*)callstackUTF8] : nil) componentsSeparatedByString:@"\n"];
         if (message) {
           XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:absoluteTime
-                                                           logLevel:logLevel
-                                                            message:message
-                                                      capturedErrno:capturedErrno
-                                                   capturedThreadID:capturedThreadID
-                                                 capturedQueueLabel:capturedQueueLabel
-                                                          callstack:callstack];
+                                                                namespace:namespace
+                                                                    level:level
+                                                                  message:message
+                                                            capturedErrno:capturedErrno
+                                                         capturedThreadID:capturedThreadID
+                                                       capturedQueueLabel:capturedQueueLabel
+                                                                callstack:callstack];
           block(version, record, &stop);
           if (stop) {
             result = SQLITE_DONE;

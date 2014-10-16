@@ -53,6 +53,12 @@ XLFacility* XLSharedFacility = nil;
 int XLOriginalStdOut = 0;
 int XLOriginalStdErr = 0;
 
+NSString* const XLFacilityNamespace_Internal = @"xlfacility.internal";
+NSString* const XLFacilityNamespace_CapturedStdOut = @"xlfacility.captured-stdout";
+NSString* const XLFacilityNamespace_CapturedStdErr = @"xlfacility.captured-stderr";
+NSString* const XLFacilityNamespace_UncaughtExceptions = @"xlfacility.uncaught-exceptions";
+NSString* const XLFacilityNamespace_InitializedExceptions = @"xlfacility.initialized-exceptions";
+
 static NSUncaughtExceptionHandler* _originalExceptionHandler = NULL;
 static ExceptionInitializerIMP _originalExceptionInitializerIMP = NULL;
 
@@ -63,12 +69,12 @@ static NSData* _newlineData = nil;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
 
-void XLLogMessage(int level, const char* format, ...) {
+void XLLogCMessage(const char* namespace, int level, const char* format, ...) {
   va_list arguments;
   va_start(arguments, format);
-  NSString* string = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:format] arguments:arguments];
+  NSString* message = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:format] arguments:arguments];
   va_end(arguments);
-  [XLSharedFacility logMessage:string withLevel:level];
+  [XLSharedFacility logMessage:message withNamespace:(namespace ? [NSString stringWithUTF8String:namespace] : nil) level:level];
 }
 
 #pragma clang diagnostic pop
@@ -236,7 +242,7 @@ static void _ExitHandler() {
 
 @implementation XLFacility (Logging)
 
-- (void)_logMessage:(NSString*)message withLevel:(XLLogLevel)level callstack:(NSArray*)callstack {
+- (void)_logMessage:(NSString*)message withNamespace:(NSString*)namespace level:(XLLogLevel)level callstack:(NSArray*)callstack {
   if (level < kXLMinLogLevel) {
     level = kXLMinLogLevel;
   } else if (level > kXLMaxLogLevel) {
@@ -261,7 +267,7 @@ static void _ExitHandler() {
   }
   
   // Create the log record and dispatch to all loggers
-  XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time logLevel:level message:message callstack:callstack];
+  XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time namespace:namespace level:level message:message callstack:callstack];
   dispatch_sync(_lockQueue, ^{
     
     // Call each logger asynchronously on its own serial queue
@@ -291,60 +297,27 @@ static void _ExitHandler() {
   });
 }
 
-- (void)logMessage:(NSString*)message withLevel:(XLLogLevel)level {
+- (void)logMessage:(NSString*)message withNamespace:(NSString*)namespace level:(XLLogLevel)level {
   if (level >= XLMinLogLevel) {
-    [self _logMessage:message withLevel:level callstack:nil];
+    [self _logMessage:message withNamespace:namespace level:level callstack:nil];
   }
 }
 
-#define LOG_MESSAGE_WITH_LEVEL(__LEVEL__, __CALLSTACK__) \
-  if (__LEVEL__ >= XLMinLogLevel) { \
-    va_list arguments; \
-    va_start(arguments, format); \
-    NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments]; \
-    va_end(arguments); \
-    [self _logMessage:message withLevel:__LEVEL__ callstack:__CALLSTACK__]; \
+- (void)logMessageWithNamespace:(NSString*)namespace level:(XLLogLevel)level format:(NSString*)format, ... {
+  if (level >= XLMinLogLevel) {
+    va_list arguments;
+    va_start(arguments, format);
+    NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments];
+    va_end(arguments);
+    [self _logMessage:message withNamespace:namespace level:level callstack:nil];
   }
-
-- (void)logMessageWithLevel:(XLLogLevel)level format:(NSString*)format, ... {
-  LOG_MESSAGE_WITH_LEVEL(level, nil)
 }
 
-- (void)logDebug:(NSString*)format, ... {
-  LOG_MESSAGE_WITH_LEVEL(kXLLogLevel_Debug, nil)
-}
-
-- (void)logVerbose:(NSString*)format, ... {
-  LOG_MESSAGE_WITH_LEVEL(kXLLogLevel_Verbose, nil)
-}
-
-- (void)logInfo:(NSString*)format, ... {
-  LOG_MESSAGE_WITH_LEVEL(kXLLogLevel_Info, nil)
-}
-
-- (void)logWarning:(NSString*)format, ... {
-  LOG_MESSAGE_WITH_LEVEL(kXLLogLevel_Warning, nil)
-}
-
-- (void)logError:(NSString*)format, ... {
-  LOG_MESSAGE_WITH_LEVEL(kXLLogLevel_Error, nil)
-}
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-
-- (void)_logExceptionWithCallstack:(NSArray*)callstack format:(NSString*)format, ... {
-  LOG_MESSAGE_WITH_LEVEL(kXLLogLevel_Exception, callstack)  // Clang is complaining here about a non-literal format string but only because the method name starts with an underscore?
-}
-
-#pragma clang diagnostic pop
-
-- (void)logException:(NSException*)exception {
-  [self _logExceptionWithCallstack:exception.callStackSymbols format:@"%@ %@", exception.name, exception.reason];
-}
-
-- (void)logAbort:(NSString*)format, ... {
-  LOG_MESSAGE_WITH_LEVEL(kXLLogLevel_Abort, nil)
+- (void)logException:(NSException*)exception withNamespace:(NSString*)namespace {
+  if (kXLLogLevel_Exception >= XLMinLogLevel) {
+    NSString* message = [NSString stringWithFormat:@"%@ %@", exception.name, exception.reason];
+    [self _logMessage:message withNamespace:namespace level:kXLLogLevel_Exception callstack:exception.callStackSymbols];
+  }
 }
 
 @end
@@ -352,7 +325,7 @@ static void _ExitHandler() {
 @implementation XLFacility (Extensions)
 
 static void _UncaughtExceptionHandler(NSException* exception) {
-  [XLSharedFacility logException:exception];
+  [XLSharedFacility logException:exception withNamespace:XLFacilityNamespace_UncaughtExceptions];
   [XLSharedFacility removeAllLoggers];
   if (_originalExceptionHandler) {
     (*_originalExceptionHandler)(exception);
@@ -376,7 +349,7 @@ static void _UncaughtExceptionHandler(NSException* exception) {
 
 static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reason, NSDictionary* userInfo) {
   if ((self = _originalExceptionInitializerIMP(self, cmd, name, reason, userInfo))) {
-    [XLSharedFacility logException:self];
+    [XLSharedFacility logException:self withNamespace:XLFacilityNamespace_InitializedExceptions];
   }
   return self;
 }
@@ -395,7 +368,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
   return (_originalExceptionInitializerIMP == NULL);
 }
 
-- (dispatch_source_t)_startCapturingWritingToFD:(int)fd logLevel:(XLLogLevel)level detectNSLogFormatting:(BOOL)nsLog {
+- (dispatch_source_t)_startCapturingWritingToFD:(int)fd logLevel:(XLLogLevel)level namespace:(NSString*)namespace detectNSLogFormatting:(BOOL)nsLog {
   if (_newlineData == nil) {
     _newlineData = [[NSData alloc] initWithBytes:"\n" length:1];
   }
@@ -447,7 +420,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
           
           NSString* message = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(offset, range.location - offset)] encoding:NSUTF8StringEncoding];
           if (message) {
-            [XLSharedFacility logMessage:(offset ? [kCapturedNSLogPrefix stringByAppendingString:message] : message) withLevel:level];
+            [XLSharedFacility logMessage:(offset ? [kCapturedNSLogPrefix stringByAppendingString:message] : message) withNamespace:namespace level:level];
           } else {
             XLLogInternalError(@"%@", @"Failed interpreting captured content from standard file descriptor as UTF8");
           }
@@ -475,7 +448,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 
 - (void)setCapturesStandardOutput:(BOOL)flag {
   if (flag && (_stdOutCaptureSource == NULL)) {
-    _stdOutCaptureSource = [self _startCapturingWritingToFD:STDOUT_FILENO logLevel:kXLLogLevel_Info detectNSLogFormatting:NO];
+    _stdOutCaptureSource = [self _startCapturingWritingToFD:STDOUT_FILENO logLevel:kXLLogLevel_Info namespace:XLFacilityNamespace_CapturedStdOut detectNSLogFormatting:NO];
   } else if (!flag && (_stdOutCaptureSource != NULL)) {
     [self _stopCapturingWritingToFD:STDOUT_FILENO originalFD:XLOriginalStdOut dispatchSource:_stdOutCaptureSource];
     _stdOutCaptureSource = NULL;
@@ -488,7 +461,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 
 - (void)setCapturesStandardError:(BOOL)flag {
   if (flag && (_stdErrCaptureSource == NULL)) {
-    _stdErrCaptureSource = [self _startCapturingWritingToFD:STDERR_FILENO logLevel:kXLLogLevel_Error detectNSLogFormatting:YES];
+    _stdErrCaptureSource = [self _startCapturingWritingToFD:STDERR_FILENO logLevel:kXLLogLevel_Error namespace:XLFacilityNamespace_CapturedStdErr detectNSLogFormatting:YES];
   } else if (!flag && (_stdErrCaptureSource != NULL)) {
     [self _stopCapturingWritingToFD:STDERR_FILENO originalFD:XLOriginalStdErr dispatchSource:_stdErrCaptureSource];
     _stdErrCaptureSource = NULL;

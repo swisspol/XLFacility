@@ -39,9 +39,14 @@
 @property(nonatomic, readonly) CFAbsoluteTime absoluteTime;
 
 /**
+ *  Returns the logging namespace used when logging the message.
+ */
+@property(nonatomic, readonly) NSString* namespace;
+
+/**
  *  Returns the log level used when logging the message.
  */
-@property(nonatomic, readonly) XLLogLevel logLevel;
+@property(nonatomic, readonly) XLLogLevel level;
 
 /**
  *  Returns the log message.
