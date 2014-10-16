@@ -41,19 +41,32 @@ typedef union {
   struct sockaddr_in6 addr6;
 } SocketAddress;
 
-NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address) {
+static NSString* _IPAddressFromAddressData(const struct sockaddr* address) {
   NSString* string = nil;
   if (address) {
     char hostBuffer[NI_MAXHOST];
-    char serviceBuffer[NI_MAXSERV];
-    if (getnameinfo(address, address->sa_len, hostBuffer, sizeof(hostBuffer), serviceBuffer, sizeof(serviceBuffer), NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN) >= 0) {
-      string = [NSString stringWithFormat:@"%s:%s", hostBuffer, serviceBuffer];
+    if (getnameinfo(address, address->sa_len, hostBuffer, sizeof(hostBuffer), NULL, 0, NI_NUMERICHOST | NI_NOFQDN) >= 0) {
+      string = [NSString stringWithUTF8String:hostBuffer];
     } else {
       XLOG_ERROR(@"Failed converting IP address data to string: %s", strerror(errno));
     }
   }
   return string;
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
+
+static NSUInteger _PortFromAddressData(const struct sockaddr* address) {
+  switch (address->sa_family) {
+    case AF_INET: return ntohs(((const struct sockaddr_in*)address)->sin_port);
+    case AF_INET6: return ntohs(((const struct sockaddr_in6*)address)->sin6_port);
+  }
+  XLOG_DEBUG_UNREACHABLE();
+  return 0;
+}
+
+#pragma clang diagnostic pop
 
 @interface XLTCPConnection () {
 @private
@@ -65,13 +78,13 @@ NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address) {
 
 @implementation XLTCPConnection
 
-static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* addr, socklen_t len, NSTimeInterval timeout, BOOL isIPv6) {
+static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const struct sockaddr* addr, socklen_t len, NSTimeInterval timeout, BOOL isIPv6) {
   int connectedSocket = socket(isIPv6 ? PF_INET6 : PF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (connectedSocket >= 0) {
     BOOL success = NO;
     fcntl(connectedSocket, F_SETFL, O_NONBLOCK);
     
-    XLOG_DEBUG(@"Connecting %s socket to \"%@\" (%@)...", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr));
+    XLOG_DEBUG(@"Connecting %s socket to \"%@:%i\" (%@)...", isIPv6 ? "IPv6" : "IPv4", hostname, (int)port, _IPAddressFromAddressData(addr));
     int result = connect(connectedSocket, addr, len);
     if ((result == -1) && (errno == EINPROGRESS)) {
       fd_set fdset;
@@ -90,17 +103,17 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
           if (error == 0) {
             success = YES;
           } else {
-            XLOG_ERROR(@"Failed connecting %s socket to \"%@\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr), strerror(error));
+            XLOG_ERROR(@"Failed connecting %s socket to \"%@:%i\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, (int)port, _IPAddressFromAddressData(addr), strerror(error));
           }
         } else {
           XLOG_ERROR(@"Failed retrieving %s socket option: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
         }
         
       } else if (result == 0) {
-        XLOG_ERROR(@"Timed out connecting %s socket to \"%@\" (%@)", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr));
+        XLOG_ERROR(@"Timed out connecting %s socket to \"%@:%i\" (%@)", isIPv6 ? "IPv6" : "IPv4", hostname, (int)port, _IPAddressFromAddressData(addr));
       }
     } else {
-      XLOG_ERROR(@"Failed connecting %s socket to \"%@\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr), strerror(errno));
+      XLOG_ERROR(@"Failed connecting %s socket to \"%@:%i\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, (int)port, _IPAddressFromAddressData(addr), strerror(errno));
     }
     
     if (success) {
@@ -134,7 +147,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
           } else {
             address.addr4.sin_port = htons(port);
           }
-          int socket = _CreateConnectedSocket(hostname, &address.addr, address.addr.sa_len, timeout, address.addr.sa_family == AF_INET6);
+          int socket = _CreateConnectedSocket(hostname, port, &address.addr, address.addr.sa_len, timeout, address.addr.sa_family == AF_INET6);
           if (socket >= 0) {
             connection = [[self alloc] initWithSocket:socket];
             if (connection) {
@@ -391,11 +404,11 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 @implementation XLTCPConnection (Subclassing)
 
 - (void)didOpen {
-  XLOG_DEBUG(@"%@ did open over %s from \"%@\" to \"%@\"", [self class], self.usingIPv6 ? "IPv6" : "IPv4", self.localAddressString, self.remoteAddressString);
+  XLOG_DEBUG(@"%@ did open over %s from %@ (%i) to %@ (%i)", [self class], self.usingIPv6 ? "IPv6" : "IPv4", self.localIPAddress, (int)self.localPort, self.remoteIPAddress, (int)self.remotePort);
 }
 
 - (void)didClose {
-  XLOG_DEBUG(@"%@ did close over %s from \"%@\" to \"%@\"", [self class], self.usingIPv6 ? "IPv6" : "IPv4", self.localAddressString, self.remoteAddressString);
+  XLOG_DEBUG(@"%@ did close over %s from %@ (%i) to %@ (%i)", [self class], self.usingIPv6 ? "IPv6" : "IPv4", self.localIPAddress, (int)self.localPort, self.remoteIPAddress, (int)self.remotePort);
 }
 
 @end
@@ -407,12 +420,20 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
   return (localSockAddr->sa_family == AF_INET6);
 }
 
-- (NSString*)localAddressString {
-  return XLFacilityStringFromIPAddress(_localAddressData.bytes);
+- (NSUInteger)localPort {
+  return _PortFromAddressData(_localAddressData.bytes);
 }
 
-- (NSString*)remoteAddressString {
-  return XLFacilityStringFromIPAddress(_remoteAddressData.bytes);
+- (NSString*)localIPAddress {
+  return _IPAddressFromAddressData(_localAddressData.bytes);
+}
+
+- (NSUInteger)remotePort {
+  return _PortFromAddressData(_remoteAddressData.bytes);
+}
+
+- (NSString*)remoteIPAddress {
+  return _IPAddressFromAddressData(_remoteAddressData.bytes);
 }
 
 @end

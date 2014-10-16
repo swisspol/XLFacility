@@ -166,7 +166,7 @@
 @implementation XLTCPClient (Subclassing)
 
 - (void)willOpenConnection:(XLTCPClientConnection*)connection {
-  XLOG_DEBUG(@"%@ did connect to \"%@:%i\"", [self class], _host, (int)_port);
+  XLOG_DEBUG(@"%@ did connect to server at \"%@\" (%i)", [self class], connection.remoteIPAddress, (int)connection.remotePort);
   connection.client = self;
   dispatch_sync(_lockQueue, ^{
     dispatch_group_enter(_syncGroup);
@@ -185,7 +185,7 @@
       [self _scheduleReconnection];
     }
   });
-  XLOG_DEBUG(@"%@ did disconnect from \"%@:%i\"", [self class], _host, (int)_port);
+  XLOG_DEBUG(@"%@ did connect from server at \"%@\" (%i)", [self class], connection.remoteIPAddress, (int)connection.remotePort);
 }
 
 @end

@@ -38,11 +38,6 @@ typedef NS_ENUM(int, XLTCPConnectionState) {
 };
 
 /**
- *  Converts an IP address to a string.
- */
-extern NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address);
-
-/**
  *  The XLTCPConnection is a base class that handles TCP connections.
  */
 @interface XLTCPConnection : NSObject
@@ -157,13 +152,23 @@ extern NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address);
 @property(nonatomic, readonly, getter=isUsingIPv6) BOOL usingIPv6;
 
 /**
- *  Returns the address of the local peer of the connection as a string.
+ *  Returns the port of the local peer of the connection.
  */
-@property(nonatomic, readonly) NSString* localAddressString;
+@property(nonatomic, readonly) NSUInteger localPort;
 
 /**
- *  Returns the address of the remote peer of the connection as a string.
+ *  Returns the IP address of the local peer of the connection as a string.
  */
-@property(nonatomic, readonly) NSString* remoteAddressString;
+@property(nonatomic, readonly) NSString* localIPAddress;
+
+/**
+ *  Returns the port of the remote peer of the connection.
+ */
+@property(nonatomic, readonly) NSUInteger remotePort;
+
+/**
+ *  Returns the IP address of the remote peer of the connection as a string.
+ */
+@property(nonatomic, readonly) NSString* remoteIPAddress;
 
 @end
