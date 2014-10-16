@@ -45,7 +45,7 @@ static void _RunLoopTimerCallBack(CFRunLoopTimerRef timer, void* info) {
 
 int main(int argc, const char* argv[]) {
   @autoreleasepool {
-    [[XLStandardLogger sharedErrorLogger] setFormat:@"%t (%n) %l > %m%c"];
+    [[XLStandardLogger sharedErrorLogger] setFormat:@"%t (%g) %l > %m%c"];
     [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
     [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] init]];
     

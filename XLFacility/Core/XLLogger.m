@@ -196,7 +196,7 @@ static NSString* _uid = nil;
         }
       } else {
         switch (character) {
-          case 'n': token = kFormatToken_Tag; break;
+          case 'g': token = kFormatToken_Tag; break;
           case 'l': token = kFormatToken_LevelName; break;
           case 'L': token = kFormatToken_PaddedLevelName; break;
           case 'm': token = kFormatToken_Message; break;
