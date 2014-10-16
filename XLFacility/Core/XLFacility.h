@@ -59,10 +59,10 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
  *  The shared XLFacility instance is automatically created when the process
  *  starts.
  *
- *  @warning By default XLFacility has the [XLStandardLogger sharedStdErrLogger]
+ *  @warning By default XLFacility has the [XLStandardLogger sharedErrorLogger]
  *  logger pre-installed if stderr is connected to a terminal type device.
  *  To remove this logger add this line to the main() function of your app:
- *  [XLSharedFacility removeLogger:[XLStandardLogger sharedStdErrLogger]]
+ *  [XLSharedFacility removeLogger:[XLStandardLogger sharedErrorLogger]]
  */
 @interface XLFacility : NSObject
 
