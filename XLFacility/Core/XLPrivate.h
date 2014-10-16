@@ -33,7 +33,7 @@
 
 #define XLDISPATCH_QUEUE_LABEL object_getClassName(self)
 
-#define XGLOBAL_DISPATCH_QUEUE dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
+#define XLGLOBAL_DISPATCH_QUEUE dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
 
 extern int XLOriginalStdOut;
 extern int XLOriginalStdErr;

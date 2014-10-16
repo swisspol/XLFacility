@@ -100,7 +100,7 @@
 
 // Must be called inside lock queue
 - (void)_scheduleReconnection {
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_reconnectionDelay * NSEC_PER_SEC)), XGLOBAL_DISPATCH_QUEUE, ^{
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_reconnectionDelay * NSEC_PER_SEC)), XLGLOBAL_DISPATCH_QUEUE, ^{
     dispatch_sync(_lockQueue, ^{
       if (_reconnectionDelay > 0.0) {
         [self _reconnect];

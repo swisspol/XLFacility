@@ -115,7 +115,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 }
 
 + (void)connectAsynchronouslyToHost:(NSString*)hostname port:(NSUInteger)port timeout:(NSTimeInterval)timeout completion:(void (^)(XLTCPConnection* connection))completion {
-  dispatch_async(XGLOBAL_DISPATCH_QUEUE, ^{
+  dispatch_async(XLGLOBAL_DISPATCH_QUEUE, ^{
     XLTCPConnection* connection = nil;
     
     CFHostRef host = CFHostCreateWithName(kCFAllocatorDefault, (__bridge CFStringRef)hostname);  // Consider using low-level getaddrinfo() instead
@@ -264,7 +264,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 - (void)_readBufferAsynchronously:(void (^)(dispatch_data_t buffer))completion {
   dispatch_sync(_lockQueue, ^{
     if (_state == kXLTCPConnectionState_Opened) {
-      dispatch_read(_socket, SIZE_MAX, XGLOBAL_DISPATCH_QUEUE, ^(dispatch_data_t data, int error) {
+      dispatch_read(_socket, SIZE_MAX, XLGLOBAL_DISPATCH_QUEUE, ^(dispatch_data_t data, int error) {
         @autoreleasepool {
           
           if (error) {
@@ -280,7 +280,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
         }
       });
     } else if (completion) {
-      dispatch_async(XGLOBAL_DISPATCH_QUEUE, ^{
+      dispatch_async(XLGLOBAL_DISPATCH_QUEUE, ^{
         @autoreleasepool {
           completion(NULL);
         }
@@ -332,7 +332,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 - (void)_writeBufferAsynchronously:(dispatch_data_t)buffer completion:(void (^)(BOOL success))completion {
   dispatch_sync(_lockQueue, ^{
     if (_state == kXLTCPConnectionState_Opened) {
-      dispatch_write(_socket, buffer, XGLOBAL_DISPATCH_QUEUE, ^(dispatch_data_t data, int error) {
+      dispatch_write(_socket, buffer, XLGLOBAL_DISPATCH_QUEUE, ^(dispatch_data_t data, int error) {
         @autoreleasepool {
           
           if (error) {
@@ -350,7 +350,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
         }
       });
     } else if (completion) {
-      dispatch_async(XGLOBAL_DISPATCH_QUEUE, ^{
+      dispatch_async(XLGLOBAL_DISPATCH_QUEUE, ^{
         @autoreleasepool {
           completion(NO);
         }
@@ -360,7 +360,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 }
 
 - (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion {
-  dispatch_data_t buffer = dispatch_data_create(data.bytes, data.length, XGLOBAL_DISPATCH_QUEUE, ^{
+  dispatch_data_t buffer = dispatch_data_create(data.bytes, data.length, XLGLOBAL_DISPATCH_QUEUE, ^{
     [data self];  // Keeps ARC from releasing data too early
   });
   [self _writeBufferAsynchronously:buffer completion:completion];
