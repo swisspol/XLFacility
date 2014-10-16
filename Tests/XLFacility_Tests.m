@@ -202,9 +202,7 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   
   __block int index = 0;
   [logger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
-    XCTAssertEqual(record.level, index % 5);
-    NSString* message = [NSString stringWithFormat:@"Hello World #%i!", index + 1];
-    XCTAssertEqualObjects(record.message, message);
+    XCTAssertEqualObjects(record, _capturedRecords[index]);
     ++index;
   }];
   

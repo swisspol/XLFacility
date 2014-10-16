@@ -74,6 +74,37 @@
                           callstack:callstack];
 }
 
+- (BOOL)isEqual:(id)object {
+  if ([object isKindOfClass:[XLLogRecord class]]) {
+    XLLogRecord* other = object;
+    if (fabs(other->_absoluteTime - _absoluteTime) >= 0.001) {  // 1ms
+      return NO;
+    }
+    if ((_namespace && !other->_namespace) || (!_namespace && other->_namespace) || (_namespace && other->_namespace && ![_namespace isEqualToString:other->_namespace])) {
+      return NO;
+    }
+    if (_level != other->_level) {
+      return NO;
+    }
+    if ((_message && !other->_message) || (!_message && other->_message) || (_message && other->_message && ![_message isEqualToString:other->_message])) {
+      return NO;
+    }
+    if (_capturedErrno != other->_capturedErrno) {
+      return NO;
+    }
+    if (_capturedThreadID != other->_capturedThreadID) {
+      return NO;
+    }
+    if ((_capturedQueueLabel && !other->_capturedQueueLabel) || (!_capturedQueueLabel && other->_capturedQueueLabel) || (_capturedQueueLabel && other->_capturedQueueLabel && ![_capturedQueueLabel isEqualToString:other->_capturedQueueLabel])) {
+      return NO;
+    }
+    if ((_callstack && !other->_callstack) || (!_callstack && other->_callstack) || (_callstack && other->_callstack && ![_callstack isEqualToArray:other->_callstack])) {
+      return NO;
+    }
+  }
+  return YES;
+}
+
 - (NSString*)description {
   return [[NSString alloc] initWithFormat:@"(%@) %@", [NSDate dateWithTimeIntervalSinceReferenceDate:_absoluteTime], _message];
 }
