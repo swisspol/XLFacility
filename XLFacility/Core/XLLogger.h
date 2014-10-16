@@ -121,7 +121,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  Sets the format string used to format log records by loggers which require
  *  formatting. The following format specifiers are supported:
  *
- *  %g: tag (or "" if not available)
+ *  %g: tag (or the value of "tagPlaceholder" property if not set)
  *  %l: level name
  *  %L: level name padded to constant width with trailing spaces
  *  %m: message
@@ -130,7 +130,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  %p: process ID
  *  %P: process name
  *  %r: thread ID
- *  %q: queue label (or "(null)" if not available)
+ *  %q: queue label (or the value of "queueLabelPlaceholder" property if not set)
  *  %t: relative timestamp since process started in "HH:mm:ss.SSS" format
  *  %d: absolute date-time formatted using the "datetimeFormatter" property
  *  %e: errno as an integer
@@ -171,6 +171,20 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  been added to XLFacility.
  */
 @property(nonatomic, readonly) NSDateFormatter* datetimeFormatter;
+
+/**
+ *  Sets the placeholder string used by the "%g" format specifier.
+ *
+ *  The default value is "(none)".
+ */
+@property(nonatomic, copy) NSString* tagPlaceholder;
+
+/**
+ *  Sets the placeholder string used by the "%q" format specifier.
+ *
+ *  The default value is "(none)".
+ */
+@property(nonatomic, copy) NSString* queueLabelPlaceholder;
 
 /**
  *  Sets the header string used by -formatCallstackFromRecord: to be inserted

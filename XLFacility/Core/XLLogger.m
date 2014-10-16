@@ -33,8 +33,6 @@
 
 #import "XLPrivate.h"
 
-#define kNoQueueLabel @"(null)"
-
 typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_Unknown = 0,
   
@@ -70,6 +68,8 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   NSMutableData* _tokens;
   NSMutableArray* _strings;
   NSDateFormatter* _datetimeFormatter;
+  NSString* _tagPlaceholder;
+  NSString* _queueLabelPlaceholder;
   
   NSString* _callstackHeader;
   NSString* _callstackFooter;
@@ -233,6 +233,22 @@ static NSString* _uid = nil;
   return _datetimeFormatter;
 }
 
+- (void)setTagPlaceholder:(NSString*)string {
+  _tagPlaceholder = [string copy];
+}
+
+- (NSString*)tagPlaceholder {
+  return _tagPlaceholder;
+}
+
+- (void)setQueueLabelPlaceholder:(NSString*)string {
+  _queueLabelPlaceholder = [string copy];
+}
+
+- (NSString*)queueLabelPlaceholder {
+  return _queueLabelPlaceholder;
+}
+
 - (void)setCallstackHeader:(NSString*)string {
   _callstackHeader = [string copy];
 }
@@ -292,6 +308,8 @@ static NSString* _uid = nil;
       case kFormatToken_Tag: {
         if (record.tag) {
           [string appendString:record.tag];
+        } else if (_tagPlaceholder) {
+          [string appendString:_tagPlaceholder];
         }
         break;
       }
@@ -339,8 +357,8 @@ static NSString* _uid = nil;
       case kFormatToken_QueueLabel: {
         if (record.capturedQueueLabel) {
           [string appendString:record.capturedQueueLabel];
-        } else {
-          [string appendString:kNoQueueLabel];
+        } else if (_queueLabelPlaceholder) {
+          [string appendString:_queueLabelPlaceholder];
         }
         break;
       }
