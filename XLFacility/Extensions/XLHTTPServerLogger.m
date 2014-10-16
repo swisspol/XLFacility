@@ -30,6 +30,7 @@
 #endif
 
 #import "XLHTTPServerLogger.h"
+#import "XLFunctions.h"
 #import "XLPrivate.h"
 
 #define kMinRefreshDelay 500  // In milliseconds
@@ -45,6 +46,7 @@
 @interface XLHTTPServerConnection () {
 @private
   dispatch_semaphore_t _pollingSemaphore;
+  NSMutableData* _headerData;
 }
 @end
 
@@ -56,36 +58,29 @@
   }
 }
 
-- (BOOL)_writeHTMLResponse:(NSString*)htmlString {
-  XLHTTPServerLogger* logger = (XLHTTPServerLogger*)self.logger;
+- (BOOL)_writeHTTPResponseWithStatusCode:(NSInteger)statusCode htmlBody:(NSString*)htmlBody {
   BOOL success = NO;
-  NSData* htmlData = [htmlString dataUsingEncoding:NSUTF8StringEncoding];
-  if (htmlData) {
-    CFHTTPMessageRef response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, 200, NULL, kCFHTTPVersion1_1);
-    CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Connection"), CFSTR("Close"));
-    CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Server"), (__bridge CFStringRef)NSStringFromClass([self class]));
-    CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Date"), (__bridge CFStringRef)[logger.dateFormatterRFC822 stringFromDate:[NSDate date]]);
+  CFHTTPMessageRef response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, statusCode, NULL, kCFHTTPVersion1_1);
+  CFHTTPMessageCreateResponse(kCFAllocatorDefault, statusCode, NULL, kCFHTTPVersion1_1);
+  CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Connection"), CFSTR("Close"));
+  CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Server"), (__bridge CFStringRef)NSStringFromClass([self class]));
+  CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Date"), (__bridge CFStringRef)[[(XLHTTPServerLogger*)self.logger dateFormatterRFC822] stringFromDate:[NSDate date]]);
+  if (htmlBody) {
+    NSData* htmlData = XLConvertNSStringToUTF8String(htmlBody);
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Type"), CFSTR("text/html; charset=utf-8"));
     CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Length"), (__bridge CFStringRef)[NSString stringWithFormat:@"%lu", (unsigned long)htmlData.length]);
     CFHTTPMessageSetBody(response, (__bridge CFDataRef)htmlData);
-    
-    CFDataRef data = CFHTTPMessageCopySerializedMessage(response);
-    if (data) {
-      [self writeDataAsynchronously:(__bridge NSData*)data completion:^(BOOL ok) {
-        if (ok) {
-          [self close];
-        }
-      }];
-      CFRelease(data);
-      success = YES;
-    } else {
-      XLOG_ERROR(@"Failed serializing HTTP response");
-    }
-    
-    CFRelease(response);
-  } else {
-    XLOG_ERROR(@"Failed generating HTML response");
   }
+  NSData* data = CFBridgingRelease(CFHTTPMessageCopySerializedMessage(response));
+  if (data) {
+    [self writeDataAsynchronously:data completion:^(BOOL ok) {
+      [self close];
+    }];
+    success = YES;
+  } else {
+    XLOG_ERROR(@"Failed serializing HTTP response");
+  }
+  CFRelease(response);
   return success;
 }
 
@@ -196,7 +191,7 @@
       [string appendString:@"</body>"];
       [string appendString:@"</html>"];
       
-      success = [self _writeHTMLResponse:string];
+      success = [self _writeHTTPResponseWithStatusCode:200 htmlBody:string];
     } else if ([path isEqualToString:@"/log"] && [query hasPrefix:@"after="]) {
       NSMutableString* string = [[NSMutableString alloc] init];
       CFAbsoluteTime time = [[query substringFromIndex:6] doubleValue];
@@ -205,35 +200,52 @@
       dispatch_semaphore_wait(_pollingSemaphore, dispatch_time(DISPATCH_TIME_NOW, kMaxLongPollDuration * NSEC_PER_SEC));
       if (self.server) {  // Check for race-condition if the connection was closed while waiting
         [self _appendLogRecordsToString:string afterAbsoluteTime:time];
-        success = [self _writeHTMLResponse:string];
+        success = [self _writeHTTPResponseWithStatusCode:200 htmlBody:string];
       }
+    } else {
+      XLOG_WARNING(@"Unsupported path in HTTP request: %@", path);
+      success = [self _writeHTTPResponseWithStatusCode:404 htmlBody:nil];
     }
     
   } else {
-    XLOG_ERROR(@"Unsupported HTTP method in request: %@", method);
+    XLOG_WARNING(@"Unsupported method in HTTP request: %@", method);
+    success = [self _writeHTTPResponseWithStatusCode:405 htmlBody:nil];
   }
   return success;
+}
+
+- (void)_readHeaders {
+  [self readDataAsynchronously:^(NSData* data) {
+    if (data) {
+      [_headerData appendData:data];
+      NSRange range = [_headerData rangeOfData:[NSData dataWithBytes:"\r\n\r\n" length:4] options:0 range:NSMakeRange(0, _headerData.length)];
+      if (range.location != NSNotFound) {
+        
+        BOOL success = NO;
+        CFHTTPMessageRef message = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true);
+        CFHTTPMessageAppendBytes(message, data.bytes, data.length);
+        if (CFHTTPMessageIsHeaderComplete(message)) {
+          success = [self _processHTTPRequest:message];
+        } else {
+          XLOG_ERROR(@"Failed parsing HTTP request headers");
+        }
+        CFRelease(message);
+        if (!success) {
+          [self close];
+        }
+        
+      } else {
+        [self _readHeaders];
+      }
+    }
+  }];
 }
 
 - (void)didOpen {
   [super didOpen];
   
-  [self readDataAsynchronously:^(NSData* data) {
-    if (data) {
-      BOOL success = NO;
-      CFHTTPMessageRef message = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true);
-      CFHTTPMessageAppendBytes(message, data.bytes, data.length);
-      if (CFHTTPMessageIsHeaderComplete(message)) {
-        success = [self _processHTTPRequest:message];
-      } else {
-        XLOG_ERROR(@"Failed parsing HTTP request headers");
-      }
-      CFRelease(message);
-      if (!success) {
-        [self close];
-      }
-    }
-  }];
+  _headerData = [[NSMutableData alloc] init];
+  [self _readHeaders];
 }
 
 - (void)didClose {
