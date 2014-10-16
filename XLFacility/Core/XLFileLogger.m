@@ -30,6 +30,7 @@
 #endif
 
 #import "XLFileLogger.h"
+#import "XLFunctions.h"
 #import "XLPrivate.h"
 
 @interface XLFileLogger () {

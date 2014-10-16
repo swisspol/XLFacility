@@ -51,22 +51,6 @@ extern NSString* const XLFacilityNamespace_CapturedStdErr;
 extern NSString* const XLFacilityNamespace_UncaughtExceptions;
 extern NSString* const XLFacilityNamespace_InitializedExceptions;
 
-/**
- *  Converts a NSString to an UTF-8 string.
- *
- *  Contrary to -[NSString dataUsingEncoding:] this function is guaranteed
- *  to return a non-nil result as long as the input string is not nil.
- */
-extern NSData* XLConvertNSStringToUTF8String(NSString* string);
-
-/**
- *  Converts a NSString to an UTF-8 NULL terminated C string.
- *
- *  Contrary to -[NSString UTF8String] this function is guaranteed to return
- *  a non-NULL result as long as the input string is not nil.
- */
-extern const char* XLConvertNSStringToUTF8CString(NSString* string);
-
 @class XLLogger;
 
 /**

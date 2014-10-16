@@ -30,6 +30,7 @@
 #endif
 
 #import "XLTelnetServerLogger.h"
+#import "XLFunctions.h"
 #import "XLPrivate.h"
 
 @interface XLTelnetServerConnection : XLTCPServerLoggerConnection

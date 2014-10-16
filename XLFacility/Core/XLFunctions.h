@@ -25,55 +25,28 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if !__has_feature(objc_arc)
-#error XLFacility requires ARC
+#import <Foundation/Foundation.h>
+
+#ifdef __cplusplus
+extern "C" {
 #endif
+  
+/**
+ *  Converts a NSString to an UTF-8 string.
+ *
+ *  Contrary to -[NSString dataUsingEncoding:] this function is guaranteed
+ *  to return a non-nil result as long as the input string is not nil.
+ */
+NSData* XLConvertNSStringToUTF8String(NSString* string);
 
-#import <asl.h>
-
-#import "XLASLLogger.h"
-#import "XLFunctions.h"
-#import "XLPrivate.h"
-
-@interface XLASLLogger () {
-@private
-  aslclient _client;
+/**
+ *  Converts a NSString to an UTF-8 NULL terminated C string.
+ *
+ *  Contrary to -[NSString UTF8String] this function is guaranteed to return
+ *  a non-NULL result as long as the input string is not nil.
+ */
+const char* XLConvertNSStringToUTF8CString(NSString* string);
+  
+#ifdef __cplusplus
 }
-@end
-
-@implementation XLASLLogger
-
-+ (XLASLLogger*)sharedLogger {
-  static XLASLLogger* logger = nil;
-  static dispatch_once_t onceToken = 0;
-  dispatch_once(&onceToken, ^{
-    logger = [[XLASLLogger alloc] init];
-  });
-  return logger;
-}
-
-- (BOOL)open {
-  _client = asl_open(NULL, NULL, ASL_OPT_NO_DELAY);
-  if (!_client) {
-    XLOG_INTERNAL(@"Failed connecting to the ASL server", NULL);
-    return NO;
-  }
-  asl_set_filter(_client, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG));  // Default is ASL_LEVEL_NOTICE
-  return YES;
-}
-
-- (void)logRecord:(XLLogRecord*)record {
-  static const char* levelMapping[] = {"7", "6", "5", "4", "3", "2", "1"};
-  aslmsg message = asl_new(ASL_TYPE_MSG);
-  asl_set(message, ASL_KEY_LEVEL, levelMapping[record.level]);
-  asl_set(message, ASL_KEY_MSG, XLConvertNSStringToUTF8CString([self sanitizeMessageFromRecord:record]));
-  asl_send(_client, message);  // This automatically sets ASL_KEY_TIME with no possibility to override
-  asl_free(message);
-}
-
-- (void)close {
-  asl_close(_client);
-  _client = NULL;
-}
-
-@end
+#endif

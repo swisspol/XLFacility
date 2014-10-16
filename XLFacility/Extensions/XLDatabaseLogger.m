@@ -32,6 +32,7 @@
 #import <sqlite3.h>
 
 #import "XLDatabaseLogger.h"
+#import "XLFunctions.h"
 #import "XLPrivate.h"
 
 #define kTableName "records_v2"

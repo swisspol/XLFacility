@@ -32,7 +32,6 @@
 #import <objc/runtime.h>
 #import <execinfo.h>
 #import <netdb.h>
-#import <asl.h>
 
 #import "XLStandardLogger.h"
 #import "XLPrivate.h"
@@ -41,10 +40,6 @@
 
 #define kFileDescriptorCaptureBufferSize 1024
 #define kCapturedNSLogPrefix @"(NSLog) "
-
-#if !DEBUG
-#define kInvalidUTF8Placeholder "<INVALID UTF8 STRING>"
-#endif
 
 typedef id (*ExceptionInitializerIMP)(id self, SEL cmd, NSString* name, NSString* reason, NSDictionary* userInfo);
 
@@ -65,70 +60,6 @@ static ExceptionInitializerIMP _originalExceptionInitializerIMP = NULL;
 static dispatch_source_t _stdOutCaptureSource = NULL;
 static dispatch_source_t _stdErrCaptureSource = NULL;
 static NSData* _newlineData = nil;
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-
-void XLLogCMessage(const char* namespace, int level, const char* format, ...) {
-  va_list arguments;
-  va_start(arguments, format);
-  NSString* message = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:format] arguments:arguments];
-  va_end(arguments);
-  [XLSharedFacility logMessage:message withNamespace:(namespace ? [NSString stringWithUTF8String:namespace] : nil) level:level];
-}
-
-#pragma clang diagnostic pop
-
-void XLLogInternalError(NSString* format, ...) {
-  va_list arguments;
-  va_start(arguments, format);
-  NSString* string = [[NSString alloc] initWithFormat:format arguments:arguments];
-  va_end(arguments);
-  const char* utf8String = [string UTF8String];  // We can't use XLConvertNSStringToUTF8CString() here or we might end up with an infinite loop
-  if (utf8String) {
-    aslmsg message = asl_new(ASL_TYPE_MSG);
-    asl_set(message, ASL_KEY_LEVEL, "3");  // ASL_LEVEL_ERR
-    asl_set(message, ASL_KEY_MSG, utf8String);
-    asl_send(NULL, message);
-    asl_free(message);
-  }
-#if DEBUG
-  else {
-    abort();
-  }
-#endif
-}
-
-NSData* XLConvertNSStringToUTF8String(NSString* string) {
-  NSData* utf8Data = nil;
-  if (string) {
-    utf8Data = [string dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:NO];
-    if (!utf8Data) {
-#if DEBUG
-      abort();
-#else
-      utf8Data = [NSData dataWithBytesNoCopy:kInvalidUTF8Placeholder length:strlen(kInvalidUTF8Placeholder) freeWhenDone:NO];
-#endif
-    }
-  }
-  return utf8Data;
-}
-
-const char* XLConvertNSStringToUTF8CString(NSString* string) {
-  const char* utf8String = NULL;
-  if (string) {
-    utf8String = [string UTF8String];
-    if (!utf8String) {
-      XLLogInternalError(@"Failed converting NSString to UTF8");
-#if DEBUG
-      abort();
-#else
-      utf8String = kInvalidUTF8Placeholder;
-#endif
-    }
-  }
-  return utf8String;
-}
 
 @interface XLFacility () {
 @private
