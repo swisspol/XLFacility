@@ -103,7 +103,7 @@
   [super logRecord:record];
   
   NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
-  [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPServerConnection* connection, BOOL* stop) {
+  [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPPeerConnection* connection, BOOL* stop) {
     if (_usesAsynchronousLogging) {
       [connection writeDataAsynchronously:data completion:NULL];
     } else {

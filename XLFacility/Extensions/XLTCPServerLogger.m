@@ -39,7 +39,7 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 @implementation XLTCPServerLoggerConnection
 
 - (XLTCPServerLogger*)logger {
-  return objc_getAssociatedObject(self.server, _associatedObjectKey);
+  return objc_getAssociatedObject(self.peer, _associatedObjectKey);
 }
 
 @end

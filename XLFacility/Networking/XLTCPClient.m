@@ -29,40 +29,17 @@
 #error XLFacility requires ARC
 #endif
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
 #import "XLTCPClient.h"
 #import "XLPrivate.h"
 
-@interface XLTCPClientConnection ()
-@property(nonatomic, assign) XLTCPClient* client;
+@implementation XLTCPClientConnection
 @end
 
 @interface XLTCPClient () {
 @private
-  dispatch_queue_t _lockQueue;
-  dispatch_group_t _syncGroup;
-  XLTCPClientConnection* _connection;
   NSUInteger _generation;
   NSTimeInterval _reconnectionDelay;
-#if TARGET_OS_IPHONE
-  UIBackgroundTaskIdentifier _backgroundTask;
-  BOOL _restart;
-#endif
 }
-@end
-
-@implementation XLTCPClientConnection
-
-- (void)didClose {
-  [super didClose];
-  
-  [_client didCloseConnection:self];
-  _client = nil;
-}
-
 @end
 
 @implementation XLTCPClient
@@ -76,47 +53,24 @@
   XLOG_DEBUG_CHECK([connectionClass isSubclassOfClass:[XLTCPClientConnection class]]);
   XLOG_DEBUG_CHECK(hostname);
   XLOG_DEBUG_CHECK(port > 0);
-  if ((self = [super init])) {
-    _connectionClass = connectionClass;
+  if ((self = [super initWithConnectionClass:connectionClass])) {
     _host = [hostname copy];
     _port = port;
     
-    _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _connectionTimeout = 10.0;
     _automaticallyReconnects = YES;
     _minReconnectInterval = 1.0;
     _maxReconnectInterval = 300.0;
     _reconnectionDelay = 1.0;
-    _syncGroup = dispatch_group_create();
-#if TARGET_OS_IPHONE
-    _backgroundTask = UIBackgroundTaskInvalid;
-#endif
   }
   return self;
-}
-
-#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
-
-- (void)dealloc {
-  dispatch_release(_syncGroup);
-  dispatch_release(_lockQueue);
-}
-
-#endif
-
-- (XLTCPClientConnection*)connection {
-  __block XLTCPClientConnection* connection;
-  dispatch_sync(_lockQueue, ^{
-    connection = _connection;
-  });
-  return connection;
 }
 
 // Must be called inside lock queue
 - (void)_scheduleReconnection {
   XLOG_DEBUG(@"%@ will attempt to reconnect to \"%@:%i\" in %.0f seconds", [self class], _host, (int)_port, _reconnectionDelay);
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_reconnectionDelay * NSEC_PER_SEC)), XLGLOBAL_DISPATCH_QUEUE, ^{
-    dispatch_sync(_lockQueue, ^{
+    dispatch_sync(self.lockQueue, ^{
       if (_reconnectionDelay > 0.0) {
         [self _reconnect];
       }
@@ -129,13 +83,13 @@
   XLOG_DEBUG(@"%@ attempting to connect to \"%@:%i\"", [self class], _host, (int)_port);
   _generation += 1;
   NSUInteger lastGeneration = _generation;
-  [_connectionClass connectAsynchronouslyToHost:_host port:_port timeout:_connectionTimeout completion:^(XLTCPConnection* connection) {
+  [self.connectionClass connectAsynchronouslyToHost:_host port:_port timeout:_connectionTimeout completion:^(XLTCPConnection* connection) {
     if (connection) {
       if (lastGeneration == _generation) {
         
-        [self willOpenConnection:(XLTCPClientConnection*)connection];
+        [self willOpenConnection:(XLTCPPeerConnection*)connection];
         
-        dispatch_sync(_lockQueue, ^{
+        dispatch_sync(self.lockQueue, ^{
           _reconnectionDelay = _minReconnectInterval;
         });
         
@@ -144,7 +98,7 @@
         [connection close];
       }
     } else if (_automaticallyReconnects) {
-      dispatch_sync(_lockQueue, ^{
+      dispatch_sync(self.lockQueue, ^{
         if (_reconnectionDelay > 0.0) {
           [self _scheduleReconnection];
         }
@@ -153,95 +107,38 @@
   }];
 }
 
-- (BOOL)start {
-  dispatch_sync(_lockQueue, ^{
+- (BOOL)willStart {
+  dispatch_sync(self.lockQueue, ^{
     _reconnectionDelay = _minReconnectInterval;
   });
   
   [self _reconnect];
   
-#if TARGET_OS_IPHONE
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
-  if (!_suspendInBackground) {
-    _backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      [self stop];
-      _restart = YES;
-      
-      [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
-      _backgroundTask = UIBackgroundTaskInvalid;
-    }];
-  }
-  _restart = NO;
-#endif
-  
-  _running = YES;
   return YES;
 }
 
-#if TARGET_OS_IPHONE
-
-- (void)_didEnterBackground:(NSNotification*)notification {
-  if (_running && _suspendInBackground) {
-    [self stop];
-    _restart = YES;
-  }
-}
-
-- (void)_willEnterForeground:(NSNotification*)notification {
-  if (_restart) {
-    [self start];  // Not much we can do on failure
-  }
-}
-
-#endif
-
-- (void)stop {
-#if TARGET_OS_IPHONE
-  if (_backgroundTask != UIBackgroundTaskInvalid) {
-    [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
-    _backgroundTask = UIBackgroundTaskInvalid;
-  }
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
-#endif
-  
-  dispatch_sync(_lockQueue, ^{
+- (void)didStop {
+  dispatch_sync(self.lockQueue, ^{
     _reconnectionDelay = 0.0;
   });
-  
-  XLTCPClientConnection* connection = self.connection;
-  [connection close];  // No need to use "lockQueue" since no new connection can be created and it would deadlock with -didCloseConnection:
-  dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);  // Wait until connection is closed
-  
-  _running = NO;
 }
 
-@end
-
-@implementation XLTCPClient (Subclassing)
-
-- (void)willOpenConnection:(XLTCPClientConnection*)connection {
-  XLOG_DEBUG(@"%@ did connect to server at \"%@\" (%i)", [self class], connection.remoteIPAddress, (int)connection.remotePort);
-  connection.client = self;
-  dispatch_sync(_lockQueue, ^{
-    dispatch_group_enter(_syncGroup);
-    _connection = connection;
-  });
-  [connection open];
-}
-
-- (void)didCloseConnection:(XLTCPClientConnection*)connection {
-  dispatch_sync(_lockQueue, ^{
-    if (_connection == connection) {
-      _connection = nil;
-      dispatch_group_leave(_syncGroup);
-    }
+- (void)didCloseConnection:(XLTCPPeerConnection*)connection {
+  [super didCloseConnection:connection];
+  
+  dispatch_sync(self.lockQueue, ^{
     if (_reconnectionDelay > 0.0) {
       [self _scheduleReconnection];
     }
   });
-  XLOG_DEBUG(@"%@ did connect from server at \"%@\" (%i)", [self class], connection.remoteIPAddress, (int)connection.remotePort);
+}
+
+@end
+
+@implementation XLTCPClient (Extensions)
+
+- (XLTCPClientConnection*)connection {
+  return [self.connections anyObject];
 }
 
 @end

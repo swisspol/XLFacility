@@ -29,10 +29,6 @@
 #error XLFacility requires ARC
 #endif
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
 #import <net/if.h>
 #import <netdb.h>
 
@@ -41,56 +37,25 @@
 
 #define kMaxPendingConnections 4
 
-@interface XLTCPServerConnection ()
-@property(nonatomic, assign) XLTCPServer* server;
+@implementation XLTCPServerConnection
 @end
 
 @interface XLTCPServer () {
 @private
-  dispatch_queue_t _lockQueue;
-  dispatch_group_t _syncGroup;
   dispatch_group_t _sourceGroup;
-  NSMutableSet* _connections;
   dispatch_source_t _source4;
   dispatch_source_t _source6;
-#if TARGET_OS_IPHONE
-  UIBackgroundTaskIdentifier _backgroundTask;
-  BOOL _restart;
-#endif
 }
-@end
-
-@implementation XLTCPServerConnection
-
-- (void)didClose {
-  [super didClose];
-  
-  [_server didCloseConnection:self];
-  _server = nil;
-}
-
 @end
 
 @implementation XLTCPServer
 
-- (id)init {
-  [self doesNotRecognizeSelector:_cmd];
-  return nil;
-}
-
 - (instancetype)initWithConnectionClass:(Class)connectionClass port:(NSUInteger)port {
   XLOG_DEBUG_CHECK([connectionClass isSubclassOfClass:[XLTCPServerConnection class]]);
-  if ((self = [super init])) {
-    _connectionClass = connectionClass;
+  if ((self = [super initWithConnectionClass:connectionClass])) {
     _port = port;
     
-    _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
-    _syncGroup = dispatch_group_create();
     _sourceGroup = dispatch_group_create();
-    _connections = [[NSMutableSet alloc] init];
-#if TARGET_OS_IPHONE
-    _backgroundTask = UIBackgroundTaskInvalid;
-#endif
   }
   return self;
 }
@@ -99,19 +64,9 @@
 
 - (void)dealloc {
   dispatch_release(_sourceGroup);
-  dispatch_release(_syncGroup);
-  dispatch_release(_lockQueue);
 }
 
 #endif
-
-- (NSSet*)connections {
-  __block NSSet* connections;
-  dispatch_sync(_lockQueue, ^{
-    connections = [_connections copy];
-  });
-  return connections;
-}
 
 - (int)_createListeningSocket:(BOOL)useIPv6 localAddress:(const void*)address length:(socklen_t)length {
   int listeningSocket = socket(useIPv6 ? PF_INET6 : PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -150,11 +105,11 @@
       socklen_t remoteAddrLen = sizeof(remoteSockAddr);
       int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
       if (socket >= 0) {
-        XLTCPServerConnection* connection = [[_connectionClass alloc] initWithSocket:socket];
+        XLTCPServerConnection* connection = [[self.connectionClass alloc] initWithSocket:socket];
         if (connection) {
           [self willOpenConnection:connection];
         } else {
-          XLOG_ERROR(@"Failed creating %@ instance", NSStringFromClass(_connectionClass));
+          XLOG_ERROR(@"Failed creating %@ instance", NSStringFromClass(self.connectionClass));
           close(socket);
         }
       } else {
@@ -166,7 +121,7 @@
   return source;
 }
 
-- (BOOL)start {
+- (BOOL)willStart {
   struct sockaddr_in addr4;
   bzero(&addr4, sizeof(addr4));
   addr4.sin_len = sizeof(addr4);
@@ -195,52 +150,10 @@
   _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
   dispatch_resume(_source6);
   
-#if TARGET_OS_IPHONE
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
-  if (!_suspendInBackground) {
-    _backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-      [self stop];
-      _restart = YES;
-      
-      [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
-      _backgroundTask = UIBackgroundTaskInvalid;
-    }];
-  }
-  _restart = NO;
-#endif
-  
-  _running = YES;
   return YES;
 }
 
-#if TARGET_OS_IPHONE
-
-- (void)_didEnterBackground:(NSNotification*)notification {
-  if (_running && _suspendInBackground) {
-    [self stop];
-    _restart = YES;
-  }
-}
-
-- (void)_willEnterForeground:(NSNotification*)notification {
-  if (_restart) {
-    [self start];  // Not much we can do on failure
-  }
-}
-
-#endif
-
-- (void)stop {
-#if TARGET_OS_IPHONE
-  if (_backgroundTask != UIBackgroundTaskInvalid) {
-    [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
-    _backgroundTask = UIBackgroundTaskInvalid;
-  }
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
-#endif
-  
+- (void)didStop {
   dispatch_source_cancel(_source6);
   dispatch_source_cancel(_source4);
   dispatch_group_wait(_sourceGroup, DISPATCH_TIME_FOREVER);  // Wait until the cancellation handlers have been called which guarantees the listening sockets are closed
@@ -252,54 +165,6 @@
   dispatch_release(_source4);
 #endif
   _source4 = NULL;
-  
-  NSSet* connections = self.connections;
-  for (XLTCPServerConnection* connection in connections) {  // No need to use "_lockQueue" since no new connections can be created anymore and it would deadlock with -didCloseConnection:
-    [connection close];
-  }
-  dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);  // Wait until all connections are closed
-  
-  _running = NO;
-}
-
-@end
-
-@implementation XLTCPServer (Subclassing)
-
-- (void)willOpenConnection:(XLTCPServerConnection*)connection {
-  XLOG_DEBUG(@"%@ did connect to client at \"%@\" (%i)", [self class], connection.remoteIPAddress, (int)connection.remotePort);
-  connection.server = self;
-  dispatch_sync(_lockQueue, ^{
-    dispatch_group_enter(_syncGroup);
-    [_connections addObject:connection];
-  });
-  [connection open];
-}
-
-- (void)didCloseConnection:(XLTCPServerConnection*)connection {
-  dispatch_sync(_lockQueue, ^{
-    if ([_connections containsObject:connection]) {
-      [_connections removeObject:connection];
-      dispatch_group_leave(_syncGroup);
-    }
-  });
-  XLOG_DEBUG(@"%@ did connect from client at \"%@\" (%i)", [self class], connection.remoteIPAddress, (int)connection.remotePort);
-}
-
-@end
-
-@implementation XLTCPServer (Extensions)
-
-- (void)enumerateConnectionsUsingBlock:(void (^)(XLTCPServerConnection* connection, BOOL* stop))block {
-  dispatch_sync(_lockQueue, ^{
-    BOOL stop = NO;
-    for (XLTCPServerConnection* connection in _connections) {
-      block(connection, &stop);
-      if (stop) {
-        break;
-      }
-    }
-  });
 }
 
 @end

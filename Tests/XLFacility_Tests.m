@@ -46,7 +46,7 @@
 
 #define kLoggingDelay (100 * 1000)
 
-typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
+typedef void (^XTCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 
 @interface TCPServer : XLTCPServer
 @end
@@ -63,7 +63,7 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   return self;
 }
 
-- (void)willOpenConnection:(XLTCPServerConnection*)connection {
+- (void)willOpenConnection:(XLTCPPeerConnection*)connection {
   [super willOpenConnection:connection];
   
   _block(connection);
@@ -349,8 +349,8 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
 }
 
 - (void)testTCP {
-  __block XLTCPServerConnection* inConnection = nil;
-  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(XLTCPServerConnection* connection) {
+  __block XLTCPPeerConnection* inConnection = nil;
+  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(XLTCPPeerConnection* connection) {
     inConnection = connection;
   }];
   XCTAssertTrue([server start]);
@@ -387,8 +387,8 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
 }
 
 - (void)testTCPClientLogger {
-  __block XLTCPServerConnection* connection = nil;
-  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(XLTCPServerConnection* newConnection) {
+  __block XLTCPPeerConnection* connection = nil;
+  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(XLTCPPeerConnection* newConnection) {
     connection = newConnection;
   }];
   XCTAssertTrue([server start]);

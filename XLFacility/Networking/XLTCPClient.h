@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLTCPConnection.h"
+#import "XLTCPPeer.h"
 
 @class XLTCPClient;
 
@@ -33,28 +33,17 @@
  *  The XLTCPClientConnection is an abstract class to implement connections
  *  for XLTCPClient: it cannot be used directly.
  */
-@interface XLTCPClientConnection : XLTCPConnection
-
-/**
- *  Returns the XLTCPClient that owns the connection.
- *
- *  @warning This returns nil after the connection has been closed.
- */
-@property(nonatomic, assign, readonly) XLTCPClient* client;
-
+@interface XLTCPClientConnection : XLTCPPeerConnection
 @end
 
 /**
  *  The XLTCPClient is a base class that implements a TCP client. It connects
  *  to IPv4 or IPv6 TCP servers and can be configured to reconnect automatically
  *  if the connection is lost.
+ *
+ *  @warning XLTCPClient will only ever have a single connection at a time.
  */
-@interface XLTCPClient : NSObject
-
-/**
- *  Returns the connection class as specified when the client was initialized.
- */
-@property(nonatomic, readonly) Class connectionClass;
+@interface XLTCPClient : XLTCPPeer
 
 /**
  *  Returns the host as specified when the client was initialized.
@@ -65,11 +54,6 @@
  *  Returns the port as specified when the client was initialized.
  */
 @property(nonatomic, readonly) NSUInteger port;
-
-/**
- *  Returns YES if the client is running.
- */
-@property(nonatomic, readonly, getter=isRunning) BOOL running;
 
 /**
  *  Sets the connection timeout.
@@ -106,67 +90,19 @@
 @property(nonatomic) NSTimeInterval maxReconnectInterval;
 
 /**
- *  Returns the underlying connection.
- */
-@property(nonatomic, readonly) XLTCPClientConnection* connection;
-
-#if TARGET_OS_IPHONE
-/**
- *  Sets if the server automatically stops and starts while entering background
- *  and foreground on iOS.
- *
- *  When an app enters background on iOS and is suspended, it cannot leave
- *  listening sockets open, so it must either close them or start a background
- *  task to prevent the app from getting suspended while in background.
- *
- *  If this property is set to NO then the server will automatically create a
- *  background task when it is started and end it when it is stopped. Note that
- *  this task can only run for a limited time while the app is in background
- *  before iOS eventually force ends it. At this point the server will be stopped
- *  no matter what.
- *
- *  The default value is NO.
- */
-@property(nonatomic) BOOL suspendInBackground;
-#endif
-
-/**
  *  This method is the designated initializer for the class.
  *
  *  Connection class must be [XLTCPClientConnection class] or a subclass of it.
  */
 - (instancetype)initWithConnectionClass:(Class)connectionClass host:(NSString*)hostname port:(NSUInteger)port;
 
-/**
- *  Starts the client.
- *
- *  Returns NO on error.
- */
-- (BOOL)start;
-
-/**
- *  Stops the client.
- *
- *  @warning This blocks until the connection has been closed.
- */
-- (void)stop;
-
 @end
 
-@interface XLTCPClient (Subclassing)
+@interface XLTCPClient (Extensions)
 
 /**
- *  This method is called whenever a new connection is opened.
- *
- *  @warning This method can be called on arbitrary threads.
+ *  Convenience method that returns the single connection.
  */
-- (void)willOpenConnection:(XLTCPClientConnection*)connection;
-
-/**
- *  This method is called after a connection has been closed.
- *
- *  @warning This method can be called on arbitrary threads.
- */
-- (void)didCloseConnection:(XLTCPClientConnection*)connection;
+@property(nonatomic, readonly) XLTCPClientConnection* connection;
 
 @end

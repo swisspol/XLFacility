@@ -40,7 +40,7 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 @implementation XLTCPClientLoggerConnection
 
 - (XLTCPClientLogger*)logger {
-  return objc_getAssociatedObject(self.client, _associatedObjectKey);
+  return objc_getAssociatedObject(self.peer, _associatedObjectKey);
 }
 
 @end

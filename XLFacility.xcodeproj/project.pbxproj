@@ -119,6 +119,11 @@
 		E2D21F9419EEDDD200491EF8 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */; };
 		E2D21F9519EEDEC500491EF8 /* XLTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */; };
 		E2D21F9619EEDECC00491EF8 /* XLTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */; };
+		E2E83B3B19F083740019BDE1 /* XLTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E83B3A19F083740019BDE1 /* XLTCPPeer.m */; };
+		E2E83B3C19F083740019BDE1 /* XLTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E83B3A19F083740019BDE1 /* XLTCPPeer.m */; };
+		E2E83B3D19F083740019BDE1 /* XLTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E83B3A19F083740019BDE1 /* XLTCPPeer.m */; };
+		E2E83B3E19F083740019BDE1 /* XLTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E83B3A19F083740019BDE1 /* XLTCPPeer.m */; };
+		E2E83B3F19F083740019BDE1 /* XLTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E83B3A19F083740019BDE1 /* XLTCPPeer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -225,6 +230,8 @@
 		E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPConnection.m; sourceTree = "<group>"; };
 		E2D21F8719EEDDD200491EF8 /* XLTCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPServer.h; sourceTree = "<group>"; };
 		E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPServer.m; sourceTree = "<group>"; };
+		E2E83B3919F083740019BDE1 /* XLTCPPeer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPPeer.h; sourceTree = "<group>"; };
+		E2E83B3A19F083740019BDE1 /* XLTCPPeer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPPeer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -446,6 +453,8 @@
 				E2D21F8419EEDDD200491EF8 /* XLTCPClient.m */,
 				E2D21F8519EEDDD200491EF8 /* XLTCPConnection.h */,
 				E2D21F8619EEDDD200491EF8 /* XLTCPConnection.m */,
+				E2E83B3919F083740019BDE1 /* XLTCPPeer.h */,
+				E2E83B3A19F083740019BDE1 /* XLTCPPeer.m */,
 				E2D21F8719EEDDD200491EF8 /* XLTCPServer.h */,
 				E2D21F8819EEDDD200491EF8 /* XLTCPServer.m */,
 			);
@@ -614,6 +623,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2168F8C19EE01B200865350 /* main.m in Sources */,
+				E2E83B3F19F083740019BDE1 /* XLTCPPeer.m in Sources */,
 				E2168F8E19EE02B500865350 /* XLFacility.m in Sources */,
 				E2168F9119EE034000865350 /* XLLogRecord.m in Sources */,
 				E2168F9419EE035800865350 /* XLLogger.m in Sources */,
@@ -630,6 +640,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2D21F9319EEDDD200491EF8 /* XLTCPServer.m in Sources */,
+				E2E83B3D19F083740019BDE1 /* XLTCPPeer.m in Sources */,
 				E26ABC1219EC9E2D00654D9F /* main.m in Sources */,
 				E26ABC3919EC9FF700654D9F /* XLTelnetServerLogger.m in Sources */,
 				E26ABC2F19EC9FF700654D9F /* XLASLLogger.m in Sources */,
@@ -656,6 +667,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E26ABC2C19EC9F9A00654D9F /* main.m in Sources */,
+				E2E83B3B19F083740019BDE1 /* XLTCPPeer.m in Sources */,
 				E29DC8C419EA425700A1B39F /* XLDatabaseLogger.m in Sources */,
 				E29DC8B819EA425700A1B39F /* XLCallbackLogger.m in Sources */,
 				E29DC8B619EA425700A1B39F /* XLASLLogger.m in Sources */,
@@ -683,6 +695,7 @@
 				E298C47D19ED890500C76821 /* XLFacility.m in Sources */,
 				E298C47F19ED890500C76821 /* XLLogger.m in Sources */,
 				E298C48119ED890500C76821 /* XLStandardLogger.m in Sources */,
+				E2E83B3E19F083740019BDE1 /* XLTCPPeer.m in Sources */,
 				E298C48219ED890500C76821 /* XLDatabaseLogger.m in Sources */,
 				E298C48319ED890500C76821 /* XLHTTPServerLogger.m in Sources */,
 				E298C48019ED890500C76821 /* XLLogRecord.m in Sources */,
@@ -705,6 +718,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2D21F9219EEDDD200491EF8 /* XLTCPServer.m in Sources */,
+				E2E83B3C19F083740019BDE1 /* XLTCPPeer.m in Sources */,
 				E2B3CF1D19E91825003ED065 /* main.m in Sources */,
 				E26ABB5119EC278300654D9F /* XLTCPServerLogger.m in Sources */,
 				E2B3CF1B19E91825003ED065 /* AppDelegate.m in Sources */,

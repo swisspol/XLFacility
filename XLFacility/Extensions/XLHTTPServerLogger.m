@@ -198,7 +198,7 @@
       
       _pollingSemaphore = dispatch_semaphore_create(0);
       dispatch_semaphore_wait(_pollingSemaphore, dispatch_time(DISPATCH_TIME_NOW, kMaxLongPollDuration * NSEC_PER_SEC));
-      if (self.server) {  // Check for race-condition if the connection was closed while waiting
+      if (self.peer) {  // Check for race-condition if the connection was closed while waiting
         [self _appendLogRecordsToString:string afterAbsoluteTime:time];
         success = [self _writeHTTPResponseWithStatusCode:200 htmlBody:string];
       }
@@ -309,7 +309,7 @@
 - (void)logRecord:(XLLogRecord*)record {
   [super logRecord:record];
   
-  [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPServerConnection* connection, BOOL* stop) {
+  [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPPeerConnection* connection, BOOL* stop) {
     [(XLHTTPServerConnection*)connection didReceiveLogRecord];
   }];
 }
