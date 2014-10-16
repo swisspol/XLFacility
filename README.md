@@ -259,9 +259,7 @@ Use the `minLogLevel` property on the `XLFacility` shared instance to have XLFac
 You can also control the minimum and maximum log level on each logger using their `minLogLevel` and `maxLogLevel` properties. You can even set a fully custom log record filter on a logger like this:
 ```objectivec
 myLogger.logRecordFilter = ^BOOL(XLLogger* logger, XLLogRecord* record) {
-  // Examine "record" properties and return YES to continue processing this record
-  // or NO to drop it from the logger
-  return YES;
+  return [record.tag hasPrefix:@"com.my-app."];
 };
 ```
 
