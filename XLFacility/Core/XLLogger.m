@@ -63,6 +63,7 @@ typedef NS_ENUM(unsigned char, FormatToken) {
 
 @interface XLLogger () {
 @private
+  dispatch_queue_t _lockQueue;
   NSString* _format;
   BOOL _appendNewlineToFormat;
   NSMutableData* _tokens;
@@ -137,6 +138,10 @@ static NSString* _uid = nil;
 @end
 
 @implementation XLLogger (Subclassing)
+
+- (dispatch_queue_t)lockQueue {
+  return _lockQueue;
+}
 
 - (BOOL)open {
   return YES;

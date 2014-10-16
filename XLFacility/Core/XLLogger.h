@@ -54,12 +54,6 @@ extern NSString* const XLLoggerFormatString_NSLog;
 @interface XLLogger : NSObject
 
 /**
- *  Returns a GCD serial queue subclasses can use to protect internal data
- *  that can be accessed concurrently from multiple threads.
- */
-@property(nonatomic, readonly) dispatch_queue_t lockQueue;
-
-/**
  *  Sets the minimum log level below which received log records are ignored.
  *
  *  The default value is DEBUG.
@@ -89,6 +83,12 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  -logRecord: and -close are always executed on it.
  */
 @interface XLLogger (Subclassing)
+
+/**
+ *  Returns a GCD serial queue subclasses can use to protect internal data
+ *  that can be accessed concurrently from multiple threads.
+ */
+@property(nonatomic, readonly) dispatch_queue_t lockQueue;
 
 /**
  *  Called when the logger is added to XLFacility.
