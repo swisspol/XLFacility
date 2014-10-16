@@ -29,14 +29,10 @@
 #error XLFacility requires ARC
 #endif
 
-#import <asl.h>
-
 #import "XLFunctions.h"
 #import "XLPrivate.h"
 
-#if !DEBUG
 #define kInvalidUTF8Placeholder "<INVALID UTF8 STRING>"
-#endif
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
@@ -51,36 +47,13 @@ void XLLogCMessage(const char* tag, int level, const char* format, ...) {
 
 #pragma clang diagnostic pop
 
-void XLLogInternalError(NSString* format, ...) {
-  va_list arguments;
-  va_start(arguments, format);
-  NSString* string = [[NSString alloc] initWithFormat:format arguments:arguments];
-  va_end(arguments);
-  const char* utf8String = [string UTF8String];  // We can't use XLConvertNSStringToUTF8CString() here or we might end up with an infinite loop
-  if (utf8String) {
-    aslmsg message = asl_new(ASL_TYPE_MSG);
-    asl_set(message, ASL_KEY_LEVEL, "3");  // ASL_LEVEL_ERR
-    asl_set(message, ASL_KEY_MSG, utf8String);
-    asl_send(NULL, message);
-    asl_free(message);
-  }
-#if DEBUG
-  else {
-    abort();
-  }
-#endif
-}
-
 NSData* XLConvertNSStringToUTF8String(NSString* string) {
   NSData* utf8Data = nil;
   if (string) {
     utf8Data = [string dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:NO];
     if (!utf8Data) {
-#if DEBUG
-      abort();
-#else
       utf8Data = [NSData dataWithBytesNoCopy:kInvalidUTF8Placeholder length:strlen(kInvalidUTF8Placeholder) freeWhenDone:NO];
-#endif
+      XLOG_DEBUG_UNREACHABLE();
     }
   }
   return utf8Data;
@@ -91,12 +64,8 @@ const char* XLConvertNSStringToUTF8CString(NSString* string) {
   if (string) {
     utf8String = [string UTF8String];
     if (!utf8String) {
-      XLLogInternalError(@"Failed converting NSString to UTF8");
-#if DEBUG
-      abort();
-#else
       utf8String = kInvalidUTF8Placeholder;
-#endif
+      XLOG_DEBUG_UNREACHABLE();
     }
   }
   return utf8String;

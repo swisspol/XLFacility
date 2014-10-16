@@ -34,6 +34,7 @@
 #import <asl.h>
 
 #import "XLFacilityMacros.h"
+#import "XLStandardLogger.h"
 #import "XLCallbackLogger.h"
 #import "XLFileLogger.h"
 #import "XLDatabaseLogger.h"
@@ -83,7 +84,10 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   [XLSharedFacility setCapturesStandardOutput:NO];
   [XLSharedFacility setLogsInitializedExceptions:NO];
   [XLSharedFacility setMinLogLevel:kXLLogLevel_Debug];
+  
   [XLSharedFacility removeAllLoggers];
+  [XLSharedFacility addLogger:[XLStandardLogger sharedErrorLogger]];
+  [XLSharedFacility setInternalLogger:[XLStandardLogger sharedErrorLogger]];
   
   _capturedRecords = [[NSMutableArray alloc] init];
   [XLSharedFacility addLogger:[XLCallbackLogger loggerWithCallback:^(XLCallbackLogger* logger, XLLogRecord* record) {

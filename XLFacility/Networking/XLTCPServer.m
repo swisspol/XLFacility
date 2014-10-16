@@ -111,15 +111,15 @@
       if (listen(listeningSocket, kMaxPendingConnections) == 0) {
         return listeningSocket;
       } else {
-        XLOG_INTERNAL(@"Failed starting %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
+        XLOG_ERROR(@"Failed starting %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
         close(listeningSocket);
       }
     } else {
-      XLOG_INTERNAL(@"Failed binding %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
+      XLOG_ERROR(@"Failed binding %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
       close(listeningSocket);
     }
   } else {
-    XLOG_INTERNAL(@"Failed creating %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
+    XLOG_ERROR(@"Failed creating %s listening socket: %s", useIPv6 ? "IPv6" : "IPv4", strerror(errno));
   }
   return -1;
 }
@@ -142,11 +142,11 @@
         if (connection) {
           [self willOpenConnection:connection];
         } else {
-          XLOG_INTERNAL(@"Failed creating %@ instance", NSStringFromClass(_connectionClass));
+          XLOG_ERROR(@"Failed creating %@ instance", NSStringFromClass(_connectionClass));
           close(socket);
         }
       } else {
-        XLOG_INTERNAL(@"Failed accepting %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
+        XLOG_ERROR(@"Failed accepting %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
       }
       
     }

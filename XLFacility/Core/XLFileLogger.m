@@ -74,7 +74,7 @@
   if (_filePath) {
     _fd = open([_filePath fileSystemRepresentation], O_CREAT | (_append ? 0 : O_TRUNC) | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (_fd < 0) {
-      XLOG_INTERNAL(@"Failed opening log file at \"%@\": %s", _filePath, strerror(errno));
+      XLOG_ERROR(@"Failed opening log file at \"%@\": %s", _filePath, strerror(errno));
       return NO;
     }
   } else {
@@ -88,7 +88,7 @@
   if (_fd >= 0) {
     NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
     if (write(_fd, data.bytes, data.length) < 0) {
-      XLOG_INTERNAL(@"Failed writing to log file at \"%@\": %s", _filePath, strerror(errno));
+      XLOG_ERROR(@"Failed writing to log file at \"%@\": %s", _filePath, strerror(errno));
       close(_fd);
       _fd = -1;
     }

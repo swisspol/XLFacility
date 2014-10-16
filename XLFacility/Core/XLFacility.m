@@ -66,6 +66,7 @@ static NSData* _newlineData = nil;
   dispatch_queue_t _lockQueue;
   dispatch_group_t _syncGroup;
   NSMutableSet* _loggers;
+  XLLogger* _internalLogger;
 }
 @end
 
@@ -73,7 +74,7 @@ static NSData* _newlineData = nil;
 
 static void _ExitHandler() {
   @autoreleasepool {
-    [XLSharedFacility removeAllLoggers];
+    [XLSharedFacility closeAllLoggers];
   }
 }
 
@@ -111,6 +112,9 @@ static void _ExitHandler() {
     
     if (isatty(XLOriginalStdErr)) {
       [self addLogger:[XLStandardLogger sharedErrorLogger]];
+#if DEBUG
+      [self setInternalLogger:[XLStandardLogger sharedErrorLogger]];
+#endif
     }
   }
   return self;
@@ -154,6 +158,9 @@ static void _ExitHandler() {
         [logger close];
       });
       [_loggers removeObject:logger];
+      if (_internalLogger == logger) {
+        _internalLogger = nil;
+      }
     }
   });
 }
@@ -166,6 +173,22 @@ static void _ExitHandler() {
       });
     }
     [_loggers removeAllObjects];
+    _internalLogger = nil;
+  });
+}
+
+// Must be called from _lockQueue
+- (void)_closeAllLoggers {
+  for (XLLogger* logger in _loggers) {
+    dispatch_sync(logger.serialQueue, ^{
+      [logger close];
+    });
+  }
+}
+
+- (void)closeAllLoggers {
+  dispatch_sync(_lockQueue, ^{
+    [self _closeAllLoggers];
   });
 }
 
@@ -216,33 +239,44 @@ static void _ExitHandler() {
   
   // Create the log record and dispatch to all loggers
   XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time tag:tag level:level message:message callstack:callstack];
-  dispatch_sync(_lockQueue, ^{
-    
-    // Call each logger asynchronously on its own serial queue
-    for (XLLogger* logger in _loggers) {
-      if ([logger shouldLogRecord:record]) {
-        dispatch_group_async(_syncGroup, logger.serialQueue, ^{
-          [logger logRecord:record];
-        });
+  if (tag == XLFacilityTag_Internal) {
+    dispatch_async(_lockQueue, ^{
+      
+      // Call only the internal logger
+      [_internalLogger logRecord:record];
+      
+      // If the log record is at ABORT level, close all loggers and kill the process
+      if (level >= kXLLogLevel_Abort) {
+        [self _closeAllLoggers];
+        abort();
       }
-    }
-    
-    // If the log record is at ERROR level or above, block XLFacility entirely until all loggers are done
-    if (level >= kXLLogLevel_Error) {
-      dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);
-    }
-    
-    // If the log record is at ABORT level, close all loggers and kill the process
-    if (level >= kXLLogLevel_Abort) {
+      
+    });
+  } else {
+    dispatch_sync(_lockQueue, ^{
+      
+      // Call each logger asynchronously on its own serial queue
       for (XLLogger* logger in _loggers) {
-        dispatch_sync(logger.serialQueue, ^{
-          [logger close];
-        });
+        if ([logger shouldLogRecord:record]) {
+          dispatch_group_async(_syncGroup, logger.serialQueue, ^{
+            [logger logRecord:record];
+          });
+        }
       }
-      abort();
-    }
-    
-  });
+      
+      // If the log record is at ERROR level or above, block XLFacility entirely until all loggers are done
+      if (level >= kXLLogLevel_Error) {
+        dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);
+      }
+      
+      // If the log record is at ABORT level, close all loggers and kill the process
+      if (level >= kXLLogLevel_Abort) {
+        [self _closeAllLoggers];
+        abort();
+      }
+      
+    });
+  }
 }
 
 - (void)logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level {
@@ -274,7 +308,7 @@ static void _ExitHandler() {
 
 static void _UncaughtExceptionHandler(NSException* exception) {
   [XLSharedFacility logException:exception withTag:XLFacilityTag_UncaughtExceptions];
-  [XLSharedFacility removeAllLoggers];
+  [XLSharedFacility closeAllLoggers];
   if (_originalExceptionHandler) {
     (*_originalExceptionHandler)(exception);
   }
@@ -370,11 +404,11 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
           if (message) {
             [XLSharedFacility logMessage:(offset ? [kCapturedNSLogPrefix stringByAppendingString:message] : message) withTag:tag level:level];
           } else {
-            XLLogInternalError(@"%@", @"Failed interpreting captured content from standard file descriptor as UTF8");
+            XLOG_ERROR(@"%@", @"Failed interpreting captured content from standard file descriptor as UTF8");
           }
         }
         @catch (NSException* exception) {
-          XLLogInternalError(@"Failed parsing captured content from standard file descriptor: %@", exception);
+          XLOG_ERROR(@"Failed parsing captured content from standard file descriptor: %@", exception);
         }
         [data replaceBytesInRange:NSMakeRange(0, range.location + range.length) withBytes:NULL length:0];
       }
@@ -418,6 +452,23 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 
 - (BOOL)capturesStandardError {
   return (_stdErrCaptureSource != NULL);
+}
+
+- (void)setInternalLogger:(XLLogger*)logger {
+  dispatch_sync(_lockQueue, ^{
+    _internalLogger = nil;
+    if ([_loggers containsObject:logger]) {
+      _internalLogger = logger;
+    }
+  });
+}
+
+- (XLLogger*)internalLogger {
+  __block XLLogger* logger;
+  dispatch_sync(_lockQueue, ^{
+    logger = _internalLogger;
+  });
+  return logger;
 }
 
 @end

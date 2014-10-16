@@ -27,16 +27,16 @@
 
 #import "XLLogger.h"
 
+#define XLOG_TAG XLFacilityTag_Internal
+
+#import "XLFacilityMacros.h"
+
 #define XLDISPATCH_QUEUE_LABEL object_getClassName(self)
 
 #define XGLOBAL_DISPATCH_QUEUE dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
 
-#define XLOG_INTERNAL(__FORMAT__, ...) XLLogInternalError(@"%s " __FORMAT__, __FUNCTION__, __VA_ARGS__)
-
 extern int XLOriginalStdOut;
 extern int XLOriginalStdErr;
-
-extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
 
 @interface XLLogRecord ()
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime

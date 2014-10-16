@@ -49,7 +49,7 @@ NSString* XLFacilityStringFromIPAddress(const struct sockaddr* address) {
     if (getnameinfo(address, address->sa_len, hostBuffer, sizeof(hostBuffer), serviceBuffer, sizeof(serviceBuffer), NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN) >= 0) {
       string = [NSString stringWithFormat:@"%s:%s", hostBuffer, serviceBuffer];
     } else {
-      XLOG_INTERNAL(@"Failed converting IP address data to string: %s", strerror(errno));
+      XLOG_ERROR(@"Failed converting IP address data to string: %s", strerror(errno));
     }
   }
   return string;
@@ -89,17 +89,17 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
           if (error == 0) {
             success = YES;
           } else {
-            XLOG_INTERNAL(@"Failed connecting %s socket to \"%@\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr), strerror(error));
+            XLOG_ERROR(@"Failed connecting %s socket to \"%@\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr), strerror(error));
           }
         } else {
-          XLOG_INTERNAL(@"Failed retrieving %s socket option: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
+          XLOG_ERROR(@"Failed retrieving %s socket option: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
         }
         
       } else if (result == 0) {
-        XLOG_INTERNAL(@"Timed out connecting %s socket to \"%@\" (%@)", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr));
+        XLOG_ERROR(@"Timed out connecting %s socket to \"%@\" (%@)", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr));
       }
     } else {
-      XLOG_INTERNAL(@"Failed connecting %s socket to \"%@\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr), strerror(errno));
+      XLOG_ERROR(@"Failed connecting %s socket to \"%@\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, XLFacilityStringFromIPAddress(addr), strerror(errno));
     }
     
     if (success) {
@@ -109,7 +109,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
       connectedSocket = -1;
     }
   } else {
-    XLOG_INTERNAL(@"Failed creating %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
+    XLOG_ERROR(@"Failed creating %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
   }
   return connectedSocket;
 }
@@ -139,7 +139,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
             if (connection) {
               break;
             } else {
-              XLOG_INTERNAL(@"Failed creating %@ instance with connected socket", NSStringFromClass([self class]));
+              XLOG_ERROR(@"Failed creating %@ instance with connected socket", NSStringFromClass([self class]));
               close(socket);
             }
           }
@@ -147,7 +147,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
         }
       }
     } else {
-      XLOG_INTERNAL(@"Failed resolving host \"%@\": (%i, %i)", hostname, (int)error.domain, (int)error.error);
+      XLOG_ERROR(@"Failed resolving host \"%@\": (%i, %i)", hostname, (int)error.domain, (int)error.error);
     }
     CFRelease(host);
     
@@ -157,7 +157,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
 
 - (void)_setSocketOption:(int)option valuePtr:(const void*)valuePtr valueLength:(socklen_t)valueLength {
   if (setsockopt(_socket, SOL_SOCKET, option, valuePtr, valueLength)) {
-    XLOG_INTERNAL(@"Failed setting socket option: %s", strerror(errno));
+    XLOG_ERROR(@"Failed setting socket option: %s", strerror(errno));
   }
 }
 
@@ -184,7 +184,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
     if (getsockname(_socket, &localSockAddr, &localAddrLen) == 0) {
       _localAddressData = [[NSData alloc] initWithBytes:&localSockAddr length:localAddrLen];
     } else {
-      XLOG_INTERNAL(@"Failed retrieving local socket address: %s", strerror(errno));
+      XLOG_ERROR(@"Failed retrieving local socket address: %s", strerror(errno));
     }
     
     struct sockaddr remoteSockAddr;
@@ -192,7 +192,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
     if (getsockname(_socket, &remoteSockAddr, &remoteAddrLen) == 0) {
       _remoteAddressData = [[NSData alloc] initWithBytes:&remoteSockAddr length:remoteAddrLen];
     } else {
-      XLOG_INTERNAL(@"Failed retrieving remote socket address: %s", strerror(errno));
+      XLOG_ERROR(@"Failed retrieving remote socket address: %s", strerror(errno));
     }
   }
   return self;
@@ -248,7 +248,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
         data.length = len;
       } else {
         if (errno != EAGAIN) {
-          XLOG_INTERNAL(@"Failed reading synchronously from socket: %s", strerror(errno));
+          XLOG_ERROR(@"Failed reading synchronously from socket: %s", strerror(errno));
           shouldClose = YES;
         }
         data = nil;
@@ -268,7 +268,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
         @autoreleasepool {
           
           if (error) {
-            XLOG_INTERNAL(@"Failed reading asynchronously from socket: %s", strerror(error));
+            XLOG_ERROR(@"Failed reading asynchronously from socket: %s", strerror(error));
             [self close];
             if (completion) {
               completion(NULL);
@@ -318,7 +318,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
       if (len == (ssize_t)data.length) {
         result = YES;
       } else if (errno != EAGAIN) {
-        XLOG_INTERNAL(@"Failed writing synchronously to socket: %s", strerror(errno));
+        XLOG_ERROR(@"Failed writing synchronously to socket: %s", strerror(errno));
         shouldClose = YES;
       }
     }
@@ -337,7 +337,7 @@ static int _CreateConnectedSocket(NSString* hostname, const struct sockaddr* add
           
           if (error) {
             if (error != EPIPE) {
-              XLOG_INTERNAL(@"Failed writing asynchronously to socket: %s", strerror(error));
+              XLOG_ERROR(@"Failed writing asynchronously to socket: %s", strerror(error));
             }
             [self close];
             if (completion) {

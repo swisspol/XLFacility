@@ -124,7 +124,7 @@
         });
         
       } else {
-        XLOG_INTERNAL(@"TCP connection opened too late", nil);
+        XLOG_WARNING(@"TCP connection opened too late");
         [connection close];
       }
     } else if (_automaticallyReconnects) {

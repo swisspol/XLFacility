@@ -79,12 +79,12 @@
       CFRelease(data);
       success = YES;
     } else {
-      XLOG_INTERNAL(@"Failed serializing HTTP response", NULL);
+      XLOG_ERROR(@"Failed serializing HTTP response");
     }
     
     CFRelease(response);
   } else {
-    XLOG_INTERNAL(@"Failed generating HTML response", NULL);
+    XLOG_ERROR(@"Failed generating HTML response");
   }
   return success;
 }
@@ -210,7 +210,7 @@
     }
     
   } else {
-    XLOG_INTERNAL(@"Unsupported HTTP method in request: %@", method);
+    XLOG_ERROR(@"Unsupported HTTP method in request: %@", method);
   }
   return success;
 }
@@ -226,7 +226,7 @@
       if (CFHTTPMessageIsHeaderComplete(message)) {
         success = [self _processHTTPRequest:message];
       } else {
-        XLOG_INTERNAL(@"Failed parsing HTTP request headers", NULL);
+        XLOG_ERROR(@"Failed parsing HTTP request headers");
       }
       CFRelease(message);
       if (!success) {
