@@ -43,13 +43,13 @@ typedef NS_ENUM(int, XLLogLevel) {
 };
 
 /**
- *  Constants representing the built-in logging namespaces in XLFacility.
+ *  Constants representing the built-in tags in XLFacility.
  */
-extern NSString* const XLFacilityNamespace_Internal;
-extern NSString* const XLFacilityNamespace_CapturedStdOut;
-extern NSString* const XLFacilityNamespace_CapturedStdErr;
-extern NSString* const XLFacilityNamespace_UncaughtExceptions;
-extern NSString* const XLFacilityNamespace_InitializedExceptions;
+extern NSString* const XLFacilityTag_Internal;
+extern NSString* const XLFacilityTag_CapturedStdOut;
+extern NSString* const XLFacilityTag_CapturedStdErr;
+extern NSString* const XLFacilityTag_UncaughtExceptions;
+extern NSString* const XLFacilityTag_InitializedExceptions;
 
 @class XLLogger;
 
@@ -125,23 +125,29 @@ extern NSString* const XLFacilityNamespace_InitializedExceptions;
 @interface XLFacility (Logging)
 
 /**
- *  Logs a message in a given namespace and with a specific log level.
+ *  Logs a message with an optional tag and specific log level.
+ *
+ *  Pass nil for "tag" if you don't need one.
  */
-- (void)logMessage:(NSString*)message withNamespace:(NSString*)namespace level:(XLLogLevel)level;
+- (void)logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level;
 
 /**
- *  Logs a message as a format string in a given namespace and with a specific
- *  log level.
+ *  Logs a message as a format string with an optional tag and specific log
+ *  level.
+ *
+ *  Pass nil for "tag" if you don't need one.
  */
-- (void)logMessageWithNamespace:(NSString*)namespace level:(XLLogLevel)level format:(NSString*)format, ... NS_FORMAT_FUNCTION(3, 4);
+- (void)logMessageWithTag:(NSString*)tag level:(XLLogLevel)level format:(NSString*)format, ... NS_FORMAT_FUNCTION(3, 4);
 
 /**
- *  Logs an exception in a given namespace and with the EXCEPTION log level.
+ *  Logs an exception with an optional tag and EXCEPTION log level.
  *
  *  The log message is automatically generated and the exception callstack is
  *  extracted.
+ *
+ *  Pass nil for "tag" if you don't need one.
  */
-- (void)logException:(NSException*)exception withNamespace:(NSString*)namespace;
+- (void)logException:(NSException*)exception withTag:(NSString*)tag;
 
 @end
 

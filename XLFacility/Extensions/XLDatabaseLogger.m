@@ -62,11 +62,11 @@
 - (BOOL)open {
   int result = sqlite3_open([_databasePath fileSystemRepresentation], &_database);
   if (result == SQLITE_OK) {
-    result = sqlite3_exec(_database, "CREATE TABLE IF NOT EXISTS " kTableName " (version INTEGER, time REAL, namespace TEXT, level INTEGER, message TEXT, errno INTEGER, thread INTEGER, queue TEXT, callstack TEXT)",
+    result = sqlite3_exec(_database, "CREATE TABLE IF NOT EXISTS " kTableName " (version INTEGER, time REAL, tag TEXT, level INTEGER, message TEXT, errno INTEGER, thread INTEGER, queue TEXT, callstack TEXT)",
                           NULL, NULL, NULL);
   }
   if (result == SQLITE_OK) {
-    NSString* statement = [NSString stringWithFormat:@"INSERT INTO " kTableName " (version, time, namespace, level, message, errno, thread, queue, callstack) VALUES (%i, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+    NSString* statement = [NSString stringWithFormat:@"INSERT INTO " kTableName " (version, time, tag, level, message, errno, thread, queue, callstack) VALUES (%i, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
                            (int)_appVersion];
     result = sqlite3_prepare_v2(_database, [statement UTF8String], -1, &_statement, NULL);
   }
@@ -81,9 +81,9 @@
 
 - (void)logRecord:(XLLogRecord*)record {
   sqlite3_bind_double(_statement, 1, record.absoluteTime);
-  const char* namespace = XLConvertNSStringToUTF8CString(record.namespace);
-  if (namespace) {
-    sqlite3_bind_text(_statement, 2, namespace, -1, SQLITE_STATIC);
+  const char* tag = XLConvertNSStringToUTF8CString(record.tag);
+  if (tag) {
+    sqlite3_bind_text(_statement, 2, tag, -1, SQLITE_STATIC);
   } else {
     sqlite3_bind_null(_statement, 2);
   }
@@ -146,7 +146,7 @@
   sqlite3* database = NULL;
   int result = sqlite3_open([_databasePath fileSystemRepresentation], &database);
   if (result == SQLITE_OK) {
-    NSString* string = [NSString stringWithFormat:@"SELECT version, time, namespace, level, message, errno, thread, queue, callstack FROM " kTableName " WHERE %@ ORDER BY time %@",
+    NSString* string = [NSString stringWithFormat:@"SELECT version, time, tag, level, message, errno, thread, queue, callstack FROM " kTableName " WHERE %@ ORDER BY time %@",
                                                   time > 0.0 ? [NSString stringWithFormat:@"time > %f", time] : @"1",
                                                   backward ? @"DESC" : @"ASC"];
     if (limit > 0) {
@@ -164,7 +164,7 @@
         
         int version = sqlite3_column_int(statement, 0);
         double absoluteTime = sqlite3_column_double(statement, 1);
-        const unsigned char* namespaceUTF8 = sqlite3_column_text(statement, 2);
+        const unsigned char* tagUTF8 = sqlite3_column_text(statement, 2);
         int level = sqlite3_column_int(statement, 3);
         const unsigned char* messageUTF8 = sqlite3_column_text(statement, 4);
         int capturedErrno = sqlite3_column_int(statement, 5);
@@ -172,13 +172,13 @@
         const unsigned char* capturedQueueLabelUTF8 = sqlite3_column_text(statement, 7);
         const unsigned char* callstackUTF8 = sqlite3_column_text(statement, 8);
         
-        NSString* namespace = namespaceUTF8 ? [NSString stringWithUTF8String:(char*)namespaceUTF8] : nil;
+        NSString* tag = tagUTF8 ? [NSString stringWithUTF8String:(char*)tagUTF8] : nil;
         NSString* message = messageUTF8 ? [NSString stringWithUTF8String:(char*)messageUTF8] : nil;
         NSString* capturedQueueLabel = capturedQueueLabelUTF8 ? [NSString stringWithUTF8String:(char*)capturedQueueLabelUTF8] : nil;
         NSArray* callstack = [(callstackUTF8 ? [NSString stringWithUTF8String:(char*)callstackUTF8] : nil) componentsSeparatedByString:@"\n"];
         if (message) {
           XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:absoluteTime
-                                                                namespace:namespace
+                                                                tag:tag
                                                                     level:level
                                                                   message:message
                                                             capturedErrno:capturedErrno

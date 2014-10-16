@@ -44,7 +44,7 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_Percent,
   kFormatToken_Backslash,
   
-  kFormatToken_Namespace,
+  kFormatToken_Tag,
   kFormatToken_LevelName,
   kFormatToken_PaddedLevelName,
   kFormatToken_Message,
@@ -196,7 +196,7 @@ static NSString* _uid = nil;
         }
       } else {
         switch (character) {
-          case 'n': token = kFormatToken_Namespace; break;
+          case 'n': token = kFormatToken_Tag; break;
           case 'l': token = kFormatToken_LevelName; break;
           case 'L': token = kFormatToken_PaddedLevelName; break;
           case 'm': token = kFormatToken_Message; break;
@@ -289,9 +289,9 @@ static NSString* _uid = nil;
         break;
       }
       
-      case kFormatToken_Namespace: {
-        if (record.namespace) {
-          [string appendString:record.namespace];
+      case kFormatToken_Tag: {
+        if (record.tag) {
+          [string appendString:record.tag];
         }
         break;
       }

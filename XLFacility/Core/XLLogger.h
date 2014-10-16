@@ -121,7 +121,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  Sets the format string used to format log records by loggers which require
  *  formatting. The following format specifiers are supported:
  *
- *  %n: namespace (or "" if not available)
+ *  %n: tag (or "" if not available)
  *  %l: level name
  *  %L: level name padded to constant width with trailing spaces
  *  %m: message

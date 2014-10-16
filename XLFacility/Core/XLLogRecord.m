@@ -36,7 +36,7 @@
 @implementation XLLogRecord
 
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                 namespace:(NSString*)namespace
+                 tag:(NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
              capturedErrno:(int)capturedErrno
@@ -45,7 +45,7 @@
                  callstack:(NSArray*)callstack {
   if ((self = [super init])) {
     _absoluteTime = absoluteTime;
-    _namespace = namespace;
+    _tag = tag;
     _level = level;
     _message = message;
     _capturedErrno = capturedErrno;
@@ -57,7 +57,7 @@
 }
 
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                 namespace:(NSString*)namespace
+                       tag:(NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
                  callstack:(NSArray*)callstack {
@@ -65,7 +65,7 @@
   uint64_t threadID = 0;
   pthread_threadid_np(pthread_self(), &threadID);
   return [self initWithAbsoluteTime:absoluteTime
-                          namespace:namespace
+                                tag:tag
                               level:level
                             message:message
                       capturedErrno:errno
@@ -80,7 +80,7 @@
     if (fabs(other->_absoluteTime - _absoluteTime) >= 0.001) {  // 1ms
       return NO;
     }
-    if ((_namespace && !other->_namespace) || (!_namespace && other->_namespace) || (_namespace && other->_namespace && ![_namespace isEqualToString:other->_namespace])) {
+    if ((_tag && !other->_tag) || (!_tag && other->_tag) || (_tag && other->_tag && ![_tag isEqualToString:other->_tag])) {
       return NO;
     }
     if (_level != other->_level) {

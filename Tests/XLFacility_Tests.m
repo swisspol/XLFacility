@@ -28,7 +28,7 @@
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #pragma clang diagnostic ignored "-Wsign-compare"
 
-#define XLOG_NAMESPACE @"unit-tests"
+#define XLOG_TAG @"unit-tests"
 
 #import <XCTest/XCTest.h>
 #import <asl.h>
@@ -118,7 +118,7 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   
   XCTAssertEqual(_capturedRecords.count, 1);
   XLLogRecord* record = _capturedRecords[0];
-  XCTAssertEqual(record.namespace, XLFacilityNamespace_InitializedExceptions);
+  XCTAssertEqual(record.tag, XLFacilityTag_InitializedExceptions);
   XCTAssertEqual(record.level, kXLLogLevel_Exception);
   XCTAssertTrue([record.message hasPrefix:@"NSRangeException *** "]);
   XCTAssertNotNil(record.callstack);
@@ -146,11 +146,11 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   
   XCTAssertEqual(_capturedRecords.count, 2);
   XLLogRecord* record1 = _capturedRecords[0];
-  XCTAssertEqualObjects(record1.namespace, XLFacilityNamespace_CapturedStdOut);
+  XCTAssertEqualObjects(record1.tag, XLFacilityTag_CapturedStdOut);
   XCTAssertEqual(record1.level, kXLLogLevel_Info);
   XCTAssertEqualObjects(record1.message, @"Hello stdout!");
   XLLogRecord* record2 = _capturedRecords[1];
-  XCTAssertEqualObjects(record2.namespace, XLFacilityNamespace_CapturedStdOut);
+  XCTAssertEqualObjects(record2.tag, XLFacilityTag_CapturedStdOut);
   XCTAssertEqual(record2.level, kXLLogLevel_Info);
   XCTAssertEqualObjects(record2.message, @"Bonjour stdout!");
   
@@ -169,7 +169,7 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   logger.format = @"[%L] %m";
   
   for (int i = 0; i < 10; ++i) {
-    [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:(i % 5) format:@"Hello World #%i!", i + 1];
+    [XLSharedFacility logMessageWithTag:XLOG_TAG level:(i % 5) format:@"Hello World #%i!", i + 1];
   }
   usleep(kLoggingDelay);
   
@@ -196,7 +196,7 @@ typedef void (^XTCPServerConnectionBlock)(XLTCPServerConnection* connection);
   XLDatabaseLogger* logger = (XLDatabaseLogger*)[XLSharedFacility addLogger:[[XLDatabaseLogger alloc] initWithDatabasePath:databasePath appVersion:0]];
   
   for (int i = 0; i < 10; ++i) {
-    [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:(i % 5) format:@"Hello World #%i!", i + 1];
+    [XLSharedFacility logMessageWithTag:XLOG_TAG level:(i % 5) format:@"Hello World #%i!", i + 1];
   }
   usleep(kLoggingDelay);
   

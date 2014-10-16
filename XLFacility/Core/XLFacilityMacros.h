@@ -41,30 +41,54 @@
  *
  *  will almost be a no-op while calling the method:
  *
- *    [XLSharedFacility logMessageWithNamespace:nil
- *                                        level:kXLLogLevel_Warning
- *                                       format:@"Unexpected value: %@", value]
+ *    [XLSharedFacility logMessageWithTag:nil
+ *                                  level:kXLLogLevel_Warning
+ *                                 format:@"Unexpected value: %@", value]
  *
  *  will still evaluate all the arguments (which can be quite expensive),
  *  compute the format string, and finally pass everything to the XLFacility
  *  shared instance where it will be ignored anyway.
+ *
+ *  Messages logged with XLFacility can be associated with an optional tag
+ *  which is an arbitrary string. You can use it to put log messages in
+ *  namespaces or anything you want. The tag to associate with logged messages
+ *  can be specified in two ways:
+ *
+ *  1) Manually by passing a non-nil "tag" argument when using the logging
+ *  methods on the shared XLFacility instance.
+ *
+ *  2) Automatically when using the macros and defining the preprocessor
+ *  constant "XLOG_TAG" to a string *before* including XLFacilityMacros.h.
+ *
+ *  As a convenience, if the preprocessor constant "DEBUG" evaluates to
+ *  non-zero at build time (which typically indicates a Debug build versus
+ *  a release build) and if "XLOG_TAG" is not defined, then tags will be
+ *  generated from the source file name and line number from where the message
+ *  is being logged.
  */
 
-#ifndef XLOG_NAMESPACE
-#define XLOG_NAMESPACE nil
+#ifndef XLOG_TAG
+#if DEBUG
+#define XLOG_STRINGIFY(x) #x
+#define XLOG_STRINGIFY_(x) XLOG_STRINGIFY(x)
+#define XLOG_LINE XLOG_STRINGIFY_(__LINE__)
+#define XLOG_TAG (@ __FILE__ ":" XLOG_LINE)
+#else
+#define XLOG_TAG nil
+#endif
 #endif
 
 #if DEBUG
-#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= kXLLogLevel_Debug) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Debug format:__VA_ARGS__]; } while (0)
+#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= kXLLogLevel_Debug) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Debug format:__VA_ARGS__]; } while (0)
 #else
 #define XLOG_DEBUG(...)
 #endif
-#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= kXLLogLevel_Verbose) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Verbose format:__VA_ARGS__]; } while (0)
-#define XLOG_INFO(...) do { if (XLMinLogLevel <= kXLLogLevel_Info) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Info format:__VA_ARGS__]; } while (0)
-#define XLOG_WARNING(...) do { if (XLMinLogLevel <= kXLLogLevel_Warning) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Warning format:__VA_ARGS__]; } while (0)
-#define XLOG_ERROR(...) do { if (XLMinLogLevel <= kXLLogLevel_Error) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:kXLLogLevel_Error format:__VA_ARGS__]; } while (0)
-#define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLMinLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:kXLLogLevel_Exception withNamespace:XLOG_NAMESPACE]; } while (0)
-#define XLOG_ABORT(...) do { if (XLMinLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logMessageWithNamespace:XLOG_NAMESPACE level:XLSharedFacility format:__VA_ARGS__]; } while (0)
+#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= kXLLogLevel_Verbose) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Verbose format:__VA_ARGS__]; } while (0)
+#define XLOG_INFO(...) do { if (XLMinLogLevel <= kXLLogLevel_Info) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Info format:__VA_ARGS__]; } while (0)
+#define XLOG_WARNING(...) do { if (XLMinLogLevel <= kXLLogLevel_Warning) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Warning format:__VA_ARGS__]; } while (0)
+#define XLOG_ERROR(...) do { if (XLMinLogLevel <= kXLLogLevel_Error) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Error format:__VA_ARGS__]; } while (0)
+#define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLMinLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:kXLLogLevel_Exception withTag:XLOG_TAG]; } while (0)
+#define XLOG_ABORT(...) do { if (XLMinLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logMessageWithTag:XLOG_TAG level:XLSharedFacility format:__VA_ARGS__]; } while (0)
 
 /**
  *  These other macros let you easily check conditions inside your code and

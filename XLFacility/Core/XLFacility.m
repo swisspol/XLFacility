@@ -48,11 +48,11 @@ XLFacility* XLSharedFacility = nil;
 int XLOriginalStdOut = 0;
 int XLOriginalStdErr = 0;
 
-NSString* const XLFacilityNamespace_Internal = @"xlfacility.internal";
-NSString* const XLFacilityNamespace_CapturedStdOut = @"xlfacility.captured-stdout";
-NSString* const XLFacilityNamespace_CapturedStdErr = @"xlfacility.captured-stderr";
-NSString* const XLFacilityNamespace_UncaughtExceptions = @"xlfacility.uncaught-exceptions";
-NSString* const XLFacilityNamespace_InitializedExceptions = @"xlfacility.initialized-exceptions";
+NSString* const XLFacilityTag_Internal = @"xlfacility.internal";
+NSString* const XLFacilityTag_CapturedStdOut = @"xlfacility.captured-stdout";
+NSString* const XLFacilityTag_CapturedStdErr = @"xlfacility.captured-stderr";
+NSString* const XLFacilityTag_UncaughtExceptions = @"xlfacility.uncaught-exceptions";
+NSString* const XLFacilityTag_InitializedExceptions = @"xlfacility.initialized-exceptions";
 
 static NSUncaughtExceptionHandler* _originalExceptionHandler = NULL;
 static ExceptionInitializerIMP _originalExceptionInitializerIMP = NULL;
@@ -173,7 +173,7 @@ static void _ExitHandler() {
 
 @implementation XLFacility (Logging)
 
-- (void)_logMessage:(NSString*)message withNamespace:(NSString*)namespace level:(XLLogLevel)level callstack:(NSArray*)callstack {
+- (void)_logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level callstack:(NSArray*)callstack {
   if (level < kXLMinLogLevel) {
     level = kXLMinLogLevel;
   } else if (level > kXLMaxLogLevel) {
@@ -198,7 +198,7 @@ static void _ExitHandler() {
   }
   
   // Create the log record and dispatch to all loggers
-  XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time namespace:namespace level:level message:message callstack:callstack];
+  XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time tag:tag level:level message:message callstack:callstack];
   dispatch_sync(_lockQueue, ^{
     
     // Call each logger asynchronously on its own serial queue
@@ -228,26 +228,26 @@ static void _ExitHandler() {
   });
 }
 
-- (void)logMessage:(NSString*)message withNamespace:(NSString*)namespace level:(XLLogLevel)level {
+- (void)logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level {
   if (level >= XLMinLogLevel) {
-    [self _logMessage:message withNamespace:namespace level:level callstack:nil];
+    [self _logMessage:message withTag:tag level:level callstack:nil];
   }
 }
 
-- (void)logMessageWithNamespace:(NSString*)namespace level:(XLLogLevel)level format:(NSString*)format, ... {
+- (void)logMessageWithTag:(NSString*)tag level:(XLLogLevel)level format:(NSString*)format, ... {
   if (level >= XLMinLogLevel) {
     va_list arguments;
     va_start(arguments, format);
     NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments];
     va_end(arguments);
-    [self _logMessage:message withNamespace:namespace level:level callstack:nil];
+    [self _logMessage:message withTag:tag level:level callstack:nil];
   }
 }
 
-- (void)logException:(NSException*)exception withNamespace:(NSString*)namespace {
+- (void)logException:(NSException*)exception withTag:(NSString*)tag {
   if (kXLLogLevel_Exception >= XLMinLogLevel) {
     NSString* message = [NSString stringWithFormat:@"%@ %@", exception.name, exception.reason];
-    [self _logMessage:message withNamespace:namespace level:kXLLogLevel_Exception callstack:exception.callStackSymbols];
+    [self _logMessage:message withTag:tag level:kXLLogLevel_Exception callstack:exception.callStackSymbols];
   }
 }
 
@@ -256,7 +256,7 @@ static void _ExitHandler() {
 @implementation XLFacility (Extensions)
 
 static void _UncaughtExceptionHandler(NSException* exception) {
-  [XLSharedFacility logException:exception withNamespace:XLFacilityNamespace_UncaughtExceptions];
+  [XLSharedFacility logException:exception withTag:XLFacilityTag_UncaughtExceptions];
   [XLSharedFacility removeAllLoggers];
   if (_originalExceptionHandler) {
     (*_originalExceptionHandler)(exception);
@@ -280,7 +280,7 @@ static void _UncaughtExceptionHandler(NSException* exception) {
 
 static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reason, NSDictionary* userInfo) {
   if ((self = _originalExceptionInitializerIMP(self, cmd, name, reason, userInfo))) {
-    [XLSharedFacility logException:self withNamespace:XLFacilityNamespace_InitializedExceptions];
+    [XLSharedFacility logException:self withTag:XLFacilityTag_InitializedExceptions];
   }
   return self;
 }
@@ -299,7 +299,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
   return (_originalExceptionInitializerIMP == NULL);
 }
 
-- (dispatch_source_t)_startCapturingWritingToFD:(int)fd logLevel:(XLLogLevel)level namespace:(NSString*)namespace detectNSLogFormatting:(BOOL)nsLog {
+- (dispatch_source_t)_startCapturingWritingToFD:(int)fd logLevel:(XLLogLevel)level tag:(NSString*)tag detectNSLogFormatting:(BOOL)nsLog {
   if (_newlineData == nil) {
     _newlineData = [[NSData alloc] initWithBytes:"\n" length:1];
   }
@@ -351,7 +351,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
           
           NSString* message = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(offset, range.location - offset)] encoding:NSUTF8StringEncoding];
           if (message) {
-            [XLSharedFacility logMessage:(offset ? [kCapturedNSLogPrefix stringByAppendingString:message] : message) withNamespace:namespace level:level];
+            [XLSharedFacility logMessage:(offset ? [kCapturedNSLogPrefix stringByAppendingString:message] : message) withTag:tag level:level];
           } else {
             XLLogInternalError(@"%@", @"Failed interpreting captured content from standard file descriptor as UTF8");
           }
@@ -379,7 +379,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 
 - (void)setCapturesStandardOutput:(BOOL)flag {
   if (flag && (_stdOutCaptureSource == NULL)) {
-    _stdOutCaptureSource = [self _startCapturingWritingToFD:STDOUT_FILENO logLevel:kXLLogLevel_Info namespace:XLFacilityNamespace_CapturedStdOut detectNSLogFormatting:NO];
+    _stdOutCaptureSource = [self _startCapturingWritingToFD:STDOUT_FILENO logLevel:kXLLogLevel_Info tag:XLFacilityTag_CapturedStdOut detectNSLogFormatting:NO];
   } else if (!flag && (_stdOutCaptureSource != NULL)) {
     [self _stopCapturingWritingToFD:STDOUT_FILENO originalFD:XLOriginalStdOut dispatchSource:_stdOutCaptureSource];
     _stdOutCaptureSource = NULL;
@@ -392,7 +392,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 
 - (void)setCapturesStandardError:(BOOL)flag {
   if (flag && (_stdErrCaptureSource == NULL)) {
-    _stdErrCaptureSource = [self _startCapturingWritingToFD:STDERR_FILENO logLevel:kXLLogLevel_Error namespace:XLFacilityNamespace_CapturedStdErr detectNSLogFormatting:YES];
+    _stdErrCaptureSource = [self _startCapturingWritingToFD:STDERR_FILENO logLevel:kXLLogLevel_Error tag:XLFacilityTag_CapturedStdErr detectNSLogFormatting:YES];
   } else if (!flag && (_stdErrCaptureSource != NULL)) {
     [self _stopCapturingWritingToFD:STDERR_FILENO originalFD:XLOriginalStdErr dispatchSource:_stdErrCaptureSource];
     _stdErrCaptureSource = NULL;

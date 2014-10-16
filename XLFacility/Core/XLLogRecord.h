@@ -39,9 +39,9 @@
 @property(nonatomic, readonly) CFAbsoluteTime absoluteTime;
 
 /**
- *  Returns the logging namespace used when logging the message.
+ *  Returns the tag used when logging the message.
  */
-@property(nonatomic, readonly) NSString* namespace;
+@property(nonatomic, readonly) NSString* tag;
 
 /**
  *  Returns the log level used when logging the message.

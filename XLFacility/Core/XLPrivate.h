@@ -40,7 +40,7 @@ extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
 
 @interface XLLogRecord ()
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                 namespace:(NSString*)namespace
+                       tag:(NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
              capturedErrno:(int)capturedErrno
@@ -48,7 +48,7 @@ extern void XLLogInternalError(NSString* format, ...) NS_FORMAT_FUNCTION(1,2);
         capturedQueueLabel:(NSString*)capturedQueueLabel
                  callstack:(NSArray*)callstack;
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                 namespace:(NSString*)namespace
+                       tag:(NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
                  callstack:(NSArray*)callstack;

@@ -34,20 +34,27 @@
  *  See XLFacilityMacros.h for more information.
  */
 
-#ifndef XLOG_NAMESPACE
-#define XLOG_NAMESPACE 0
+#ifndef XLOG_TAG
+#if DEBUG
+#define XLOG_STRINGIFY(x) #x
+#define XLOG_STRINGIFY_(x) XLOG_STRINGIFY(x)
+#define XLOG_LINE XLOG_STRINGIFY_(__LINE__)
+#define XLOG_TAG (__FILE__ ":" XLOG_LINE)
+#else
+#define XLOG_TAG nil
+#endif
 #endif
 
 #if DEBUG
-#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= 0) XLLogCMessage(XLOG_NAMESPACE, 0, __VA_ARGS__); } while (0)
+#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= 0) XLLogCMessage(XLOG_TAG, 0, __VA_ARGS__); } while (0)
 #else
 #define XLOG_DEBUG(...)
 #endif
-#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= 1) XLLogCMessage(XLOG_NAMESPACE, 1, __VA_ARGS__); } while (0)
-#define XLOG_INFO(...) do { if (XLMinLogLevel <= 2) XLLogCMessage(XLOG_NAMESPACE, 2, __VA_ARGS__); } while (0)
-#define XLOG_WARNING(...) do { if (XLMinLogLevel <= 3) XLLogCMessage(XLOG_NAMESPACE, 3, __VA_ARGS__); } while (0)
-#define XLOG_ERROR(...) do { if (XLMinLogLevel <= 4) XLLogCMessage(XLOG_NAMESPACE, 4, __VA_ARGS__); } while (0)
-#define XLOG_ABORT(...) do { if (XLMinLogLevel <= 6) XLLogCMessage(XLOG_NAMESPACE, 6, __VA_ARGS__); } while (0)
+#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= 1) XLLogCMessage(XLOG_TAG, 1, __VA_ARGS__); } while (0)
+#define XLOG_INFO(...) do { if (XLMinLogLevel <= 2) XLLogCMessage(XLOG_TAG, 2, __VA_ARGS__); } while (0)
+#define XLOG_WARNING(...) do { if (XLMinLogLevel <= 3) XLLogCMessage(XLOG_TAG, 3, __VA_ARGS__); } while (0)
+#define XLOG_ERROR(...) do { if (XLMinLogLevel <= 4) XLLogCMessage(XLOG_TAG, 4, __VA_ARGS__); } while (0)
+#define XLOG_ABORT(...) do { if (XLMinLogLevel <= 6) XLLogCMessage(XLOG_TAG, 6, __VA_ARGS__); } while (0)
 
 #define XLOG_CHECK(__CONDITION__) \
 do { \
@@ -70,6 +77,6 @@ do { \
 #endif
 
 extern int XLMinLogLevel;
-extern void XLLogCMessage(const char* namespace, int level, const char* format, ...);
+extern void XLLogCMessage(const char* tag, int level, const char* format, ...);
 
 #endif // __XLFacilityCMacros__

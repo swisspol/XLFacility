@@ -25,8 +25,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define XLOG_NAMESPACE @"objc-test"
-
 #import "XLFacilityMacros.h"
 #import "XLStandardLogger.h"
 #import "XLTelnetServerLogger.h"

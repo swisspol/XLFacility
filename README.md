@@ -95,7 +95,7 @@ By default, when building your app in "Release" configuration, XLFacility ignore
 
 **IMPORTANT:** So far you've seen how to "override" `NSLog()` calls in your source code to redirect messages to XLFacility at the `INFO` level but this is not the best approach. Instead don't use `NSLog()` at all but call directly XLFacility functions to log messages.
 
-You can log messages in XLFacility by calling the `-log...` methods on the shared `XLFacility` instance or by using the macros from `XLFacilityMacros.h`. The latter is highly recommended as macros produce the exact same logging results but are quite easier to the eye, faster to type, and most importantly they avoid evaluating their arguments unless necessary.
+You can log messages in XLFacility by calling the logging methods on the shared `XLFacility` instance or by using the macros from [XLFacilityMacros.h](XLFacility/Core/XLFacilityMacros.h). The latter is highly recommended as macros produce the exact same logging results but are quite easier to the eye, faster to type, and most importantly they avoid evaluating their arguments unless necessary.
 
 The following macros are available to log messages at various levels:
 * `XLOG_DEBUG(...)`: Becomes a no-op if building "Release" (i.e. if the `DEBUG` preprocessor constant evaluates to zero)
@@ -134,6 +134,8 @@ Here are some example use cases:
   }
 }
 ```
+
+*Messages logged with XLFacility can be associated with an optional tag which is an arbitrary string. This is a powerful feature that lets you for instance capture as part of the log message the source file name and line number. See [XLFacilityMacros.h](XLFacility/Core/XLFacilityMacros.h) for more information.*
 
 Fun With Remote Logging
 =======================
