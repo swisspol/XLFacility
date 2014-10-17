@@ -116,8 +116,12 @@
  */
 @property(nonatomic, readonly) dispatch_queue_t lockQueue;
 
+/**
+ *  This method is called whenever the peer starts.
+ *
+ *  @warning This method can be called on arbitrary threads.
+ */
 - (BOOL)willStart;
-- (void)didStop;
 
 /**
  *  This method is called whenever a new connection is opened.
@@ -132,6 +136,13 @@
  *  @warning This method can be called on arbitrary threads.
  */
 - (void)didCloseConnection:(XLTCPPeerConnection*)connection;
+
+/**
+ *  This method is called whenever the peer stops.
+ *
+ *  @warning This method can be called on arbitrary threads.
+ */
+- (void)didStop;
 
 @end
 
