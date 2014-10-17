@@ -83,15 +83,19 @@
     _backgroundTask = UIBackgroundTaskInvalid;
 #endif
     
+#if TARGET_OS_IPHONE
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+#endif
   }
   return self;
 }
 
 - (void)dealloc {
+#if TARGET_OS_IPHONE
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
+#endif
   
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
   dispatch_release(_syncGroup);
