@@ -369,7 +369,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
   char* buffer = malloc(kFileDescriptorCaptureBufferSize);
   NSMutableData* data = [[NSMutableData alloc] init];
   fcntl(fd, F_SETFL, O_NONBLOCK);
-  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, fd, 0, XLGLOBAL_DISPATCH_QUEUE);
+  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, fd, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
   dispatch_source_set_cancel_handler(source, ^{
     free(buffer);
   });
