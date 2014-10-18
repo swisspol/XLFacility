@@ -167,18 +167,6 @@ static void _ExitHandler() {
   });
 }
 
-- (void)removeAllLoggers {
-  dispatch_sync(_lockQueue, ^{
-    for (XLLogger* logger in _loggers) {
-      dispatch_sync(logger.serialQueue, ^{
-        [logger close];
-      });
-    }
-    [_loggers removeAllObjects];
-    _internalLogger = nil;
-  });
-}
-
 // Must be called from _lockQueue
 - (void)_closeAllLoggers {
   for (XLLogger* logger in _loggers) {
@@ -186,6 +174,14 @@ static void _ExitHandler() {
       [logger close];
     });
   }
+}
+
+- (void)removeAllLoggers {
+  dispatch_sync(_lockQueue, ^{
+    [self _closeAllLoggers];
+    [_loggers removeAllObjects];
+    _internalLogger = nil;
+  });
 }
 
 - (void)closeAllLoggers {
