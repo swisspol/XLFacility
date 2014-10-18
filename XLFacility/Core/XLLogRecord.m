@@ -62,7 +62,10 @@
                    message:(NSString*)message
                  callstack:(NSArray*)callstack {
   const char* label = NULL;
-  if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) {
+#if TARGET_OS_IPHONE
+  if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+#endif
+  {
     label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);  // This returns garbage on iOS 5.1.1 (e.g. an non-accessible string at 0x00000038)
     if (!label[0]) {
       label = NULL;
