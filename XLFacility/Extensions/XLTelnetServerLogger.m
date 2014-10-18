@@ -86,6 +86,7 @@
 - (instancetype)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory {
   if ((self = [super initWithPort:port useDatabaseLogger:preserveHistory])) {
     _colorize = YES;
+    _sendTimeout = -1.0;
   }
   return self;
 }
@@ -114,14 +115,14 @@
   
   NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
   [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPPeerConnection* connection, BOOL* stop) {
-    if (_usesAsynchronousLogging) {
+    if (_sendTimeout < 0.0) {
       [connection writeDataAsynchronously:data completion:^(BOOL success) {
         if (!success) {
           [self close];
         }
       }];
     } else {
-      if (![connection writeData:data withTimeout:0.0]) {
+      if (![connection writeData:data withTimeout:_sendTimeout]) {
         [self close];
       }
     }

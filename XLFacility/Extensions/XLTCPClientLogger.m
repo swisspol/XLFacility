@@ -61,6 +61,7 @@ static void* _associatedObjectKey = &_associatedObjectKey;
   if ((self = [super init])) {
     _TCPClient = [[XLTCPClient alloc] initWithConnectionClass:[[self class] connectionClass] host:hostname port:port];
     objc_setAssociatedObject(_TCPClient, _associatedObjectKey, self, OBJC_ASSOCIATION_ASSIGN);
+    _sendTimeout = -1.0;
   }
   return self;
 }
@@ -71,14 +72,14 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 
 - (void)logRecord:(XLLogRecord*)record {
   NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
-  if (_usesAsynchronousLogging) {
+  if (_sendTimeout < 0.0) {
     [_TCPClient.connection writeDataAsynchronously:data completion:^(BOOL success) {
       if (!success) {
         [_TCPClient.connection close];
       }
     }];
   } else {
-    if (![_TCPClient.connection writeData:data withTimeout:0.0]) {
+    if (![_TCPClient.connection writeData:data withTimeout:_sendTimeout]) {
       [_TCPClient.connection close];
     }
   }

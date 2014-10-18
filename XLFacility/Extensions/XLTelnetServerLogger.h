@@ -48,12 +48,16 @@
 @property(nonatomic) BOOL colorize;
 
 /**
- *  Configures if the Telnet server blocks when sending new log records to the
- *  connected terminals.
+ *  Configures how long the Telnet server should wait (and therefore potentially
+ *  block XLFacility) when sending a log message to an unresponsive terminal
+ *  before disconnecting it.
  *
- *  The default value is NO.
+ *  If the timeout is zero, the Telnet server will block indefinitely. If the
+ *  timeout is negative, log messages will be sent asynchronously.
+ *
+ *  The default value is -1.0.
  */
-@property(nonatomic) BOOL usesAsynchronousLogging;
+@property(nonatomic) NSTimeInterval sendTimeout;
 
 /**
  *  Initializes a Telnet server on port 2323 that preserves history.
