@@ -118,12 +118,12 @@
     if (_sendTimeout < 0.0) {
       [connection writeDataAsynchronously:data completion:^(BOOL success) {
         if (!success) {
-          [self close];
+          [connection close];
         }
       }];
     } else {
       if (![connection writeData:data withTimeout:_sendTimeout]) {
-        [self close];
+        [connection close];
       }
     }
   }];
