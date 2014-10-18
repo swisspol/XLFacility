@@ -31,6 +31,7 @@
 
 #import <pthread.h>
 
+#import "XLFunctions.h"
 #import "XLPrivate.h"
 
 typedef NS_ENUM(unsigned char, FormatToken) {
@@ -80,9 +81,6 @@ typedef NS_ENUM(unsigned char, FormatToken) {
 
 NSString* const XLLoggerFormatString_Default = @"%t [%L]> %m%c";
 NSString* const XLLoggerFormatString_NSLog = @"%d %P[%p:%r] %m";
-
-static NSString* _logLevelNames[] = {@"DEBUG", @"VERBOSE", @"INFO", @"WARNING", @"ERROR", @"EXCEPTION", @"ABORT"};
-static NSString* _paddedLogLevelNames[] = {@"DEBUG    ", @"VERBOSE  ", @"INFO     ", @"WARNING  ", @"ERROR    ", @"EXCEPTION", @"ABORT    "};
 
 static CFTimeInterval _startTime = 0.0;
 static NSString* _pid = nil;
@@ -320,12 +318,12 @@ static NSString* _uid = nil;
       }
       
       case kFormatToken_LevelName: {
-        [string appendString:_logLevelNames[record.level]];
+        [string appendString:XLStringFromLogLevelName(record.level)];
         break;
       }
       
       case kFormatToken_PaddedLevelName: {
-        [string appendString:_paddedLogLevelNames[record.level]];
+        [string appendString:XLPaddedStringFromLogLevelName(record.level)];
         break;
       }
       

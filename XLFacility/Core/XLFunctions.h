@@ -30,7 +30,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
+
+/**
+ *  Converts a XLLogLevel to an NSString.
+ */
+NSString* XLStringFromLogLevelName(XLLogLevel level);
+
 /**
  *  Converts a NSString to an UTF-8 string.
  *
@@ -46,7 +51,7 @@ NSData* XLConvertNSStringToUTF8String(NSString* string);
  *  a non-NULL result as long as the input string is not nil.
  */
 const char* XLConvertNSStringToUTF8CString(NSString* string);
-  
+
 #ifdef __cplusplus
 }
 #endif
