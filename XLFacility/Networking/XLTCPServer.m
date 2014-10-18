@@ -93,7 +93,7 @@
 
 - (dispatch_source_t)_createDispatchSourceWithListeningSocket:(int)listeningSocket isIPv6:(BOOL)isIPv6 {
   dispatch_group_enter(_sourceGroup);
-  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, XLGLOBAL_DISPATCH_QUEUE);
+  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, listeningSocket, 0, XL_GLOBAL_DISPATCH_QUEUE);
   dispatch_source_set_cancel_handler(source, ^{
     close(listeningSocket);
     dispatch_group_leave(_sourceGroup);

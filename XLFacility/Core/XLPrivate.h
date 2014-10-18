@@ -27,14 +27,22 @@
 
 #import "XLLogger.h"
 
+/**
+ *  Override default tag when logging messages from inside XLFacility.
+ */
+
 #undef XLOG_TAG
 #define XLOG_TAG XLFacilityTag_Internal
 
 #import "XLFacilityMacros.h"
 
-#define XLDISPATCH_QUEUE_LABEL object_getClassName(self)
+/**
+ *  XLFacility internal constants and APIs.
+ */
 
-#define XLGLOBAL_DISPATCH_QUEUE dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
+#define XL_DISPATCH_QUEUE_LABEL object_getClassName(self)
+
+#define XL_GLOBAL_DISPATCH_QUEUE dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
 
 extern int XLOriginalStdOut;
 extern int XLOriginalStdErr;

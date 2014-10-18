@@ -76,7 +76,7 @@
   if ((self = [super init])) {
     _connectionClass = connectionClass;
     
-    _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
+    _lockQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _syncGroup = dispatch_group_create();
     _connections = [[NSMutableSet alloc] init];
 #if TARGET_OS_IPHONE

@@ -108,7 +108,7 @@ static void _ExitHandler() {
   if ((self = [super init])) {
     _minCaptureCallstackLevel = kXLLogLevel_Exception;
     
-    _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
+    _lockQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _syncGroup = dispatch_group_create();
     _loggers = [[NSMutableSet alloc] init];
     

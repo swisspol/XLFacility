@@ -100,8 +100,8 @@ static NSString* _uid = nil;
 
 - (id)init {
   if ((self = [super init])) {
-    _serialQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
-    _lockQueue = dispatch_queue_create(XLDISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
+    _serialQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
+    _lockQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _minLogLevel = kXLMinLogLevel;
     _maxLogLevel = kXLMaxLogLevel;
     _appendNewlineToFormat = YES;

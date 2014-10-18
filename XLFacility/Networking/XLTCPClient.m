@@ -69,7 +69,7 @@
 // Must be called inside lock queue
 - (void)_scheduleReconnection {
   XLOG_DEBUG(@"%@ will attempt to reconnect to \"%@:%i\" in %.0f seconds", [self class], _host, (int)_port, _reconnectionDelay);
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_reconnectionDelay * NSEC_PER_SEC)), XLGLOBAL_DISPATCH_QUEUE, ^{
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_reconnectionDelay * NSEC_PER_SEC)), XL_GLOBAL_DISPATCH_QUEUE, ^{
     dispatch_sync(self.lockQueue, ^{
       if (_reconnectionDelay > 0.0) {
         [self _reconnect];
