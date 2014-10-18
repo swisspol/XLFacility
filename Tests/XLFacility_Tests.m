@@ -46,17 +46,17 @@
 
 #define kLoggingDelay (100 * 1000)
 
-typedef void (^XTCPServerConnectionBlock)(XLTCPPeerConnection* connection);
+typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 
 @interface TCPServer : XLTCPServer
 @end
 
 @implementation TCPServer {
 @private
-  XTCPServerConnectionBlock _block;
+  TCPServerConnectionBlock _block;
 }
 
-- (id)initWithPort:(NSUInteger)port connectionBlock:(XTCPServerConnectionBlock)block {
+- (id)initWithPort:(NSUInteger)port connectionBlock:(TCPServerConnectionBlock)block {
   if ((self = [super initWithConnectionClass:[XLTCPServerConnection class] port:port])) {
     _block = block;
   }
