@@ -83,3 +83,19 @@
                                usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block;
 
 @end
+
+@interface XLDatabaseLogger (Extensions)
+
+/**
+ *  Deletes all records from the database.
+ *
+ *  Returns NO if deletion failed.
+ */
+- (BOOL)purgeAllRecords;
+
+/**
+ *  Enumerates all records in the database.
+ */
+- (void)enumerateAllRecordsBackward:(BOOL)backward usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block;
+
+@end
