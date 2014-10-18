@@ -87,7 +87,7 @@
 #define XLOG_INFO(...) do { if (XLMinLogLevel <= kXLLogLevel_Info) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Info format:__VA_ARGS__]; } while (0)
 #define XLOG_WARNING(...) do { if (XLMinLogLevel <= kXLLogLevel_Warning) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Warning format:__VA_ARGS__]; } while (0)
 #define XLOG_ERROR(...) do { if (XLMinLogLevel <= kXLLogLevel_Error) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Error format:__VA_ARGS__]; } while (0)
-#define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLMinLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:kXLLogLevel_Exception withTag:XLOG_TAG]; } while (0)
+#define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLMinLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:__EXCEPTION__ withTag:XLOG_TAG]; } while (0)
 #define XLOG_ABORT(...) do { if (XLMinLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logMessageWithTag:XLOG_TAG level:XLSharedFacility format:__VA_ARGS__]; } while (0)
 
 /**
