@@ -215,7 +215,7 @@
 }
 
 - (void)enumerateAllRecordsBackward:(BOOL)backward usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block {
-  return [self enumerateRecordsAfterAbsoluteTime:0.0 backward:backward maxRecords:0 usingBlock:block];
+  [self enumerateRecordsAfterAbsoluteTime:0.0 backward:backward maxRecords:0 usingBlock:block];
 }
 
 @end
