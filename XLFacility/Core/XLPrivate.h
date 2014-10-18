@@ -27,6 +27,7 @@
 
 #import "XLLogger.h"
 
+#undef XLOG_TAG
 #define XLOG_TAG XLFacilityTag_Internal
 
 #import "XLFacilityMacros.h"
