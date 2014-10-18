@@ -249,7 +249,6 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
 
 - (NSData*)readData:(NSUInteger)maxLength withTimeout:(NSTimeInterval)timeout {
   __block NSMutableData* data = nil;
-  __block BOOL shouldClose = NO;
   dispatch_sync(_lockQueue, ^{
     if (_state == kXLTCPConnectionState_Opened) {
       struct timeval tv;
@@ -264,15 +263,11 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
       } else {
         if (errno != EAGAIN) {
           XLOG_ERROR(@"Failed reading synchronously from socket: %s", strerror(errno));
-          shouldClose = YES;
         }
         data = nil;
       }
     }
   });
-  if (shouldClose) {
-    [self close];
-  }
   return data;
 }
 
@@ -284,7 +279,6 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
           
           if (error) {
             XLOG_ERROR(@"Failed reading asynchronously from socket: %s", strerror(error));
-            [self close];
             if (completion) {
               completion(NULL);
             }
@@ -321,7 +315,6 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
 
 - (BOOL)writeData:(NSData*)data withTimeout:(NSTimeInterval)timeout {
   __block BOOL result = NO;
-  __block BOOL shouldClose = NO;
   dispatch_sync(_lockQueue, ^{
     if (_state == kXLTCPConnectionState_Opened) {
       struct timeval tv;
@@ -334,13 +327,9 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
         result = YES;
       } else if (errno != EAGAIN) {
         XLOG_ERROR(@"Failed writing synchronously to socket: %s", strerror(errno));
-        shouldClose = YES;
       }
     }
   });
-  if (shouldClose) {
-    [self close];
-  }
   return result;
 }
 
@@ -354,7 +343,6 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
             if (error != EPIPE) {
               XLOG_ERROR(@"Failed writing asynchronously to socket: %s", strerror(error));
             }
-            [self close];
             if (completion) {
               completion(NO);
             }

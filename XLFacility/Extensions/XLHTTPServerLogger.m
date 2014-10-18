@@ -237,6 +237,8 @@
       } else {
         [self _readHeaders];
       }
+    } else {
+      [self close];
     }
   }];
 }

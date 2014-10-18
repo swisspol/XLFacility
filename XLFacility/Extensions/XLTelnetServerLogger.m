@@ -47,15 +47,25 @@
   } else {
     welcome = [[NSString alloc] initWithFormat:@"You are connected to %s[%i]\n\n", getprogname(), getpid()];
   }
-  [self writeDataAsynchronously:XLConvertNSStringToUTF8String(welcome) completion:^(BOOL success) {
+  [self writeDataAsynchronously:XLConvertNSStringToUTF8String(welcome) completion:^(BOOL success1) {
     
-    XLTelnetServerLogger* logger = (XLTelnetServerLogger*)self.logger;
-    if (logger.databaseLogger) {
-      NSMutableString* history = [[NSMutableString alloc] init];
-      [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
-        [history appendString:[logger formatRecord:record]];
-      }];
-      [self writeDataAsynchronously:XLConvertNSStringToUTF8String(history) completion:NULL];
+    if (success1) {
+      XLTelnetServerLogger* logger = (XLTelnetServerLogger*)self.logger;
+      if (logger.databaseLogger) {
+        NSMutableString* history = [[NSMutableString alloc] init];
+        [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+          [history appendString:[logger formatRecord:record]];
+        }];
+        [self writeDataAsynchronously:XLConvertNSStringToUTF8String(history) completion:^(BOOL success2) {
+          
+          if (!success2) {
+            [self close];
+          }
+          
+        }];
+      }
+    } else {
+      [self close];
     }
     
   }];
@@ -105,9 +115,15 @@
   NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
   [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPPeerConnection* connection, BOOL* stop) {
     if (_usesAsynchronousLogging) {
-      [connection writeDataAsynchronously:data completion:NULL];
+      [connection writeDataAsynchronously:data completion:^(BOOL success) {
+        if (!success) {
+          [self close];
+        }
+      }];
     } else {
-      [connection writeData:data withTimeout:0.0];
+      if (![connection writeData:data withTimeout:0.0]) {
+        [self close];
+      }
     }
   }];
 }

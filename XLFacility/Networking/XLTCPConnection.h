@@ -91,15 +91,11 @@ typedef NS_ENUM(int, XLTCPConnectionState) {
  *  Reads data synchronously to the socket.
  *
  *  Pass 0 as "timeout" to block indefinitely.
- *
- *  @warning The connection will be automatically closed on error.
  */
 - (NSData*)readData:(NSUInteger)maxLength withTimeout:(NSTimeInterval)timeout;
 
 /**
  *  Reads data asynchronously from the socket.
- *
- *  @warning The connection will be automatically closed on error.
  */
 - (void)readDataAsynchronously:(void (^)(NSData* data))completion;
 
@@ -107,15 +103,11 @@ typedef NS_ENUM(int, XLTCPConnectionState) {
  *  Writes data synchronously to the socket.
  *
  *  Pass 0 as "timeout" to block indefinitely.
- *
- *  @warning The connection will be automatically closed on error.
  */
 - (BOOL)writeData:(NSData*)data withTimeout:(NSTimeInterval)timeout;
 
 /**
  *  Writes data asynchronously to the socket.
- *
- *  @warning The connection will be automatically closed on error.
  */
 - (void)writeDataAsynchronously:(NSData*)data completion:(void (^)(BOOL success))completion;
 

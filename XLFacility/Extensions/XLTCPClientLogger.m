@@ -72,9 +72,15 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 - (void)logRecord:(XLLogRecord*)record {
   NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
   if (_usesAsynchronousLogging) {
-    [_TCPClient.connection writeDataAsynchronously:data completion:NULL];
+    [_TCPClient.connection writeDataAsynchronously:data completion:^(BOOL success) {
+      if (!success) {
+        [_TCPClient.connection close];
+      }
+    }];
   } else {
-    [_TCPClient.connection writeData:data withTimeout:0.0];
+    if (![_TCPClient.connection writeData:data withTimeout:0.0]) {
+      [_TCPClient.connection close];
+    }
   }
 }
 

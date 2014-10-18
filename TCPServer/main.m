@@ -40,6 +40,8 @@
       } else {
         [self _readForever];
       }
+    } else {
+      [self close];
     }
   }];
 }
