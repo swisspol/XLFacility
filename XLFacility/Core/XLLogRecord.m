@@ -61,7 +61,13 @@
                      level:(XLLogLevel)level
                    message:(NSString*)message
                  callstack:(NSArray*)callstack {
-  const char* label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
+  const char* label = NULL;
+  if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) {
+    label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);  // This returns garbage on iOS 5.1.1 (e.g. an non-accessible string at 0x00000038)
+    if (!label[0]) {
+      label = NULL;
+    }
+  }
   uint64_t threadID = 0;
   pthread_threadid_np(pthread_self(), &threadID);
   return [self initWithAbsoluteTime:absoluteTime
@@ -70,7 +76,7 @@
                             message:message
                       capturedErrno:errno
                    capturedThreadID:(int)threadID
-                 capturedQueueLabel:(label[0] ? [NSString stringWithUTF8String:label] : nil)
+                 capturedQueueLabel:(label ? [NSString stringWithUTF8String:label] : nil)
                           callstack:callstack];
 }
 
