@@ -80,22 +80,24 @@ static void _ExitHandler() {
 
 // Keep around copies of the original stdout and stderr file descriptors from when process starts in cases they are replaced later on
 + (void)load {
-  XLOriginalStdOut = dup(STDOUT_FILENO);
-  XLOriginalStdErr = dup(STDERR_FILENO);
-  
+  @autoreleasepool {
+    XLOriginalStdOut = dup(STDOUT_FILENO);
+    XLOriginalStdErr = dup(STDERR_FILENO);
+    
 #if DEBUG
-  XLMinLogLevel = kXLLogLevel_Debug;
+    XLMinLogLevel = kXLLogLevel_Debug;
 #else
-  XLMinLogLevel= kXLLogLevel_Info;
+    XLMinLogLevel= kXLLogLevel_Info;
 #endif
-  const char* logLevel = getenv(kMinLogLevelEnvironmentVariable);
-  if (logLevel) {
-    XLMinLogLevel = atoi(logLevel);
+    const char* logLevel = getenv(kMinLogLevelEnvironmentVariable);
+    if (logLevel) {
+      XLMinLogLevel = atoi(logLevel);
+    }
+    
+    XLSharedFacility = [[XLFacility alloc] init];
+    
+    atexit(_ExitHandler);
   }
-  
-  XLSharedFacility = [[XLFacility alloc] init];
-  
-  atexit(_ExitHandler);
 }
 
 + (XLFacility*)sharedFacility {

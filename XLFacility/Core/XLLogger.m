@@ -90,10 +90,12 @@ static NSString* _uid = nil;
 @implementation XLLogger
 
 + (void)load {
-  _startTime = CFAbsoluteTimeGetCurrent();
-  _pid = [[NSString alloc] initWithFormat:@"%i", getpid()];
-  _pname = [[NSString alloc] initWithFormat:@"%s", getprogname()];
-  _uid = [[NSString alloc] initWithFormat:@"%i", getuid()];
+  @autoreleasepool {
+    _startTime = CFAbsoluteTimeGetCurrent();
+    _pid = [[NSString alloc] initWithFormat:@"%i", getpid()];
+    _pname = [[NSString alloc] initWithFormat:@"%s", getprogname()];
+    _uid = [[NSString alloc] initWithFormat:@"%i", getuid()];
+  }
 }
 
 - (id)init {
