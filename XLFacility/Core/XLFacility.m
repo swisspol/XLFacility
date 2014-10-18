@@ -249,7 +249,9 @@ static void _ExitHandler() {
     dispatch_async(_lockQueue, ^{
       
       // Call only the internal logger
-      [_internalLogger logRecord:record];
+      dispatch_sync(_internalLogger.serialQueue, ^{
+        [_internalLogger logRecord:record];
+      });
       
       // If the log record is at ABORT level, close all loggers and kill the process
       if (level >= kXLLogLevel_Abort) {
