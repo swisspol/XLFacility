@@ -50,6 +50,13 @@
 @property(nonatomic, readonly) int appVersion;
 
 /**
+ *  Initializes a database logger in the Library/Cache directory and version set
+ *  to "CFBundleVersion" from the main bundle" Info.plist" (which is expected to
+ *  be an integer).
+ */
+- (instancetype)init;
+
+/**
  *  This method is the designated initializer for the class.
  *
  *  @warning The database file is not created or opened until the logger is

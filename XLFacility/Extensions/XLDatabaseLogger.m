@@ -47,8 +47,10 @@
 @implementation XLDatabaseLogger
 
 - (id)init {
-  [self doesNotRecognizeSelector:_cmd];
-  return nil;
+  NSString* cachesPath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+  NSString* databasePath = [cachesPath stringByAppendingPathComponent:[NSStringFromClass([self class]) stringByAppendingPathExtension:@"db"]];
+  int version = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] intValue];
+  return [self initWithDatabasePath:databasePath appVersion:version];
 }
 
 - (instancetype)initWithDatabasePath:(NSString*)path appVersion:(int)appVersion {
