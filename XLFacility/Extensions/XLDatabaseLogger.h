@@ -68,7 +68,7 @@
  *  Deletes records from the database that are older than a specific time.
  *  Pass 0.0 to delete all records.
  *
- *  Returns NO if deletion failed.
+ *  Returns NO if a database error occured.
  */
 - (BOOL)purgeRecordsBeforeAbsoluteTime:(CFAbsoluteTime)time;
 
@@ -76,8 +76,10 @@
  *  Enumerates records in the database that are newer than a specific time.
  *  Pass 0.0 for "time" to enumerate all records since the beginning of time
  *  and pass 0 for "limit" to fetch all matching records.
+ *
+ *  Returns NO if a database error occured.
  */
-- (void)enumerateRecordsAfterAbsoluteTime:(CFAbsoluteTime)time
+- (BOOL)enumerateRecordsAfterAbsoluteTime:(CFAbsoluteTime)time
                                  backward:(BOOL)backward
                                maxRecords:(NSUInteger)limit
                                usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block;
@@ -89,13 +91,15 @@
 /**
  *  Deletes all records from the database.
  *
- *  Returns NO if deletion failed.
+ *  Returns NO if a database error occured.
  */
 - (BOOL)purgeAllRecords;
 
 /**
  *  Enumerates all records in the database.
+ *
+ *  Returns NO if a database error occured.
  */
-- (void)enumerateAllRecordsBackward:(BOOL)backward usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block;
+- (BOOL)enumerateAllRecordsBackward:(BOOL)backward usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block;
 
 @end

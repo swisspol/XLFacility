@@ -67,92 +67,98 @@
 }
 
 - (BOOL)open {
-  int result = sqlite3_open([_databasePath fileSystemRepresentation], &_database);
-  if (result == SQLITE_OK) {
-    result = sqlite3_exec(_database, "CREATE TABLE IF NOT EXISTS " kTableName " (version INTEGER, time REAL, tag TEXT, level INTEGER, message TEXT, errno INTEGER, thread INTEGER, queue TEXT, callstack TEXT)",
-                          NULL, NULL, NULL);
-  }
-  if (result == SQLITE_OK) {
-    NSString* statement = [NSString stringWithFormat:@"INSERT INTO " kTableName " (version, time, tag, level, message, errno, thread, queue, callstack) VALUES (%i, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-                           (int)_appVersion];
-    result = sqlite3_prepare_v2(_database, [statement UTF8String], -1, &_statement, NULL);
-  }
-  if (result != SQLITE_OK) {
-    XLOG_ERROR(@"Failed opening database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
-    sqlite3_close(_database);  // Always call even if sqlite3_open() failed
-    _database = NULL;
-    return NO;
-  }
-  return YES;
+  __block BOOL success = YES;
+  dispatch_sync(self.lockQueue, ^() {
+    int result = sqlite3_open([_databasePath fileSystemRepresentation], &_database);
+    if (result == SQLITE_OK) {
+      result = sqlite3_exec(_database, "CREATE TABLE IF NOT EXISTS " kTableName " (version INTEGER, time REAL, tag TEXT, level INTEGER, message TEXT, errno INTEGER, thread INTEGER, queue TEXT, callstack TEXT)",
+                            NULL, NULL, NULL);
+    }
+    if (result == SQLITE_OK) {
+      NSString* statement = [NSString stringWithFormat:@"INSERT INTO " kTableName " (version, time, tag, level, message, errno, thread, queue, callstack) VALUES (%i, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                             (int)_appVersion];
+      result = sqlite3_prepare_v2(_database, [statement UTF8String], -1, &_statement, NULL);
+    }
+    if (result != SQLITE_OK) {
+      XLOG_ERROR(@"Failed opening database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
+      sqlite3_close(_database);  // Always call even if sqlite3_open() failed
+      _database = NULL;
+      success = NO;
+    }
+  });
+  return success;
 }
 
 - (void)logRecord:(XLLogRecord*)record {
-  sqlite3_bind_double(_statement, 1, record.absoluteTime);
-  const char* tag = XLConvertNSStringToUTF8CString(record.tag);
-  if (tag) {
-    sqlite3_bind_text(_statement, 2, tag, -1, SQLITE_STATIC);
-  } else {
-    sqlite3_bind_null(_statement, 2);
-  }
-  sqlite3_bind_int(_statement, 3, record.level);
-  sqlite3_bind_text(_statement, 4, XLConvertNSStringToUTF8CString(record.message), -1, SQLITE_STATIC);
-  sqlite3_bind_int(_statement, 5, record.capturedErrno);
-  sqlite3_bind_int(_statement, 6, record.capturedThreadID);
-  const char* label = XLConvertNSStringToUTF8CString(record.capturedQueueLabel);
-  if (label) {
-    sqlite3_bind_text(_statement, 7, label, -1, SQLITE_STATIC);
-  } else {
-    sqlite3_bind_null(_statement, 7);
-  }
-  const char* callstack = XLConvertNSStringToUTF8CString([record.callstack componentsJoinedByString:@"\n"]);
-  if (callstack) {
-    sqlite3_bind_text(_statement, 8, callstack, -1, SQLITE_STATIC);
-  } else {
-    sqlite3_bind_null(_statement, 8);
-  }
-  if (sqlite3_step(_statement) != SQLITE_DONE) {
-    XLOG_ERROR(@"Failed writing to database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
-  }
-  sqlite3_reset(_statement);
-  sqlite3_clear_bindings(_statement);
+  dispatch_sync(self.lockQueue, ^() {
+    sqlite3_bind_double(_statement, 1, record.absoluteTime);
+    const char* tag = XLConvertNSStringToUTF8CString(record.tag);
+    if (tag) {
+      sqlite3_bind_text(_statement, 2, tag, -1, SQLITE_STATIC);
+    } else {
+      sqlite3_bind_null(_statement, 2);
+    }
+    sqlite3_bind_int(_statement, 3, record.level);
+    sqlite3_bind_text(_statement, 4, XLConvertNSStringToUTF8CString(record.message), -1, SQLITE_STATIC);
+    sqlite3_bind_int(_statement, 5, record.capturedErrno);
+    sqlite3_bind_int(_statement, 6, record.capturedThreadID);
+    const char* label = XLConvertNSStringToUTF8CString(record.capturedQueueLabel);
+    if (label) {
+      sqlite3_bind_text(_statement, 7, label, -1, SQLITE_STATIC);
+    } else {
+      sqlite3_bind_null(_statement, 7);
+    }
+    const char* callstack = XLConvertNSStringToUTF8CString([record.callstack componentsJoinedByString:@"\n"]);
+    if (callstack) {
+      sqlite3_bind_text(_statement, 8, callstack, -1, SQLITE_STATIC);
+    } else {
+      sqlite3_bind_null(_statement, 8);
+    }
+    if (sqlite3_step(_statement) != SQLITE_DONE) {
+      XLOG_ERROR(@"Failed writing to database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
+    }
+    sqlite3_reset(_statement);
+    sqlite3_clear_bindings(_statement);
+  });
 }
 
 - (void)close {
-  sqlite3_finalize(_statement);
-  _statement = NULL;
-  sqlite3_close(_database);
-  _database = NULL;
+  dispatch_sync(self.lockQueue, ^() {
+    sqlite3_finalize(_statement);
+    _statement = NULL;
+    sqlite3_close(_database);
+    _database = NULL;
+  });
 }
 
 - (BOOL)purgeRecordsBeforeAbsoluteTime:(CFAbsoluteTime)time {
-  sqlite3* database = NULL;
-  int result = sqlite3_open([_databasePath fileSystemRepresentation], &database);
-  if (result == SQLITE_OK) {
+  __block BOOL success = YES;
+  dispatch_sync(self.lockQueue, ^() {
+    int result;
     if (time > 0.0) {
       NSString* statement = [NSString stringWithFormat:@"DELETE FROM " kTableName " WHERE time < %f",
                                                        time];
-      result = sqlite3_exec(database, [statement UTF8String], NULL, NULL, NULL);
+      result = sqlite3_exec(_database, [statement UTF8String], NULL, NULL, NULL);
     } else {
-      result = sqlite3_exec(database, "DELETE FROM " kTableName, NULL, NULL, NULL);
+      result = sqlite3_exec(_database, "DELETE FROM " kTableName, NULL, NULL, NULL);
     }
     if (result == SQLITE_OK) {
-      result = sqlite3_exec(database, "VACUUM", NULL, NULL, NULL);
+      result = sqlite3_exec(_database, "VACUUM", NULL, NULL, NULL);
     }
-  }
-  if (result != SQLITE_OK) {
-    XLOG_ERROR(@"Failed opening database at path \"%@\": %s", _databasePath, sqlite3_errmsg(database));
-  }
-  sqlite3_close(database);  // Always call even if sqlite3_open() failed
-  return (result == SQLITE_OK ? YES : NO);
+    if (result != SQLITE_OK) {
+      XLOG_ERROR(@"Failed purging records from database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
+      success = NO;
+    }
+  });
+  return success;
 }
 
-- (void)enumerateRecordsAfterAbsoluteTime:(CFAbsoluteTime)time
+- (BOOL)enumerateRecordsAfterAbsoluteTime:(CFAbsoluteTime)time
                                  backward:(BOOL)backward
                                maxRecords:(NSUInteger)limit
                                usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block {
-  sqlite3* database = NULL;
-  int result = sqlite3_open([_databasePath fileSystemRepresentation], &database);
-  if (result == SQLITE_OK) {
+  __block BOOL success = YES;
+  dispatch_sync(self.lockQueue, ^() {
     NSString* string = [NSString stringWithFormat:@"SELECT version, time, tag, level, message, errno, thread, queue, callstack FROM " kTableName " WHERE %@ ORDER BY time %@",
                                                   time > 0.0 ? [NSString stringWithFormat:@"time > %f", time] : @"1",
                                                   backward ? @"DESC" : @"ASC"];
@@ -160,7 +166,7 @@
       string = [string stringByAppendingFormat:@" LIMIT %i", (int)limit];
     }
     sqlite3_stmt* statement = NULL;
-    result = sqlite3_prepare_v2(database, [string UTF8String], -1, &statement, NULL);
+    int result = sqlite3_prepare_v2(_database, [string UTF8String], -1, &statement, NULL);
     if (result == SQLITE_OK) {
       BOOL stop = NO;
       while (1) {
@@ -198,16 +204,17 @@
             break;
           }
         } else {
-          XLOG_ERROR(@"Failed reading record from database at path \"%@\": %s", _databasePath, sqlite3_errmsg(database));
+          XLOG_ERROR(@"Failed reading record from database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
         }
       }
     }
     sqlite3_finalize(statement);
-  }
-  if (result != SQLITE_DONE) {
-    XLOG_ERROR(@"Failed reading database at path \"%@\": %s", _databasePath, sqlite3_errmsg(database));
-  }
-  sqlite3_close(database);  // Always call even if sqlite3_open() failed
+    if (result != SQLITE_DONE) {
+      XLOG_ERROR(@"Failed reading database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
+      success = NO;
+    }
+  });
+  return success;
 }
 
 @end
@@ -218,8 +225,8 @@
   return [self purgeRecordsBeforeAbsoluteTime:0.0];
 }
 
-- (void)enumerateAllRecordsBackward:(BOOL)backward usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block {
-  [self enumerateRecordsAfterAbsoluteTime:0.0 backward:backward maxRecords:0 usingBlock:block];
+- (BOOL)enumerateAllRecordsBackward:(BOOL)backward usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block {
+  return [self enumerateRecordsAfterAbsoluteTime:0.0 backward:backward maxRecords:0 usingBlock:block];
 }
 
 @end
