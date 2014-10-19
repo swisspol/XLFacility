@@ -110,8 +110,6 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
 
 /**
  *  Removes a logger from XLFacility.
- *
- *  Return YES if the logger was found (and therefore removed).
  */
 - (void)removeLogger:(XLLogger*)logger;
 
@@ -156,7 +154,7 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
 /**
  *  Sets if XLFacility automatically logs uncaught exceptions.
  *
- *  The default value is NO;
+ *  The default value is NO.
  */
 @property(nonatomic) BOOL logsUncaughtExceptions;
 
@@ -164,7 +162,7 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
  *  Sets if XLFacility automatically logs all exceptions at the moment they are
  *  created and wether or not they are caught.
  *
- *  The default value is NO;
+ *  The default value is NO.
  *
  *  @warning Note that this will also capture exceptions that are not thrown either.
  */
@@ -174,7 +172,7 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
  *  Sets if XLFacility captures the standard output of the process and converts it
  *  into log messages at the INFO level after splitting on newlines boundaries.
  *
- *  The default value is NO;
+ *  The default value is NO.
  *
  *  @warning XLFacility achieves this by redirecting the file descriptor but since
  *  the original one is preserved so this method can still be used along with
@@ -186,7 +184,7 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
  *  Sets if XLFacility captures the standard output of the process and converts it
  *  into log messages at the ERROR level after splitting on newlines boundaries.
  *
- *  The default value is NO;
+ *  The default value is NO.
  *
  *  @warning XLFacility achieves this by redirecting the file descriptor but since
  *  the original one is preserved so this method can still be used along with
