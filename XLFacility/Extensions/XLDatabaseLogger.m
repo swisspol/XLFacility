@@ -46,6 +46,10 @@
 
 @implementation XLDatabaseLogger
 
++ (void)initialize {
+  XLOG_DEBUG_CHECK(sqlite3_threadsafe());
+}
+
 - (id)init {
   NSString* cachesPath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
   NSString* databasePath = [cachesPath stringByAppendingPathComponent:[NSStringFromClass([self class]) stringByAppendingPathExtension:@"db"]];
