@@ -103,10 +103,9 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
 /**
  *  Adds a logger to XLFacility.
  *
- *  Returns the logger if added successfully (i.e. it was not already added and
- *  was opened successfully).
+ *  Returns YES if the logger was added successfully.
  */
-- (XLLogger*)addLogger:(XLLogger*)logger;
+- (BOOL)addLogger:(XLLogger*)logger;
 
 /**
  *  Removes a logger from XLFacility.
@@ -193,21 +192,13 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
 @property(nonatomic) BOOL capturesStandardError;
 
 /**
- *  Sets the logger to be used for log messages from XLFacility itself.
+ *  Sets if messages generated from within XLFacility itself (which have the
+ *  XLFacilityTag_Internal tag) are sent to loggers.
  *
- *  To avoid infinite loops and deadlocks, log messages generated from within
- *  XLFacility (which have the XLFacilityTag_Internal tag), are sent only sent to
- *  one of the loggers added to XLFacility. This logger is defined as the "internal"
- *  logger.
- *
- *  You can set this property to either to one of the loggers added to XLFacility
- *  or nil if you want to discard entirely internal log messages.
- *
- *  If the preprocessor constant "DEBUG" evaluates to non-zero at build time,
- *  the default value is [XLStandardLogger sharedErrorLogger] assuming stderr is
- *  connected to a terminal type device. Otherwise the default value is nil.
+ *  The default value is NO unless the preprocessor constant "DEBUG" evaluates to
+ *  non-zero at build time in which case it is YES.
  */
-@property(nonatomic, retain) XLLogger* internalLogger;
+@property(nonatomic, getter=isInternalLoggingEnabled) BOOL internalLoggingEnabled;
 
 @end
 

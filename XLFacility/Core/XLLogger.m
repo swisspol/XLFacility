@@ -135,6 +135,30 @@ static NSString* _uid = nil;
   return YES;
 }
 
+- (BOOL)performOpen {
+  if (!_open && [self open]) {
+    _open = YES;
+  }
+  return _open;
+}
+
+- (void)performLogRecord:(XLLogRecord*)record {
+  if (_open) {
+    [self logRecord:record];
+  } else {
+#if DEBUG
+    abort();
+#endif
+  }
+}
+
+- (void)performClose {
+  if (_open) {
+    [self close];
+    _open = NO;
+  }
+}
+
 @end
 
 @implementation XLLogger (Subclassing)

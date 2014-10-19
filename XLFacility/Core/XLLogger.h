@@ -54,6 +54,11 @@ extern NSString* const XLLoggerFormatString_NSLog;
 @interface XLLogger : NSObject
 
 /**
+ *  Returns YES if the logger is open.
+ */
+@property(nonatomic, readonly, getter=isOpen) BOOL open;
+
+/**
  *  Sets the minimum log level below which received log records are ignored.
  *
  *  The default value is DEBUG.

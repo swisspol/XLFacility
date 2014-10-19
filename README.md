@@ -169,8 +169,9 @@ What's really interesting and useful is connecting to your app while it's runnin
 
 Of course, like you've already done above with `XLStandardLogger`, you can customize the format used by `XLTelnetServerLogger`, for instance like this:
 ```objectivec
-XLLogger* logger = [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
+XLLogger* logger = [[XLTelnetServerLogger alloc] init];
 logger.format = @"[%l | %q] %m";
+[XLSharedFacility addLogger:logger];
 ```
 
 You can even add multiples instances of `XLTelnetServerLogger` to XLFacility, each listening on a unique port and configured differently.

@@ -48,10 +48,30 @@
 
 typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 
-@interface TCPServer : XLTCPServer
+@interface TestLogger : XLLogger
 @end
 
-@implementation TCPServer {
+@implementation TestLogger
+
+- (BOOL)open {
+  XLOG_ERROR(@"Recursive logging in %s", __FUNCTION__);
+  return YES;
+}
+
+- (void)logRecord:(XLLogRecord*)record {
+  XLOG_ERROR(@"Recursive logging in %s", __FUNCTION__);
+}
+
+- (void)close {
+  XLOG_ERROR(@"Recursive logging in %s", __FUNCTION__);
+}
+
+@end
+
+@interface TestServer : XLTCPServer
+@end
+
+@implementation TestServer {
 @private
   TCPServerConnectionBlock _block;
 }
@@ -87,7 +107,6 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
   
   [XLSharedFacility removeAllLoggers];
   [XLSharedFacility addLogger:[XLStandardLogger sharedErrorLogger]];
-  [XLSharedFacility setInternalLogger:[XLStandardLogger sharedErrorLogger]];
   
   _capturedRecords = [[NSMutableArray alloc] init];
   [XLSharedFacility addLogger:[XLCallbackLogger loggerWithCallback:^(XLCallbackLogger* logger, XLLogRecord* record) {
@@ -169,8 +188,9 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 
 - (void)testFileLogger {
   NSString* filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
-  XLFileLogger* logger = (XLFileLogger*)[XLSharedFacility addLogger:[[XLFileLogger alloc] initWithFilePath:filePath append:NO]];
+  XLFileLogger* logger = [[XLFileLogger alloc] initWithFilePath:filePath append:NO];
   logger.format = @"[%L] %m";
+  [XLSharedFacility addLogger:logger];
   
   for (int i = 0; i < 10; ++i) {
     [XLSharedFacility logMessageWithTag:XLOG_TAG level:(i % 5) format:@"Hello World #%i!", i + 1];
@@ -197,7 +217,9 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 
 - (void)testDatabaseLogger {
   NSString* databasePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
-  XLDatabaseLogger* logger = (XLDatabaseLogger*)[XLSharedFacility addLogger:[[XLDatabaseLogger alloc] initWithDatabasePath:databasePath appVersion:0]];
+  XLDatabaseLogger* logger = [[XLDatabaseLogger alloc] initWithDatabasePath:databasePath appVersion:0];
+  
+  [XLSharedFacility addLogger:logger];
   
   for (int i = 0; i < 10; ++i) {
     [XLSharedFacility logMessageWithTag:XLOG_TAG level:(i % 5) format:@"Hello World #%i!", i + 1];
@@ -215,7 +237,7 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 }
 
 - (void)testASLLogger {
-  XLASLLogger* logger = (XLASLLogger*)[XLSharedFacility addLogger:[XLASLLogger sharedLogger]];
+  [XLSharedFacility addLogger:[XLASLLogger sharedLogger]];
   
   XLOG_INFO(@"Bonjour le monde!");
   XLOG_WARNING(@"Hello World!");
@@ -258,13 +280,14 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
   }
   asl_free(query);
   
-  [XLSharedFacility removeLogger:logger];
+  [XLSharedFacility removeLogger:[XLASLLogger sharedLogger]];
 }
 
 - (void)testTelnetLogger {
-  XLTelnetServerLogger* logger = (XLTelnetServerLogger*)[XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] initWithPort:3333 preserveHistory:YES]];
+  XLTelnetServerLogger* logger = [[XLTelnetServerLogger alloc] initWithPort:3333 preserveHistory:YES];
   logger.format = @"[%L] %m";
   logger.colorize = NO;
+  [XLSharedFacility addLogger:logger];
   
   XLOG_INFO(@"Bonjour le monde!");
   XLOG_WARNING(@"Hello World!");
@@ -309,7 +332,8 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 }
 
 - (void)testHTTPLogger {
-  XLLogger* logger = (XLHTTPServerLogger*)[XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] initWithPort:8888]];
+  XLHTTPServerLogger* logger = [[XLHTTPServerLogger alloc] initWithPort:8888];
+  [XLSharedFacility addLogger:logger];
   
   XLOG_INFO(@"Bonjour le monde!");
   XLOG_WARNING(@"Hello World!");
@@ -350,7 +374,7 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 
 - (void)testTCP {
   __block XLTCPPeerConnection* inConnection = nil;
-  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(XLTCPPeerConnection* connection) {
+  TestServer* server = [[TestServer alloc] initWithPort:4444 connectionBlock:^(XLTCPPeerConnection* connection) {
     inConnection = connection;
   }];
   XCTAssertTrue([server start]);
@@ -388,15 +412,16 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 
 - (void)testTCPClientLogger {
   __block XLTCPPeerConnection* connection = nil;
-  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(XLTCPPeerConnection* newConnection) {
+  TestServer* server = [[TestServer alloc] initWithPort:4444 connectionBlock:^(XLTCPPeerConnection* newConnection) {
     connection = newConnection;
   }];
   XCTAssertTrue([server start]);
   
-  XLTCPClientLogger* logger = (XLTCPClientLogger*)[XLSharedFacility addLogger:[[XLTCPClientLogger alloc] initWithHost:@"localhost" port:4444]];
+  XLTCPClientLogger* logger = [[XLTCPClientLogger alloc] initWithHost:@"localhost" port:4444];
   logger.format = @"[%L] %m";
   logger.TCPClient.minReconnectInterval = 1.0;
   logger.TCPClient.maxReconnectInterval = 1.0;
+  [XLSharedFacility addLogger:logger];
   
   sleep(1);
   XCTAssertNotNil(connection);
@@ -453,6 +478,15 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
   [XLSharedFacility removeLogger:logger];
   
   [server stop];
+}
+
+- (void)testRecursiveLogging {
+  TestLogger* logger = [[TestLogger alloc] init];
+  [XLSharedFacility addLogger:logger];
+  
+  XLOG_ERROR(@"Hello World!");
+  
+  [XLSharedFacility removeLogger:logger];
 }
 
 @end

@@ -29,6 +29,7 @@
 #error XLFacility requires ARC
 #endif
 
+#import <pthread.h>
 #import <objc/runtime.h>
 #import <execinfo.h>
 #import <netdb.h>
@@ -66,7 +67,8 @@ static NSData* _newlineData = nil;
   dispatch_queue_t _lockQueue;
   dispatch_group_t _syncGroup;
   NSMutableSet* _loggers;
-  XLLogger* _internalLogger;
+  pthread_key_t _pthreadKey;
+  BOOL _internalLoggingEnabled;
 }
 @end
 
@@ -74,7 +76,7 @@ static NSData* _newlineData = nil;
 
 static void _ExitHandler() {
   @autoreleasepool {
-    [XLSharedFacility closeAllLoggers];
+    [XLSharedFacility _closeAllLoggers];
   }
 }
 
@@ -111,12 +113,13 @@ static void _ExitHandler() {
     _lockQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _syncGroup = dispatch_group_create();
     _loggers = [[NSMutableSet alloc] init];
+    pthread_key_create(&_pthreadKey, NULL);
+#if !DEBUG
+    _internalLoggingEnabled = YES;
+#endif
     
     if (isatty(XLOriginalStdErr)) {
       [self addLogger:[XLStandardLogger sharedErrorLogger]];
-#if DEBUG
-      [self setInternalLogger:[XLStandardLogger sharedErrorLogger]];
-#endif
     }
   }
   return self;
@@ -138,67 +141,95 @@ static void _ExitHandler() {
   return loggers;
 }
 
-- (XLLogger*)addLogger:(XLLogger*)logger {
-  __block XLLogger* addedLogger;
-  dispatch_sync(_lockQueue, ^{
-    if (![_loggers containsObject:logger]) {
-      dispatch_sync(logger.serialQueue, ^{
-        addedLogger = [logger open] ? logger : nil;
+- (BOOL)addLogger:(XLLogger*)logger {
+  __block BOOL success = NO;
+  if (logger) {
+    dispatch_sync(logger.serialQueue, ^{
+      success = [logger performOpen];
+    });
+    
+    if (success) {
+      dispatch_sync(_lockQueue, ^{
+        [_loggers addObject:logger];
       });
-      if (addedLogger) {
-        [_loggers addObject:addedLogger];
-      }
     }
-  });
-  return addedLogger;
+  } else {
+    XLOG_DEBUG_UNREACHABLE();
+  }
+  return success;
 }
 
 - (void)removeLogger:(XLLogger*)logger {
-  dispatch_sync(_lockQueue, ^{
-    if ([_loggers containsObject:logger]) {
-      dispatch_sync(logger.serialQueue, ^{
-        [logger close];
-      });
+  if (logger) {
+    dispatch_sync(_lockQueue, ^{
       [_loggers removeObject:logger];
-      if (_internalLogger == logger) {
-        _internalLogger = nil;
-      }
-    }
-  });
+    });
+    
+    dispatch_sync(logger.serialQueue, ^{
+      [logger performClose];
+    });
+  } else {
+    XLOG_DEBUG_UNREACHABLE();
+  }
 }
 
-// Must be called from _lockQueue
 - (void)_closeAllLoggers {
   for (XLLogger* logger in _loggers) {
     dispatch_sync(logger.serialQueue, ^{
-      [logger close];
+      [logger performClose];
     });
   }
 }
 
 - (void)removeAllLoggers {
   dispatch_sync(_lockQueue, ^{
-    [self _closeAllLoggers];
     [_loggers removeAllObjects];
-    _internalLogger = nil;
   });
-}
-
-- (void)closeAllLoggers {
-  dispatch_sync(_lockQueue, ^{
-    [self _closeAllLoggers];
-  });
+  
+  [self _closeAllLoggers];
 }
 
 @end
 
 @implementation XLFacility (Logging)
 
+// Must be called on _lockQueue
+- (void)_logRecord:(XLLogRecord*)record {
+  // Call each logger asynchronously on its own serial queue
+  for (XLLogger* logger in _loggers) {
+    if ([logger shouldLogRecord:record]) {
+      dispatch_group_async(_syncGroup, logger.serialQueue, ^{
+        pthread_setspecific(_pthreadKey, &XLSharedFacility);
+        [logger performLogRecord:record];
+        pthread_setspecific(_pthreadKey, NULL);
+      });
+    }
+  }
+  
+  // If the log record is at ERROR level or above, block XLFacility entirely until all loggers are done
+  if (record.level >= kXLLogLevel_Error) {
+    dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);
+  }
+  
+  // If the log record is at ABORT level, close all loggers and kill the process
+  if (record.level >= kXLLogLevel_Abort) {
+    [self _closeAllLoggers];
+    abort();
+  }
+}
+
 - (void)_logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level callstack:(NSArray*)callstack {
   if (message == nil) {
     XLOG_DEBUG_UNREACHABLE();
     return;
   }
+  
+  // Ignore internal log messages if required
+  if ((tag == XLFacilityTag_Internal) && !_internalLoggingEnabled) {
+    return;
+  }
+  
+  // Make sure log level is valid
   if (level < kXLMinLogLevel) {
     level = kXLMinLogLevel;
   } else if (level > kXLMaxLogLevel) {
@@ -239,46 +270,15 @@ static void _ExitHandler() {
   }
 #endif
   
-  // Create the log record and dispatch to all loggers
+  // Create the log record and send to loggers
   XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time tag:tag level:level message:message callstack:callstack];
-  if (tag == XLFacilityTag_Internal) {
+  if (pthread_getspecific(_pthreadKey)) {  // Avoid deadlock in in case of reentrancy on the same thread by exceptionally making the logging asynchronous
     dispatch_async(_lockQueue, ^{
-      
-      // Call only the internal logger
-      dispatch_sync(_internalLogger.serialQueue, ^{
-        [_internalLogger logRecord:record];
-      });
-      
-      // If the log record is at ABORT level, close all loggers and kill the process
-      if (level >= kXLLogLevel_Abort) {
-        [self _closeAllLoggers];
-        abort();
-      }
-      
+      [self _logRecord:record];
     });
   } else {
     dispatch_sync(_lockQueue, ^{
-      
-      // Call each logger asynchronously on its own serial queue
-      for (XLLogger* logger in _loggers) {
-        if ([logger shouldLogRecord:record]) {
-          dispatch_group_async(_syncGroup, logger.serialQueue, ^{
-            [logger logRecord:record];
-          });
-        }
-      }
-      
-      // If the log record is at ERROR level or above, block XLFacility entirely until all loggers are done
-      if (level >= kXLLogLevel_Error) {
-        dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);
-      }
-      
-      // If the log record is at ABORT level, close all loggers and kill the process
-      if (level >= kXLLogLevel_Abort) {
-        [self _closeAllLoggers];
-        abort();
-      }
-      
+      [self _logRecord:record];
     });
   }
 }
@@ -312,7 +312,7 @@ static void _ExitHandler() {
 
 static void _UncaughtExceptionHandler(NSException* exception) {
   [XLSharedFacility logException:exception withTag:XLFacilityTag_UncaughtExceptions];
-  [XLSharedFacility closeAllLoggers];
+  [XLSharedFacility _closeAllLoggers];
   if (_originalExceptionHandler) {
     (*_originalExceptionHandler)(exception);
   }
@@ -461,21 +461,12 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
   return (_stdErrCaptureSource != NULL);
 }
 
-- (void)setInternalLogger:(XLLogger*)logger {
-  dispatch_sync(_lockQueue, ^{
-    _internalLogger = nil;
-    if ([_loggers containsObject:logger]) {
-      _internalLogger = logger;
-    }
-  });
+- (void)setInternalLoggingEnabled:(BOOL)flag {
+  _internalLoggingEnabled = flag;
 }
 
-- (XLLogger*)internalLogger {
-  __block XLLogger* logger;
-  dispatch_sync(_lockQueue, ^{
-    logger = _internalLogger;
-  });
-  return logger;
+- (BOOL)isInternalLoggingEnabled {
+  return _internalLoggingEnabled;
 }
 
 @end

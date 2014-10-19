@@ -67,5 +67,9 @@ extern NSString* XLPaddedStringFromLogLevelName(XLLogLevel level);
 
 @interface XLLogger ()
 @property(nonatomic, readonly) dispatch_queue_t serialQueue;
+@property(nonatomic, getter=isReady) BOOL ready;
 - (BOOL)shouldLogRecord:(XLLogRecord*)record;
+- (BOOL)performOpen;
+- (void)performLogRecord:(XLLogRecord*)record;
+- (void)performClose;
 @end
