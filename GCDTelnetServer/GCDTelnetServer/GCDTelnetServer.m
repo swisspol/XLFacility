@@ -117,6 +117,10 @@
 
 @implementation GCDTelnetServer
 
+- (instancetype)initWithConnectionClass:(Class)connectionClass port:(NSUInteger)port {
+  return [self initWithConnectionClass:connectionClass port:port startHandler:NULL lineHandler:NULL];
+}
+
 - (instancetype)initWithPort:(NSUInteger)port startHandler:(GCDTelnetStartHandler)startHandler lineHandler:(GCDTelnetLineHandler)lineHandler {
   return [self initWithConnectionClass:[GCDTelnetConnection class] port:port startHandler:startHandler lineHandler:lineHandler];
 }

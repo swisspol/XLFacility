@@ -92,6 +92,13 @@
 @property(nonatomic, readonly) NSMutableString* lineBuffer;
 
 /*
+ *  Called whenever a new connection has started with a remote terminal.
+ *
+ *  The default implementation calls the GCDTelnetServer start handler.
+ */
+- (NSString*)start;
+
+/*
  *  Called when the arrow up key is pressed.
  *
  *  The default implementation navigates the history towards older entries.
@@ -180,16 +187,24 @@
 
 @interface GCDTelnetConnection (Extensions)
 
+/**
+ *  Returns a sanitized version of a string to send to the remote terminal.
+ *
+ *  The current implementation replaces all newline characters by carriage
+ *  returns.
+ */
+- (NSString*)sanitizeStringForTerminal:(NSString*)string;
+
 /*
  *  Convenience methods that writes a string to the connection using lossy
  *  ASCII encoding.
  */
-- (BOOL)writeANSIString:(NSString*)string withTimeout:(NSTimeInterval)timeout;
+- (BOOL)writeASCIIString:(NSString*)string withTimeout:(NSTimeInterval)timeout;
 
 /*
  *  Convenience methods that writes a formatted string to the connection using
  *  lossy ASCII encoding.
  */
-- (void)writeANSIStringAsynchronously:(NSString*)string completion:(void (^)(BOOL success))completion;
+- (void)writeASCIIStringAsynchronously:(NSString*)string completion:(void (^)(BOOL success))completion;
 
 @end
