@@ -41,6 +41,7 @@
 @private
   sqlite3* _database;
   sqlite3_stmt* _statement;
+  dispatch_queue_t _databaseQueue;
 }
 @end
 
@@ -62,13 +63,23 @@
   if ((self = [super init])) {
     _databasePath = [path copy];
     _appVersion = appVersion;
+    
+    _databaseQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
   }
   return self;
 }
 
+#if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
+
+- (void)dealloc {
+  dispatch_release(_databaseQueue);
+}
+
+#endif
+
 - (BOOL)open {
   __block BOOL success = YES;
-  dispatch_sync(self.lockQueue, ^() {
+  dispatch_sync(_databaseQueue, ^() {
     int result = sqlite3_open([_databasePath fileSystemRepresentation], &_database);
     if (result == SQLITE_OK) {
       result = sqlite3_exec(_database, "CREATE TABLE IF NOT EXISTS " kTableName " (version INTEGER, time REAL, tag TEXT, level INTEGER, message TEXT, errno INTEGER, thread INTEGER, queue TEXT, callstack TEXT)",
@@ -90,7 +101,7 @@
 }
 
 - (void)logRecord:(XLLogRecord*)record {
-  dispatch_sync(self.lockQueue, ^() {
+  dispatch_sync(_databaseQueue, ^() {
     sqlite3_bind_double(_statement, 1, record.absoluteTime);
     const char* tag = XLConvertNSStringToUTF8CString(record.tag);
     if (tag) {
@@ -123,7 +134,7 @@
 }
 
 - (void)close {
-  dispatch_sync(self.lockQueue, ^() {
+  dispatch_sync(_databaseQueue, ^() {
     sqlite3_finalize(_statement);
     _statement = NULL;
     sqlite3_close(_database);
@@ -133,7 +144,7 @@
 
 - (BOOL)purgeRecordsBeforeAbsoluteTime:(CFAbsoluteTime)time {
   __block BOOL success = YES;
-  dispatch_sync(self.lockQueue, ^() {
+  dispatch_sync(_databaseQueue, ^() {
     int result;
     if (time > 0.0) {
       NSString* statement = [NSString stringWithFormat:@"DELETE FROM " kTableName " WHERE time < %f",
@@ -158,7 +169,7 @@
                                maxRecords:(NSUInteger)limit
                                usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block {
   __block BOOL success = YES;
-  dispatch_sync(self.lockQueue, ^() {
+  dispatch_sync(_databaseQueue, ^() {
     NSString* string = [NSString stringWithFormat:@"SELECT version, time, tag, level, message, errno, thread, queue, callstack FROM " kTableName " WHERE %@ ORDER BY time %@",
                                                   time > 0.0 ? [NSString stringWithFormat:@"time > %f", time] : @"1",
                                                   backward ? @"DESC" : @"ASC"];
