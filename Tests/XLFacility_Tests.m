@@ -326,7 +326,8 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
     XCTAssertNotNil(data4);
     NSString* string4 = [[NSString alloc] initWithData:data4 encoding:NSASCIIStringEncoding];
     
-    XCTAssertTrue([string4 containsString:@"[INFO     ] Bonjour le monde!\r\n[WARNING  ] Hello World!\r\n"]);
+    NSRange range = [string4 rangeOfString:@"[INFO     ] Bonjour le monde!\r\n[WARNING  ] Hello World!\r\n"];
+    XCTAssertTrue(range.location != NSNotFound);
     
     XLOG_ERROR(@"Hello again!");
     usleep(kLoggingDelay);
