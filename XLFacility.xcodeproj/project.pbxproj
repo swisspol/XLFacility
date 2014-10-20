@@ -204,7 +204,7 @@
 		E29DC8A719EA425700A1B39F /* XLLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLLogger.h; sourceTree = "<group>"; };
 		E29DC8A819EA425700A1B39F /* XLLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLLogger.m; sourceTree = "<group>"; };
 		E29DC8A919EA425700A1B39F /* XLFacilityMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLFacilityMacros.h; sourceTree = "<group>"; };
-		E29DC8AA19EA425700A1B39F /* XLPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLPrivate.h; sourceTree = "<group>"; };
+		E29DC8AA19EA425700A1B39F /* XLFacilityPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLFacilityPrivate.h; sourceTree = "<group>"; };
 		E29DC8AB19EA425700A1B39F /* XLLogRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLLogRecord.h; sourceTree = "<group>"; };
 		E29DC8AC19EA425700A1B39F /* XLLogRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLLogRecord.m; sourceTree = "<group>"; };
 		E29DC8AD19EA425700A1B39F /* XLStandardLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLStandardLogger.h; sourceTree = "<group>"; };
@@ -386,6 +386,7 @@
 				E29DC8A419EA425700A1B39F /* XLFacility.m */,
 				E25663D319EF284B0040CF5E /* XLFacilityCMacros.h */,
 				E29DC8A919EA425700A1B39F /* XLFacilityMacros.h */,
+				E29DC8AA19EA425700A1B39F /* XLFacilityPrivate.h */,
 				E29DC8A519EA425700A1B39F /* XLFileLogger.h */,
 				E29DC8A619EA425700A1B39F /* XLFileLogger.m */,
 				E25663D619EF63330040CF5E /* XLFunctions.h */,
@@ -394,7 +395,6 @@
 				E29DC8A819EA425700A1B39F /* XLLogger.m */,
 				E29DC8AB19EA425700A1B39F /* XLLogRecord.h */,
 				E29DC8AC19EA425700A1B39F /* XLLogRecord.m */,
-				E29DC8AA19EA425700A1B39F /* XLPrivate.h */,
 				E29DC8AD19EA425700A1B39F /* XLStandardLogger.h */,
 				E29DC8AE19EA425700A1B39F /* XLStandardLogger.m */,
 			);

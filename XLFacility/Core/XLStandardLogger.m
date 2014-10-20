@@ -30,7 +30,7 @@
 #endif
 
 #import "XLStandardLogger.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 @implementation XLStandardLogger
 

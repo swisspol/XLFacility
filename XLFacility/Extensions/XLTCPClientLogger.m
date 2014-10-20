@@ -33,7 +33,7 @@
 
 #import "XLTCPClientLogger.h"
 #import "XLFunctions.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 static void* _associatedObjectKey = &_associatedObjectKey;
 

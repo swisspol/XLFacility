@@ -31,7 +31,7 @@
 
 #import "XLHTTPServerLogger.h"
 #import "XLFunctions.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 #define kMinRefreshDelay 500  // In milliseconds
 #define kMaxLongPollDuration 30  // In seconds

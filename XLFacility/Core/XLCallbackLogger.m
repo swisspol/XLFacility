@@ -30,7 +30,7 @@
 #endif
 
 #import "XLCallbackLogger.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 @interface XLCallbackLogger () {
 @private

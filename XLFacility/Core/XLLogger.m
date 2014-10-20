@@ -32,7 +32,7 @@
 #import <pthread.h>
 
 #import "XLFunctions.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_Unknown = 0,

@@ -33,7 +33,7 @@
 
 #import "XLDatabaseLogger.h"
 #import "XLFunctions.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 #define kTableName "records_v2"
 

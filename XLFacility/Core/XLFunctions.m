@@ -30,7 +30,7 @@
 #endif
 
 #import "XLFunctions.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 #define kInvalidUTF8Placeholder "<INVALID UTF8 STRING>"
 

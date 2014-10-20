@@ -32,7 +32,7 @@
 #import <objc/runtime.h>
 
 #import "XLTCPServerLogger.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 static void* _associatedObjectKey = &_associatedObjectKey;
 

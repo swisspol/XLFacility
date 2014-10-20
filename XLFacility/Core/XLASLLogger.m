@@ -33,7 +33,7 @@
 
 #import "XLASLLogger.h"
 #import "XLFunctions.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 @interface XLASLLogger () {
 @private

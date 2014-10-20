@@ -31,7 +31,7 @@
 
 #import "XLFileLogger.h"
 #import "XLFunctions.h"
-#import "XLPrivate.h"
+#import "XLFacilityPrivate.h"
 
 @interface XLFileLogger () {
 @private
