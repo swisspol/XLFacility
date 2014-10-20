@@ -1,0 +1,552 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		E2B3CEE619E91770003ED065 /* Build All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = E2B3CEE719E91770003ED065 /* Build configuration list for PBXAggregateTarget "Build All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				E2B3CEEB19E91784003ED065 /* PBXTargetDependency */,
+				E2B3CF2B19E9189C003ED065 /* PBXTargetDependency */,
+				E2168F9619EE04B200865350 /* PBXTargetDependency */,
+			);
+			name = "Build All";
+			productName = "Build All";
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		E26ABC2C19EC9F9A00654D9F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E26ABC2B19EC9F9A00654D9F /* main.m */; };
+		E280BF1419E9FF5000D85595 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1319E9FF5000D85595 /* CFNetwork.framework */; };
+		E280BF1619E9FF5500D85595 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1519E9FF5500D85595 /* CFNetwork.framework */; };
+		E2812BB919F2E9780046DDC1 /* GCDTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB219F2E9780046DDC1 /* GCDTCPClient.m */; };
+		E2812BBA19F2E9780046DDC1 /* GCDTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB219F2E9780046DDC1 /* GCDTCPClient.m */; };
+		E2812BBC19F2E9780046DDC1 /* GCDTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB219F2E9780046DDC1 /* GCDTCPClient.m */; };
+		E2812BBD19F2E9780046DDC1 /* GCDTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB419F2E9780046DDC1 /* GCDTCPConnection.m */; };
+		E2812BBE19F2E9780046DDC1 /* GCDTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB419F2E9780046DDC1 /* GCDTCPConnection.m */; };
+		E2812BC019F2E9780046DDC1 /* GCDTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB419F2E9780046DDC1 /* GCDTCPConnection.m */; };
+		E2812BC119F2E9780046DDC1 /* GCDTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB619F2E9780046DDC1 /* GCDTCPPeer.m */; };
+		E2812BC219F2E9780046DDC1 /* GCDTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB619F2E9780046DDC1 /* GCDTCPPeer.m */; };
+		E2812BC419F2E9780046DDC1 /* GCDTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB619F2E9780046DDC1 /* GCDTCPPeer.m */; };
+		E2812BC519F2E9780046DDC1 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB819F2E9780046DDC1 /* GCDTCPServer.m */; };
+		E2812BC619F2E9780046DDC1 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB819F2E9780046DDC1 /* GCDTCPServer.m */; };
+		E2812BC819F2E9780046DDC1 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB819F2E9780046DDC1 /* GCDTCPServer.m */; };
+		E298C47A19ED866100C76821 /* GCDNetworking_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = E298C47919ED866100C76821 /* GCDNetworking_Tests.m */; };
+		E298C48619ED892500C76821 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1319E9FF5000D85595 /* CFNetwork.framework */; };
+		E2B3CF1B19E91825003ED065 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B3CF1819E91825003ED065 /* AppDelegate.m */; };
+		E2B3CF1D19E91825003ED065 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B3CF1A19E91825003ED065 /* main.m */; };
+		E2B3CF3019E919DD003ED065 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2B3CF2F19E919DD003ED065 /* UIKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E2168F9519EE04B200865350 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E26DC15F19E8494700C68DDC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E298C46B19ED859F00C76821;
+			remoteInfo = "XLFacility (Tests)";
+		};
+		E2B3CEEA19E91784003ED065 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E26DC15F19E8494700C68DDC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E26DC16619E8494700C68DDC;
+			remoteInfo = GCDLogger;
+		};
+		E2B3CF2A19E9189C003ED065 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E26DC15F19E8494700C68DDC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E2B3CEEF19E917BB003ED065;
+			remoteInfo = "GCDLogger (iOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		E22E917A19F2EBD40043457E /* GCDNetworkingPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDNetworkingPrivate.h; sourceTree = "<group>"; };
+		E22E917F19F2F0850043457E /* GCDNetworking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDNetworking.h; sourceTree = "<group>"; };
+		E26ABC2B19EC9F9A00654D9F /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		E26DC16719E8494700C68DDC /* GCDNetworking */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GCDNetworking; sourceTree = BUILT_PRODUCTS_DIR; };
+		E280BF0E19E9F3DF00D85595 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		E280BF1319E9FF5000D85595 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		E280BF1519E9FF5500D85595 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
+		E2812BB119F2E9780046DDC1 /* GCDTCPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPClient.h; sourceTree = "<group>"; };
+		E2812BB219F2E9780046DDC1 /* GCDTCPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPClient.m; sourceTree = "<group>"; };
+		E2812BB319F2E9780046DDC1 /* GCDTCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPConnection.h; sourceTree = "<group>"; };
+		E2812BB419F2E9780046DDC1 /* GCDTCPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPConnection.m; sourceTree = "<group>"; };
+		E2812BB519F2E9780046DDC1 /* GCDTCPPeer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPPeer.h; sourceTree = "<group>"; };
+		E2812BB619F2E9780046DDC1 /* GCDTCPPeer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPPeer.m; sourceTree = "<group>"; };
+		E2812BB719F2E9780046DDC1 /* GCDTCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPServer.h; sourceTree = "<group>"; };
+		E2812BB819F2E9780046DDC1 /* GCDTCPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPServer.m; sourceTree = "<group>"; };
+		E298C46C19ED859F00C76821 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E298C47919ED866100C76821 /* GCDNetworking_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDNetworking_Tests.m; sourceTree = "<group>"; };
+		E2B03E3A19F493A500D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
+		E2B3CEF019E917BB003ED065 /* GCDNetworking.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GCDNetworking.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2B3CF1719E91825003ED065 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		E2B3CF1819E91825003ED065 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		E2B3CF1919E91825003ED065 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2B3CF1A19E91825003ED065 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		E2B3CF2F19E919DD003ED065 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E26DC16419E8494700C68DDC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E280BF1419E9FF5000D85595 /* CFNetwork.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E298C46919ED859F00C76821 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E298C48619ED892500C76821 /* CFNetwork.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2B3CEED19E917BB003ED065 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E280BF1619E9FF5500D85595 /* CFNetwork.framework in Frameworks */,
+				E2B3CF3019E919DD003ED065 /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E26ABC2A19EC9F9A00654D9F /* CLT */ = {
+			isa = PBXGroup;
+			children = (
+				E26ABC2B19EC9F9A00654D9F /* main.m */,
+			);
+			path = CLT;
+			sourceTree = "<group>";
+		};
+		E26DC15E19E8494700C68DDC = {
+			isa = PBXGroup;
+			children = (
+				E280BF0E19E9F3DF00D85595 /* README.md */,
+				E2812BB019F2E9780046DDC1 /* GCDNetworking */,
+				E26ABC2A19EC9F9A00654D9F /* CLT */,
+				E2B3CF1619E91825003ED065 /* iOS */,
+				E298C47719ED866100C76821 /* Tests */,
+				E26DC19E19E883CC00C68DDC /* Mac Frameworks and Libraries */,
+				E2B3CF2E19E919AC003ED065 /* iOS Frameworks and Libraries */,
+				E26DC16819E8494700C68DDC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E26DC16819E8494700C68DDC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E26DC16719E8494700C68DDC /* GCDNetworking */,
+				E2B3CEF019E917BB003ED065 /* GCDNetworking.app */,
+				E298C46C19ED859F00C76821 /* Tests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E26DC19E19E883CC00C68DDC /* Mac Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				E280BF1319E9FF5000D85595 /* CFNetwork.framework */,
+			);
+			name = "Mac Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		E2812BB019F2E9780046DDC1 /* GCDNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				E2B03E3A19F493A500D56CA6 /* _LoggingBridgePrivate.h */,
+				E22E917F19F2F0850043457E /* GCDNetworking.h */,
+				E22E917A19F2EBD40043457E /* GCDNetworkingPrivate.h */,
+				E2812BB119F2E9780046DDC1 /* GCDTCPClient.h */,
+				E2812BB219F2E9780046DDC1 /* GCDTCPClient.m */,
+				E2812BB319F2E9780046DDC1 /* GCDTCPConnection.h */,
+				E2812BB419F2E9780046DDC1 /* GCDTCPConnection.m */,
+				E2812BB519F2E9780046DDC1 /* GCDTCPPeer.h */,
+				E2812BB619F2E9780046DDC1 /* GCDTCPPeer.m */,
+				E2812BB719F2E9780046DDC1 /* GCDTCPServer.h */,
+				E2812BB819F2E9780046DDC1 /* GCDTCPServer.m */,
+			);
+			path = GCDNetworking;
+			sourceTree = "<group>";
+		};
+		E298C47719ED866100C76821 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				E298C47919ED866100C76821 /* GCDNetworking_Tests.m */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		E2B3CF1619E91825003ED065 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				E2B3CF1719E91825003ED065 /* AppDelegate.h */,
+				E2B3CF1819E91825003ED065 /* AppDelegate.m */,
+				E2B3CF1919E91825003ED065 /* Info.plist */,
+				E2B3CF1A19E91825003ED065 /* main.m */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		E2B3CF2E19E919AC003ED065 /* iOS Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				E2B3CF2F19E919DD003ED065 /* UIKit.framework */,
+				E280BF1519E9FF5500D85595 /* CFNetwork.framework */,
+			);
+			name = "iOS Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E26DC16619E8494700C68DDC /* GCDNetworking (CLT) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E26DC16E19E8494700C68DDC /* Build configuration list for PBXNativeTarget "GCDNetworking (CLT)" */;
+			buildPhases = (
+				E26DC16319E8494700C68DDC /* Sources */,
+				E26DC16419E8494700C68DDC /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GCDNetworking (CLT)";
+			productName = Logger;
+			productReference = E26DC16719E8494700C68DDC /* GCDNetworking */;
+			productType = "com.apple.product-type.tool";
+		};
+		E298C46B19ED859F00C76821 /* GCDNetworking (Tests) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E298C47619ED859F00C76821 /* Build configuration list for PBXNativeTarget "GCDNetworking (Tests)" */;
+			buildPhases = (
+				E298C46819ED859F00C76821 /* Sources */,
+				E298C46919ED859F00C76821 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GCDNetworking (Tests)";
+			productName = "XLFacility Tests";
+			productReference = E298C46C19ED859F00C76821 /* Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E2B3CEEF19E917BB003ED065 /* GCDNetworking (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2B3CF1019E917BC003ED065 /* Build configuration list for PBXNativeTarget "GCDNetworking (iOS)" */;
+			buildPhases = (
+				E2B3CEEC19E917BB003ED065 /* Sources */,
+				E2B3CEED19E917BB003ED065 /* Frameworks */,
+				E2B3CEEE19E917BB003ED065 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GCDNetworking (iOS)";
+			productName = GCDLogger;
+			productReference = E2B3CEF019E917BB003ED065 /* GCDNetworking.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E26DC15F19E8494700C68DDC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "";
+				TargetAttributes = {
+					E26DC16619E8494700C68DDC = {
+						CreatedOnToolsVersion = 6.1;
+					};
+					E298C46B19ED859F00C76821 = {
+						CreatedOnToolsVersion = 6.1;
+						TestTargetID = E26ABC0919EC9E2D00654D9F;
+					};
+					E2B3CEE619E91770003ED065 = {
+						CreatedOnToolsVersion = 6.1;
+					};
+					E2B3CEEF19E917BB003ED065 = {
+						CreatedOnToolsVersion = 6.1;
+					};
+				};
+			};
+			buildConfigurationList = E26DC16219E8494700C68DDC /* Build configuration list for PBXProject "GCDNetworking" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = E26DC15E19E8494700C68DDC;
+			productRefGroup = E26DC16819E8494700C68DDC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E2B3CEE619E91770003ED065 /* Build All */,
+				E26DC16619E8494700C68DDC /* GCDNetworking (CLT) */,
+				E2B3CEEF19E917BB003ED065 /* GCDNetworking (iOS) */,
+				E298C46B19ED859F00C76821 /* GCDNetworking (Tests) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E2B3CEEE19E917BB003ED065 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E26DC16319E8494700C68DDC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2812BB919F2E9780046DDC1 /* GCDTCPClient.m in Sources */,
+				E2812BC119F2E9780046DDC1 /* GCDTCPPeer.m in Sources */,
+				E26ABC2C19EC9F9A00654D9F /* main.m in Sources */,
+				E2812BC519F2E9780046DDC1 /* GCDTCPServer.m in Sources */,
+				E2812BBD19F2E9780046DDC1 /* GCDTCPConnection.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E298C46819ED859F00C76821 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2812BBC19F2E9780046DDC1 /* GCDTCPClient.m in Sources */,
+				E2812BC419F2E9780046DDC1 /* GCDTCPPeer.m in Sources */,
+				E298C47A19ED866100C76821 /* GCDNetworking_Tests.m in Sources */,
+				E2812BC819F2E9780046DDC1 /* GCDTCPServer.m in Sources */,
+				E2812BC019F2E9780046DDC1 /* GCDTCPConnection.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2B3CEEC19E917BB003ED065 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2812BBA19F2E9780046DDC1 /* GCDTCPClient.m in Sources */,
+				E2812BC219F2E9780046DDC1 /* GCDTCPPeer.m in Sources */,
+				E2B3CF1D19E91825003ED065 /* main.m in Sources */,
+				E2B3CF1B19E91825003ED065 /* AppDelegate.m in Sources */,
+				E2812BC619F2E9780046DDC1 /* GCDTCPServer.m in Sources */,
+				E2812BBE19F2E9780046DDC1 /* GCDTCPConnection.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E2168F9619EE04B200865350 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E298C46B19ED859F00C76821 /* GCDNetworking (Tests) */;
+			targetProxy = E2168F9519EE04B200865350 /* PBXContainerItemProxy */;
+		};
+		E2B3CEEB19E91784003ED065 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E26DC16619E8494700C68DDC /* GCDNetworking (CLT) */;
+			targetProxy = E2B3CEEA19E91784003ED065 /* PBXContainerItemProxy */;
+		};
+		E2B3CF2B19E9189C003ED065 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E2B3CEEF19E917BB003ED065 /* GCDNetworking (iOS) */;
+			targetProxy = E2B3CF2A19E9189C003ED065 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		E26DC16C19E8494700C68DDC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
+				ONLY_ACTIVE_ARCH = YES;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Weverything",
+					"-Wshadow",
+					"-Wshorten-64-to-32",
+					"-Wno-direct-ivar-access",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-implicit-retain-self",
+					"-Wno-documentation-unknown-command",
+					"-Wno-gnu-statement-expression",
+				);
+			};
+			name = Debug;
+		};
+		E26DC16D19E8494700C68DDC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				WARNING_CFLAGS = "-Wall";
+			};
+			name = Release;
+		};
+		E26DC16F19E8494700C68DDC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = GCDNetworking;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E26DC17019E8494700C68DDC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = GCDNetworking;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E298C47419ED859F00C76821 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = Tests;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E298C47519ED859F00C76821 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = Tests;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E2B3CEE819E91770003ED065 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E2B3CEE919E91770003ED065 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		E2B3CF1119E917BC003ED065 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				PRODUCT_NAME = GCDNetworking;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E2B3CF1219E917BC003ED065 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				PRODUCT_NAME = GCDNetworking;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E26DC16219E8494700C68DDC /* Build configuration list for PBXProject "GCDNetworking" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E26DC16C19E8494700C68DDC /* Debug */,
+				E26DC16D19E8494700C68DDC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E26DC16E19E8494700C68DDC /* Build configuration list for PBXNativeTarget "GCDNetworking (CLT)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E26DC16F19E8494700C68DDC /* Debug */,
+				E26DC17019E8494700C68DDC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E298C47619ED859F00C76821 /* Build configuration list for PBXNativeTarget "GCDNetworking (Tests)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E298C47419ED859F00C76821 /* Debug */,
+				E298C47519ED859F00C76821 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E2B3CEE719E91770003ED065 /* Build configuration list for PBXAggregateTarget "Build All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2B3CEE819E91770003ED065 /* Debug */,
+				E2B3CEE919E91770003ED065 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E2B3CF1019E917BC003ED065 /* Build configuration list for PBXNativeTarget "GCDNetworking (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2B3CF1119E917BC003ED065 /* Debug */,
+				E2B3CF1219E917BC003ED065 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E26DC15F19E8494700C68DDC /* Project object */;
+}
