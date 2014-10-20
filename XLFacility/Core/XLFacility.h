@@ -39,7 +39,8 @@ typedef NS_ENUM(int, XLLogLevel) {
   kXLLogLevel_Exception,
   kXLLogLevel_Abort,
   kXLMinLogLevel = kXLLogLevel_Debug,
-  kXLMaxLogLevel = kXLLogLevel_Abort
+  kXLMaxLogLevel = kXLLogLevel_Abort,
+  kXLMuteLogLevel = INT_MAX
 };
 
 /**
@@ -69,13 +70,13 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
 /**
  *  Sets the minimum log level below which log messages are ignored.
  *
+ *  If you want to "mute" entirely XLFacility, simply set this property to
+ *  "kXLMuteLogLevel".
+ *
  *  The default value is INFO (or DEBUG if the preprocessor constant "DEBUG"
  *  evaluates to non-zero at build time). This default value can also be overridden
  *  at run time by setting the environment variable "XLFacilityMinLogLevel" to the
  *  integer value for the level.
- *
- *  If you want to "mute" entirely XLFacility, simply set the `minLogLevel` property
- *  to very a high value like `INT_MAX`.
  */
 @property(nonatomic) XLLogLevel minLogLevel;
 
