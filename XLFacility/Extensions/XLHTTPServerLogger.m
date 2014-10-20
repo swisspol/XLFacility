@@ -311,7 +311,7 @@
 - (void)logRecord:(XLLogRecord*)record {
   [super logRecord:record];
   
-  [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPPeerConnection* connection, BOOL* stop) {
+  [self.TCPServer enumerateConnectionsUsingBlock:^(GCDTCPPeerConnection* connection, BOOL* stop) {
     [(XLHTTPServerConnection*)connection didReceiveLogRecord];
   }];
 }

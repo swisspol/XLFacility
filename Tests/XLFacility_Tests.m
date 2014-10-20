@@ -42,11 +42,11 @@
 #import "XLTelnetServerLogger.h"
 #import "XLHTTPServerLogger.h"
 #import "XLTCPClientLogger.h"
-#import "XLTCPClient.h"
+#import "GCDTCPClient.h"
 
 #define kLoggingDelay (100 * 1000)
 
-typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
+typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
 
 @interface TestLogger : XLLogger
 @end
@@ -68,7 +68,7 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 
 @end
 
-@interface TestServer : XLTCPServer
+@interface TestServer : GCDTCPServer
 @end
 
 @implementation TestServer {
@@ -77,13 +77,13 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 }
 
 - (id)initWithPort:(NSUInteger)port connectionBlock:(TCPServerConnectionBlock)block {
-  if ((self = [super initWithConnectionClass:[XLTCPServerConnection class] port:port])) {
+  if ((self = [super initWithConnectionClass:[GCDTCPServerConnection class] port:port])) {
     _block = block;
   }
   return self;
 }
 
-- (void)willOpenConnection:(XLTCPPeerConnection*)connection {
+- (void)willOpenConnection:(GCDTCPPeerConnection*)connection {
   [super willOpenConnection:connection];
   
   _block(connection);
@@ -103,7 +103,7 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
   
   [XLSharedFacility setCapturesStandardOutput:NO];
   [XLSharedFacility setLogsInitializedExceptions:NO];
-  [XLSharedFacility setMinLogLevel:kXLLogLevel_Debug];
+  [XLSharedFacility setMinLogLevel:kXLLogLevel_Verbose];
   
   [XLSharedFacility removeAllLoggers];
   [XLSharedFacility addLogger:[XLStandardLogger sharedErrorLogger]];
@@ -115,15 +115,14 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
 }
 
 - (void)testLoggingLevels {
-  XLOG_DEBUG(@"Hello Debug World!");
   XLOG_VERBOSE(@"Hello Verbose World!");
   XLOG_INFO(@"Hello Info World!");
   XLOG_WARNING(@"Hello Warning World!");
   XLOG_ERROR(@"Hello Error World!");
   usleep(kLoggingDelay);
   
-  XCTAssertEqual(_capturedRecords.count, 5);
-  XLLogRecord* record = _capturedRecords[2];
+  XCTAssertEqual(_capturedRecords.count, 4);
+  XLLogRecord* record = _capturedRecords[1];
   XCTAssertEqual(record.level, kXLLogLevel_Info);
   XCTAssertEqualObjects(record.message, @"Hello Info World!");
 }
@@ -193,22 +192,22 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
   [XLSharedFacility addLogger:logger];
   
   for (int i = 0; i < 10; ++i) {
-    [XLSharedFacility logMessageWithTag:XLOG_TAG level:(i % 5) format:@"Hello World #%i!", i + 1];
+    [XLSharedFacility logMessageWithTag:XLOG_TAG level:(1 + i % 4) format:@"Hello World #%i!", i + 1];
   }
   usleep(kLoggingDelay);
   
   NSString* contents = [[NSString alloc] initWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:NULL];
   XCTAssertEqualObjects(contents, @"\
-[DEBUG    ] Hello World #1!\n\
-[VERBOSE  ] Hello World #2!\n\
-[INFO     ] Hello World #3!\n\
-[WARNING  ] Hello World #4!\n\
-[ERROR    ] Hello World #5!\n\
-[DEBUG    ] Hello World #6!\n\
-[VERBOSE  ] Hello World #7!\n\
-[INFO     ] Hello World #8!\n\
-[WARNING  ] Hello World #9!\n\
-[ERROR    ] Hello World #10!\n\
+[VERBOSE  ] Hello World #1!\n\
+[INFO     ] Hello World #2!\n\
+[WARNING  ] Hello World #3!\n\
+[ERROR    ] Hello World #4!\n\
+[VERBOSE  ] Hello World #5!\n\
+[INFO     ] Hello World #6!\n\
+[WARNING  ] Hello World #7!\n\
+[ERROR    ] Hello World #8!\n\
+[VERBOSE  ] Hello World #9!\n\
+[INFO     ] Hello World #10!\n\
 ");
   
   [XLSharedFacility removeLogger:logger];
@@ -294,7 +293,7 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
   usleep(kLoggingDelay);
   
   XCTestExpectation* expectation = [self expectationWithDescription:nil];
-  [XLTCPConnection connectAsynchronouslyToHost:@"localhost" port:3333 timeout:5.0 completion:^(XLTCPConnection* connection) {
+  [GCDTCPConnection connectAsynchronouslyToHost:@"localhost" port:3333 timeout:5.0 completion:^(GCDTCPConnection* connection) {
     XCTAssertNotNil(connection);
     [connection open];
     [connection readDataAsynchronously:^(NSData* data1) {
@@ -372,47 +371,9 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
   [XLSharedFacility removeLogger:logger];
 }
 
-- (void)testTCP {
-  __block XLTCPPeerConnection* inConnection = nil;
-  TestServer* server = [[TestServer alloc] initWithPort:4444 connectionBlock:^(XLTCPPeerConnection* connection) {
-    inConnection = connection;
-  }];
-  XCTAssertTrue([server start]);
-  
-  XLTCPClient* client = [[XLTCPClient alloc] initWithConnectionClass:[XLTCPClientConnection class] host:@"localhost" port:4444];
-  XCTAssertTrue([client start]);
-  
-  sleep(1);
-  
-  XCTAssertNotNil(inConnection);
-  XLTCPClientConnection* outConnection = client.connection;
-  XCTAssertNotNil(outConnection);
-  
-  NSData* data1 = [outConnection readData:1024 withTimeout:3.0];
-  XCTAssertNil(data1);
-  
-  XCTestExpectation* expectation = [self expectationWithDescription:nil];
-  [inConnection readDataAsynchronously:^(NSData* data) {
-    XCTAssertNotNil(data);
-    NSString* string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    XCTAssertEqualObjects(string, @"Hello World!\n");
-    
-    [expectation fulfill];
-  }];
-  BOOL success = [outConnection writeData:[@"Hello World!\n" dataUsingEncoding:NSUTF8StringEncoding] withTimeout:3.0];
-  XCTAssertTrue(success);
-  [self waitForExpectationsWithTimeout:10.0 handler:NULL];
-  
-  [outConnection close];
-  [inConnection close];
-  
-  [client stop];
-  [server stop];
-}
-
 - (void)testTCPClientLogger {
-  __block XLTCPPeerConnection* connection = nil;
-  TestServer* server = [[TestServer alloc] initWithPort:4444 connectionBlock:^(XLTCPPeerConnection* newConnection) {
+  __block GCDTCPPeerConnection* connection = nil;
+  TestServer* server = [[TestServer alloc] initWithPort:4444 connectionBlock:^(GCDTCPPeerConnection* newConnection) {
     connection = newConnection;
   }];
   XCTAssertTrue([server start]);
@@ -448,7 +409,7 @@ typedef void (^TCPServerConnectionBlock)(XLTCPPeerConnection* connection);
   XCTAssertNil(connection);
   
   for (int i = 0; i < 10; ++i) {
-    XLOG_DEBUG(@"HEY THERE");
+    XLOG_VERBOSE(@"HEY THERE");
   }
   usleep(kLoggingDelay);
   

@@ -64,7 +64,7 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 - (instancetype)initWithPort:(NSUInteger)port useDatabaseLogger:(BOOL)useDatabaseLogger {
   XLOG_DEBUG_CHECK([[[self class] connectionClass] isSubclassOfClass:[XLTCPServerLoggerConnection class]]);
   if ((self = [super init])) {
-    _TCPServer = [[XLTCPServer alloc] initWithConnectionClass:[[self class] connectionClass] port:port];
+    _TCPServer = [[GCDTCPServer alloc] initWithConnectionClass:[[self class] connectionClass] port:port];
     objc_setAssociatedObject(_TCPServer, _associatedObjectKey, self, OBJC_ASSOCIATION_ASSIGN);
     _useDatabase = useDatabaseLogger;
   }

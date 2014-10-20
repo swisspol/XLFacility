@@ -26,7 +26,7 @@
  */
 
 #import "XLDatabaseLogger.h"
-#import "XLTCPServer.h"
+#import "GCDTCPServer.h"
 
 @class XLTCPServerLogger;
 
@@ -34,7 +34,7 @@
  *  The XLTCPServerConnection is an abstract class to implement connections
  *  for XLTCPServerLogger: it cannot be used directly.
  */
-@interface XLTCPServerLoggerConnection : XLTCPServerConnection
+@interface XLTCPServerLoggerConnection : GCDTCPServerConnection
 
 /**
  *  Returns the XLTCPServerLogger that owns the connection.
@@ -58,7 +58,7 @@
 /**
  *  Returns the XLTCPServer used internally.
  */
-@property(nonatomic, readonly) XLTCPServer* TCPServer;
+@property(nonatomic, readonly) GCDTCPServer* TCPServer;
 
 /**
  *  Returns the XLDatabaseLogger used internally if any.

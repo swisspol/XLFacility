@@ -25,9 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLTCPServer.h"
+#import "GCDTCPServer.h"
 
-@interface ServerConnection : XLTCPServerConnection
+@interface ServerConnection : GCDTCPServerConnection
 @end
 
 @implementation ServerConnection
@@ -63,7 +63,7 @@
 
 int main(int argc, const char* argv[]) {
   @autoreleasepool {
-    XLTCPServer* server = [[XLTCPServer alloc] initWithConnectionClass:[ServerConnection class] port:8888];
+    GCDTCPServer* server = [[GCDTCPServer alloc] initWithConnectionClass:[ServerConnection class] port:8888];
     if (![server start]) {
       abort();
     }

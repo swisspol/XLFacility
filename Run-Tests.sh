@@ -1,5 +1,10 @@
 #!/bin/bash -ex
 
+# Run GCDNetworking tests first
+pushd "GCDNetworking"
+./Run-Tests.sh
+popd
+
 OSX_SDK="macosx"
 if [ -z "$TRAVIS" ]; then
   IOS_SDK="iphoneos"

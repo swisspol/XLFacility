@@ -68,7 +68,6 @@ static NSData* _newlineData = nil;
   dispatch_group_t _syncGroup;
   NSMutableSet* _loggers;
   pthread_key_t _pthreadKey;
-  BOOL _internalLoggingEnabled;
 }
 @end
 
@@ -109,14 +108,12 @@ static void _ExitHandler() {
 - (id)init {
   if ((self = [super init])) {
     _minCaptureCallstackLevel = kXLLogLevel_Exception;
+    _minInternalLogLevel = XLMinLogLevel;
     
     _lockQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _syncGroup = dispatch_group_create();
     _loggers = [[NSMutableSet alloc] init];
     pthread_key_create(&_pthreadKey, NULL);
-#if !DEBUG
-    _internalLoggingEnabled = YES;
-#endif
     
     if (isatty(XLOriginalStdErr)) {
       [self addLogger:[XLStandardLogger sharedErrorLogger]];
@@ -223,17 +220,14 @@ static void _ExitHandler() {
     XLOG_DEBUG_UNREACHABLE();
     return;
   }
-  
-  // Ignore internal log messages if required
-  if ((tag == XLFacilityTag_Internal) && !_internalLoggingEnabled) {
+  if ((level < kXLMinLogLevel) || (level > kXLMaxLogLevel)) {
+    XLOG_DEBUG_UNREACHABLE();
     return;
   }
   
-  // Make sure log level is valid
-  if (level < kXLMinLogLevel) {
-    level = kXLMinLogLevel;
-  } else if (level > kXLMaxLogLevel) {
-    level = kXLMaxLogLevel;
+  // Ignore internal log messages if necessary
+  if ((tag == XLFacilityTag_Internal) && (level < _minInternalLogLevel)) {
+    return;
   }
   
   // Save current absolute time
@@ -459,14 +453,6 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 
 - (BOOL)capturesStandardError {
   return (_stdErrCaptureSource != NULL);
-}
-
-- (void)setInternalLoggingEnabled:(BOOL)flag {
-  _internalLoggingEnabled = flag;
-}
-
-- (BOOL)isInternalLoggingEnabled {
-  return _internalLoggingEnabled;
 }
 
 @end

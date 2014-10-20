@@ -88,6 +88,17 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
 @property(nonatomic) XLLogLevel minCaptureCallstackLevel;
 
 /**
+ *  Sets the minimum log level below which internal log messages from within
+ *  XLFacility (which have the XLFacilityTag_Internal tag) are ignored.
+ *
+ *  If you want to "mute" entirely XLFacility internal log messages, simply set
+ *  this property to "kXLMuteLogLevel".
+ *
+ *  The default value is the same as "minLogLevel".
+ */
+@property(nonatomic) XLLogLevel minInternalLogLevel;
+
+/**
  *  Returns all currently added loggers.
  */
 @property(nonatomic, readonly) NSSet* loggers;
@@ -190,15 +201,6 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
  *  [XLStandardLogger sharedErrorLogger].
  */
 @property(nonatomic) BOOL capturesStandardError;
-
-/**
- *  Sets if messages generated from within XLFacility itself (which have the
- *  XLFacilityTag_Internal tag) are sent to loggers.
- *
- *  The default value is NO unless the preprocessor constant "DEBUG" evaluates to
- *  non-zero at build time in which case it is YES.
- */
-@property(nonatomic, getter=isInternalLoggingEnabled) BOOL internalLoggingEnabled;
 
 @end
 

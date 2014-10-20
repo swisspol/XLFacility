@@ -26,7 +26,7 @@
  */
 
 #import "XLLogger.h"
-#import "XLTCPClient.h"
+#import "GCDTCPClient.h"
 
 @class XLTCPClientLogger;
 
@@ -34,7 +34,7 @@
  *  The XLTCPClientLoggerConnection is an abstract class to implement connections
  *  for XLTCPClientLogger: it cannot be used directly.
  */
-@interface XLTCPClientLoggerConnection : XLTCPClientConnection
+@interface XLTCPClientLoggerConnection : GCDTCPClientConnection
 
 /**
  *  Returns the XLTCPClientLogger that owns the connection.
@@ -56,7 +56,7 @@
 /**
  *  Returns the XLTCPClient used internally.
  */
-@property(nonatomic, readonly) XLTCPClient* TCPClient;
+@property(nonatomic, readonly) GCDTCPClient* TCPClient;
 
 /**
  *  Configures how long the TCP client should wait (and therefore potentially

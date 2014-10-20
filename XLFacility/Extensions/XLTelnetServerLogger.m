@@ -114,7 +114,7 @@
   [super logRecord:record];
   
   NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
-  [self.TCPServer enumerateConnectionsUsingBlock:^(XLTCPPeerConnection* connection, BOOL* stop) {
+  [self.TCPServer enumerateConnectionsUsingBlock:^(GCDTCPPeerConnection* connection, BOOL* stop) {
     if (_sendTimeout < 0.0) {
       [connection writeDataAsynchronously:data completion:^(BOOL success) {
         if (!success) {
