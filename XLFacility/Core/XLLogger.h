@@ -90,12 +90,6 @@ extern NSString* const XLLoggerFormatString_NSLog;
 @interface XLLogger (Subclassing)
 
 /**
- *  Returns a GCD serial queue subclasses can use to protect internal data
- *  that can be accessed concurrently from multiple threads.
- */
-@property(nonatomic, readonly) dispatch_queue_t lockQueue;
-
-/**
  *  Called when the logger is added to XLFacility.
  *
  *  Returning NO will prevent the logger to be added.

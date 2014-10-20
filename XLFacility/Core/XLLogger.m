@@ -163,10 +163,6 @@ static NSString* _uid = nil;
 
 @implementation XLLogger (Subclassing)
 
-- (dispatch_queue_t)lockQueue {
-  return _lockQueue;
-}
-
 - (BOOL)open {
   return YES;
 }
