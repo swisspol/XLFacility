@@ -33,47 +33,48 @@
 #import "XLFunctions.h"
 #import "XLFacilityPrivate.h"
 
-@interface XLTelnetServerConnection : XLTCPServerLoggerConnection
+#import "GCDTelnetServer.h"
+#import "NSMutableString+ANSI.h"
+
+@interface XLTelnetServerConnection : GCDTelnetConnection
 @end
 
 @implementation XLTelnetServerConnection
 
-- (void)didOpen {
-  [super didOpen];
-  
-  NSString* welcome;
-  if ([(XLTelnetServerLogger*)self.logger colorize]) {
-    welcome = [[NSString alloc] initWithFormat:@"%sYou are connected to %s[%i] (in color!)%s\n\n", "\x1b[32m", getprogname(), getpid(), "\x1b[0m"];
-  } else {
-    welcome = [[NSString alloc] initWithFormat:@"You are connected to %s[%i]\n\n", getprogname(), getpid()];
+- (instancetype)initWithSocket:(int)socket {
+  if ((self = [super initWithSocket:socket])) {
+    self.prompt = nil;
   }
-  [self writeDataAsynchronously:XLConvertNSStringToUTF8String(welcome) completion:^(BOOL success1) {
-    
-    if (success1) {
-      XLTelnetServerLogger* logger = (XLTelnetServerLogger*)self.logger;
-      if (logger.databaseLogger) {
-        NSMutableString* history = [[NSMutableString alloc] init];
-        [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
-          [history appendString:[logger formatRecord:record]];
-        }];
-        [self writeDataAsynchronously:XLConvertNSStringToUTF8String(history) completion:^(BOOL success2) {
-          
-          if (!success2) {
-            [self close];
-          }
-          
-        }];
-      }
-    } else {
-      [self close];
-    }
-    
-  }];
+  return self;
+}
+
+- (NSString*)start {
+  NSMutableString* string = [[NSMutableString alloc] init];
+  
+  if ([(XLTelnetServerLogger*)self.logger shouldColorize]) {
+    [string appendANSIStringWithColor:kANSIColor_Green bold:NO format:@"You are connected to %s[%i] (in color!)", getprogname(), getpid()];
+    [string appendString:@"\n\n"];
+  } else {
+    [string appendFormat:@"You are connected to %s[%i]\n\n", getprogname(), getpid()];
+  }
+  
+  XLTelnetServerLogger* logger = (XLTelnetServerLogger*)self.logger;
+  if (logger.databaseLogger) {
+    [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+      [string appendString:[logger formatRecord:record]];
+    }];
+  }
+  
+  return [self sanitizeStringForTerminal:string];
 }
 
 @end
 
 @implementation XLTelnetServerLogger
+
++ (Class)serverClass {
+  return [GCDTelnetServer class];
+}
 
 + (Class)connectionClass {
   return [XLTelnetServerConnection class];
@@ -85,26 +86,29 @@
 
 - (instancetype)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory {
   if ((self = [super initWithPort:port useDatabaseLogger:preserveHistory])) {
-    _colorize = YES;
+    _shouldColorize = YES;
     _sendTimeout = -1.0;
   }
   return self;
 }
 
-// https://en.wikipedia.org/wiki/ANSI_escape_code
 - (NSString*)formatRecord:(XLLogRecord*)record {
   NSString* formattedMessage = [super formatRecord:record];
-  if (_colorize) {
-    const char* code = NULL;
+  if (_shouldColorize) {
+    char color = -1;
+    BOOL bold = NO;
     if (record.level == kXLLogLevel_Warning) {
-      code = "\x1b[33m";  // Yellow
+      color = kANSIColor_Yellow;
     } else if (record.level == kXLLogLevel_Error) {
-      code = "\x1b[31m";  // Red
+      color = kANSIColor_Red;
     } else if (record.level >= kXLLogLevel_Exception) {
-      code = "\x1b[31;1m";  // Bold red
+      color = kANSIColor_Red;
+      bold = YES;
     }
-    if (code) {
-      formattedMessage = [NSString stringWithFormat:@"%s%@%s", code, formattedMessage, "\x1b[0m"];
+    if (color != -1) {
+      NSMutableString* string = [[NSMutableString alloc] initWithCapacity:(formattedMessage.length + 16)];
+      [string appendANSIString:formattedMessage withColor:color bold:bold];
+      formattedMessage = string;
     }
   }
   return formattedMessage;
@@ -113,16 +117,17 @@
 - (void)logRecord:(XLLogRecord*)record {
   [super logRecord:record];
   
-  NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
+  NSString* formattedMessage = [self formatRecord:record];
   [self.TCPServer enumerateConnectionsUsingBlock:^(GCDTCPPeerConnection* connection, BOOL* stop) {
+    NSString* string = [(GCDTelnetConnection*)connection sanitizeStringForTerminal:formattedMessage];
     if (_sendTimeout < 0.0) {
-      [connection writeDataAsynchronously:data completion:^(BOOL success) {
+      [(GCDTelnetConnection*)connection writeASCIIStringAsynchronously:string completion:^(BOOL success) {
         if (!success) {
           [connection close];
         }
       }];
     } else {
-      if (![connection writeData:data withTimeout:_sendTimeout]) {
+      if (![(GCDTelnetConnection*)connection writeASCIIString:string withTimeout:_sendTimeout]) {
         [connection close];
       }
     }

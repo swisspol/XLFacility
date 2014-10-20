@@ -38,7 +38,7 @@ static void _RunLoopTimerCallBack(CFRunLoopTimerRef timer, void* info) {
   if (_counter % 2 == 0) {
     XLOG_VERBOSE(@"Tick");
   } else {
-    XLOG_VERBOSE(@"Tock");
+    XLOG_ERROR(@"Tock");
   }
   _counter += 1;
 }

@@ -45,7 +45,7 @@
  *
  *  The default value is YES.
  */
-@property(nonatomic) BOOL colorize;
+@property(nonatomic) BOOL shouldColorize;
 
 /**
  *  Configures how long the Telnet server should wait (and therefore potentially

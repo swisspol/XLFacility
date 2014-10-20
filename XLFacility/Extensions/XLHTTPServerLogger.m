@@ -40,7 +40,7 @@
 @property(nonatomic, readonly) NSDateFormatter* dateFormatterRFC822;
 @end
 
-@interface XLHTTPServerConnection : XLTCPServerLoggerConnection
+@interface XLHTTPServerConnection : GCDTCPServerConnection
 @end
 
 @interface XLHTTPServerConnection () {

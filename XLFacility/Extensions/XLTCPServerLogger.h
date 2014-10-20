@@ -28,23 +28,6 @@
 #import "XLDatabaseLogger.h"
 #import "GCDTCPServer.h"
 
-@class XLTCPServerLogger;
-
-/**
- *  The XLTCPServerConnection is an abstract class to implement connections
- *  for XLTCPServerLogger: it cannot be used directly.
- */
-@interface XLTCPServerLoggerConnection : GCDTCPServerConnection
-
-/**
- *  Returns the XLTCPServerLogger that owns the connection.
- *
- *  @warning This returns nil after the connection has been closed.
- */
-@property(nonatomic, assign, readonly) XLTCPServerLogger* logger;
-
-@end
-
 /**
  *  The XLTCPServerLogger class is an abstract class for loggers that
  *  implement TCP servers: it cannot be used directly.
@@ -66,9 +49,16 @@
 @property(nonatomic, readonly) XLDatabaseLogger* databaseLogger;
 
 /**
+ *  Returns the class to use to instantiate the server.
+ *
+ *  The default implementation returns [GCDTCPServer class].
+ */
++ (Class)serverClass;
+
+/**
  *  Returns the class to use to instantiate server connections.
  *
- *  The default implementation returns [XLTCPServerLoggerConnection class].
+ *  The default implementation returns [GCDTCPServerConnection class].
  */
 + (Class)connectionClass;
 
@@ -78,5 +68,16 @@
  *  @warning The TCP server is not running until the logger is opened.
  */
 - (instancetype)initWithPort:(NSUInteger)port useDatabaseLogger:(BOOL)useDatabaseLogger;
+
+@end
+
+@interface GCDTCPServerConnection (XLTCPServerLogger)
+
+/**
+ *  Returns the XLTCPServerLogger that owns the connection.
+ *
+ *  @warning This returns nil after the connection has been closed.
+ */
+@property(nonatomic, assign, readonly) XLTCPServerLogger* logger;
 
 @end

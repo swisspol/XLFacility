@@ -36,14 +36,6 @@
 
 static void* _associatedObjectKey = &_associatedObjectKey;
 
-@implementation XLTCPServerLoggerConnection
-
-- (XLTCPServerLogger*)logger {
-  return objc_getAssociatedObject(self.peer, _associatedObjectKey);
-}
-
-@end
-
 @interface XLTCPServerLogger () {
 @private
   BOOL _useDatabase;
@@ -52,8 +44,12 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 
 @implementation XLTCPServerLogger
 
++ (Class)serverClass {
+  return [GCDTCPServer class];
+}
+
 + (Class)connectionClass {
-  return [XLTCPServerLoggerConnection class];
+  return [GCDTCPServerConnection class];
 }
 
 - (id)init {
@@ -62,9 +58,9 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 }
 
 - (instancetype)initWithPort:(NSUInteger)port useDatabaseLogger:(BOOL)useDatabaseLogger {
-  XLOG_DEBUG_CHECK([[[self class] connectionClass] isSubclassOfClass:[XLTCPServerLoggerConnection class]]);
+  XLOG_DEBUG_CHECK([[[self class] serverClass] isSubclassOfClass:[GCDTCPServer class]]);
   if ((self = [super init])) {
-    _TCPServer = [[GCDTCPServer alloc] initWithConnectionClass:[[self class] connectionClass] port:port];
+    _TCPServer = [[[[self class] serverClass] alloc] initWithConnectionClass:[[self class] connectionClass] port:port];
     objc_setAssociatedObject(_TCPServer, _associatedObjectKey, self, OBJC_ASSOCIATION_ASSIGN);
     _useDatabase = useDatabaseLogger;
   }
@@ -105,6 +101,14 @@ static void* _associatedObjectKey = &_associatedObjectKey;
     [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
     _databaseLogger = nil;
   }
+}
+
+@end
+
+@implementation GCDTCPServerConnection (XLTCPServerLogger)
+
+- (XLTCPServerLogger*)logger {
+  return objc_getAssociatedObject(self.peer, _associatedObjectKey);
 }
 
 @end

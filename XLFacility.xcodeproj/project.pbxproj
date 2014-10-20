@@ -100,6 +100,41 @@
 		E29DC8C719EA425700A1B39F /* XLHTTPServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8B319EA425700A1B39F /* XLHTTPServerLogger.m */; };
 		E29DC8C819EA425700A1B39F /* XLTelnetServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8B519EA425700A1B39F /* XLTelnetServerLogger.m */; };
 		E29DC8C919EA425700A1B39F /* XLTelnetServerLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8B519EA425700A1B39F /* XLTelnetServerLogger.m */; };
+		E2B03E9D19F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9619F4C27D00D56CA6 /* GCDTelnetConnection.m */; };
+		E2B03E9E19F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9619F4C27D00D56CA6 /* GCDTelnetConnection.m */; };
+		E2B03E9F19F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9619F4C27D00D56CA6 /* GCDTelnetConnection.m */; };
+		E2B03EA019F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9619F4C27D00D56CA6 /* GCDTelnetConnection.m */; };
+		E2B03EA119F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9619F4C27D00D56CA6 /* GCDTelnetConnection.m */; };
+		E2B03EA219F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9A19F4C27D00D56CA6 /* GCDTelnetServer.m */; };
+		E2B03EA319F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9A19F4C27D00D56CA6 /* GCDTelnetServer.m */; };
+		E2B03EA419F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9A19F4C27D00D56CA6 /* GCDTelnetServer.m */; };
+		E2B03EA519F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9A19F4C27D00D56CA6 /* GCDTelnetServer.m */; };
+		E2B03EA619F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9A19F4C27D00D56CA6 /* GCDTelnetServer.m */; };
+		E2B03EA719F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9C19F4C27D00D56CA6 /* NSMutableString+ANSI.m */; };
+		E2B03EA819F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9C19F4C27D00D56CA6 /* NSMutableString+ANSI.m */; };
+		E2B03EA919F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9C19F4C27D00D56CA6 /* NSMutableString+ANSI.m */; };
+		E2B03EAA19F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9C19F4C27D00D56CA6 /* NSMutableString+ANSI.m */; };
+		E2B03EAB19F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03E9C19F4C27D00D56CA6 /* NSMutableString+ANSI.m */; };
+		E2B03EB819F4C28A00D56CA6 /* GCDTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB119F4C28A00D56CA6 /* GCDTCPClient.m */; };
+		E2B03EB919F4C28A00D56CA6 /* GCDTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB119F4C28A00D56CA6 /* GCDTCPClient.m */; };
+		E2B03EBA19F4C28A00D56CA6 /* GCDTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB119F4C28A00D56CA6 /* GCDTCPClient.m */; };
+		E2B03EBB19F4C28A00D56CA6 /* GCDTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB119F4C28A00D56CA6 /* GCDTCPClient.m */; };
+		E2B03EBC19F4C28A00D56CA6 /* GCDTCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB119F4C28A00D56CA6 /* GCDTCPClient.m */; };
+		E2B03EBD19F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB319F4C28A00D56CA6 /* GCDTCPConnection.m */; };
+		E2B03EBE19F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB319F4C28A00D56CA6 /* GCDTCPConnection.m */; };
+		E2B03EBF19F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB319F4C28A00D56CA6 /* GCDTCPConnection.m */; };
+		E2B03EC019F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB319F4C28A00D56CA6 /* GCDTCPConnection.m */; };
+		E2B03EC119F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB319F4C28A00D56CA6 /* GCDTCPConnection.m */; };
+		E2B03EC219F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB519F4C28A00D56CA6 /* GCDTCPPeer.m */; };
+		E2B03EC319F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB519F4C28A00D56CA6 /* GCDTCPPeer.m */; };
+		E2B03EC419F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB519F4C28A00D56CA6 /* GCDTCPPeer.m */; };
+		E2B03EC519F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB519F4C28A00D56CA6 /* GCDTCPPeer.m */; };
+		E2B03EC619F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB519F4C28A00D56CA6 /* GCDTCPPeer.m */; };
+		E2B03EC719F4C28A00D56CA6 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB719F4C28A00D56CA6 /* GCDTCPServer.m */; };
+		E2B03EC819F4C28A00D56CA6 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB719F4C28A00D56CA6 /* GCDTCPServer.m */; };
+		E2B03EC919F4C28A00D56CA6 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB719F4C28A00D56CA6 /* GCDTCPServer.m */; };
+		E2B03ECA19F4C28A00D56CA6 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB719F4C28A00D56CA6 /* GCDTCPServer.m */; };
+		E2B03ECB19F4C28A00D56CA6 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B03EB719F4C28A00D56CA6 /* GCDTCPServer.m */; };
 		E2B3CF1B19E91825003ED065 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B3CF1819E91825003ED065 /* AppDelegate.m */; };
 		E2B3CF1D19E91825003ED065 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B3CF1A19E91825003ED065 /* main.m */; };
 		E2B3CF2D19E91990003ED065 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E2B3CF2C19E91990003ED065 /* libsqlite3.dylib */; };
@@ -195,6 +230,26 @@
 		E29DC8B319EA425700A1B39F /* XLHTTPServerLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLHTTPServerLogger.m; sourceTree = "<group>"; };
 		E29DC8B419EA425700A1B39F /* XLTelnetServerLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTelnetServerLogger.h; sourceTree = "<group>"; };
 		E29DC8B519EA425700A1B39F /* XLTelnetServerLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTelnetServerLogger.m; sourceTree = "<group>"; };
+		E2B03E9419F4C27D00D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
+		E2B03E9519F4C27D00D56CA6 /* GCDTelnetConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTelnetConnection.h; sourceTree = "<group>"; };
+		E2B03E9619F4C27D00D56CA6 /* GCDTelnetConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTelnetConnection.m; sourceTree = "<group>"; };
+		E2B03E9719F4C27D00D56CA6 /* GCDTelnetLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTelnetLogging.h; sourceTree = "<group>"; };
+		E2B03E9819F4C27D00D56CA6 /* GCDTelnetPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTelnetPrivate.h; sourceTree = "<group>"; };
+		E2B03E9919F4C27D00D56CA6 /* GCDTelnetServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTelnetServer.h; sourceTree = "<group>"; };
+		E2B03E9A19F4C27D00D56CA6 /* GCDTelnetServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTelnetServer.m; sourceTree = "<group>"; };
+		E2B03E9B19F4C27D00D56CA6 /* NSMutableString+ANSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableString+ANSI.h"; sourceTree = "<group>"; };
+		E2B03E9C19F4C27D00D56CA6 /* NSMutableString+ANSI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableString+ANSI.m"; sourceTree = "<group>"; };
+		E2B03EAD19F4C28A00D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
+		E2B03EAE19F4C28A00D56CA6 /* GCDNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDNetworking.h; sourceTree = "<group>"; };
+		E2B03EAF19F4C28A00D56CA6 /* GCDNetworkingPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDNetworkingPrivate.h; sourceTree = "<group>"; };
+		E2B03EB019F4C28A00D56CA6 /* GCDTCPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPClient.h; sourceTree = "<group>"; };
+		E2B03EB119F4C28A00D56CA6 /* GCDTCPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPClient.m; sourceTree = "<group>"; };
+		E2B03EB219F4C28A00D56CA6 /* GCDTCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPConnection.h; sourceTree = "<group>"; };
+		E2B03EB319F4C28A00D56CA6 /* GCDTCPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPConnection.m; sourceTree = "<group>"; };
+		E2B03EB419F4C28A00D56CA6 /* GCDTCPPeer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPPeer.h; sourceTree = "<group>"; };
+		E2B03EB519F4C28A00D56CA6 /* GCDTCPPeer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPPeer.m; sourceTree = "<group>"; };
+		E2B03EB619F4C28A00D56CA6 /* GCDTCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPServer.h; sourceTree = "<group>"; };
+		E2B03EB719F4C28A00D56CA6 /* GCDTCPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPServer.m; sourceTree = "<group>"; };
 		E2B3CEF019E917BB003ED065 /* XLFacility.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XLFacility.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2B3CF1719E91825003ED065 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E2B3CF1819E91825003ED065 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -297,6 +352,8 @@
 				E26ABC0B19EC9E2D00654D9F /* Mac */,
 				E298C47719ED866100C76821 /* Tests */,
 				E2168F7F19EDF2C000865350 /* TCPServer */,
+				E2B03E9319F4C27D00D56CA6 /* GCDTelnetServer */,
+				E2B03EAC19F4C28A00D56CA6 /* GCDNetworking */,
 				E26DC19E19E883CC00C68DDC /* Mac Frameworks and Libraries */,
 				E2B3CF2E19E919AC003ED065 /* iOS Frameworks and Libraries */,
 				E26DC16819E8494700C68DDC /* Products */,
@@ -384,6 +441,42 @@
 				E29DC8B519EA425700A1B39F /* XLTelnetServerLogger.m */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		E2B03E9319F4C27D00D56CA6 /* GCDTelnetServer */ = {
+			isa = PBXGroup;
+			children = (
+				E2B03E9419F4C27D00D56CA6 /* _LoggingBridgePrivate.h */,
+				E2B03E9519F4C27D00D56CA6 /* GCDTelnetConnection.h */,
+				E2B03E9619F4C27D00D56CA6 /* GCDTelnetConnection.m */,
+				E2B03E9719F4C27D00D56CA6 /* GCDTelnetLogging.h */,
+				E2B03E9819F4C27D00D56CA6 /* GCDTelnetPrivate.h */,
+				E2B03E9919F4C27D00D56CA6 /* GCDTelnetServer.h */,
+				E2B03E9A19F4C27D00D56CA6 /* GCDTelnetServer.m */,
+				E2B03E9B19F4C27D00D56CA6 /* NSMutableString+ANSI.h */,
+				E2B03E9C19F4C27D00D56CA6 /* NSMutableString+ANSI.m */,
+			);
+			name = GCDTelnetServer;
+			path = GCDTelnetServer/GCDTelnetServer;
+			sourceTree = "<group>";
+		};
+		E2B03EAC19F4C28A00D56CA6 /* GCDNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				E2B03EAD19F4C28A00D56CA6 /* _LoggingBridgePrivate.h */,
+				E2B03EAE19F4C28A00D56CA6 /* GCDNetworking.h */,
+				E2B03EAF19F4C28A00D56CA6 /* GCDNetworkingPrivate.h */,
+				E2B03EB019F4C28A00D56CA6 /* GCDTCPClient.h */,
+				E2B03EB119F4C28A00D56CA6 /* GCDTCPClient.m */,
+				E2B03EB219F4C28A00D56CA6 /* GCDTCPConnection.h */,
+				E2B03EB319F4C28A00D56CA6 /* GCDTCPConnection.m */,
+				E2B03EB419F4C28A00D56CA6 /* GCDTCPPeer.h */,
+				E2B03EB519F4C28A00D56CA6 /* GCDTCPPeer.m */,
+				E2B03EB619F4C28A00D56CA6 /* GCDTCPServer.h */,
+				E2B03EB719F4C28A00D56CA6 /* GCDTCPServer.m */,
+			);
+			name = GCDNetworking;
+			path = GCDTelnetServer/GCDNetworking/GCDNetworking;
 			sourceTree = "<group>";
 		};
 		E2B3CF1619E91825003ED065 /* iOS */ = {
@@ -580,12 +673,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2168F8C19EE01B200865350 /* main.m in Sources */,
+				E2B03ECB19F4C28A00D56CA6 /* GCDTCPServer.m in Sources */,
 				E2168F8E19EE02B500865350 /* XLFacility.m in Sources */,
+				E2B03EC119F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */,
+				E2B03EC619F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */,
+				E2B03EA119F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */,
 				E2168F9119EE034000865350 /* XLLogRecord.m in Sources */,
 				E2168F9419EE035800865350 /* XLLogger.m in Sources */,
+				E2B03EAB19F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */,
 				E2168F9319EE034E00865350 /* XLFileLogger.m in Sources */,
 				E25663DC19EF63330040CF5E /* XLFunctions.m in Sources */,
 				E2168F9219EE034500865350 /* XLStandardLogger.m in Sources */,
+				E2B03EA619F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */,
+				E2B03EBC19F4C28A00D56CA6 /* GCDTCPClient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -603,12 +703,19 @@
 				E26ABC3319EC9FF700654D9F /* XLLogger.m in Sources */,
 				E26ABC3819EC9FF700654D9F /* XLTCPServerLogger.m in Sources */,
 				E26ABC3119EC9FF700654D9F /* XLFacility.m in Sources */,
+				E2B03E9F19F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */,
 				E26ABC3519EC9FF700654D9F /* XLStandardLogger.m in Sources */,
 				E26ABC3019EC9FF700654D9F /* XLCallbackLogger.m in Sources */,
 				E26ABC3419EC9FF700654D9F /* XLLogRecord.m in Sources */,
 				E26ABC3719EC9FF700654D9F /* XLHTTPServerLogger.m in Sources */,
 				E26ABC1019EC9E2D00654D9F /* AppDelegate.m in Sources */,
+				E2B03EC419F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */,
 				E26ABC3219EC9FF700654D9F /* XLFileLogger.m in Sources */,
+				E2B03EBF19F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */,
+				E2B03EBA19F4C28A00D56CA6 /* GCDTCPClient.m in Sources */,
+				E2B03EC919F4C28A00D56CA6 /* GCDTCPServer.m in Sources */,
+				E2B03EA919F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */,
+				E2B03EA419F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -619,18 +726,25 @@
 				E26ABC2C19EC9F9A00654D9F /* main.m in Sources */,
 				E29DC8C419EA425700A1B39F /* XLDatabaseLogger.m in Sources */,
 				E29DC8B819EA425700A1B39F /* XLCallbackLogger.m in Sources */,
+				E2B03EC719F4C28A00D56CA6 /* GCDTCPServer.m in Sources */,
 				E29DC8B619EA425700A1B39F /* XLASLLogger.m in Sources */,
 				E29DC8BA19EA425700A1B39F /* XLFacility.m in Sources */,
 				E25663D819EF63330040CF5E /* XLFunctions.m in Sources */,
+				E2B03EBD19F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */,
+				E2B03EC219F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */,
 				E25663D519EF2CC40040CF5E /* c_test.c in Sources */,
+				E2B03EA719F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */,
 				E29DC8BE19EA425700A1B39F /* XLLogger.m in Sources */,
 				E26ABB5019EC278300654D9F /* XLTCPServerLogger.m in Sources */,
 				E29DC8C819EA425700A1B39F /* XLTelnetServerLogger.m in Sources */,
+				E2B03E9D19F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */,
+				E2B03EB819F4C28A00D56CA6 /* GCDTCPClient.m in Sources */,
 				E29DC8C219EA425700A1B39F /* XLStandardLogger.m in Sources */,
 				E29DC8C619EA425700A1B39F /* XLHTTPServerLogger.m in Sources */,
 				E29DC8C019EA425700A1B39F /* XLLogRecord.m in Sources */,
 				E2168F7019EDC8FF00865350 /* XLTCPClientLogger.m in Sources */,
 				E29DC8BC19EA425700A1B39F /* XLFileLogger.m in Sources */,
+				E2B03EA219F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -639,17 +753,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				E298C47D19ED890500C76821 /* XLFacility.m in Sources */,
+				E2B03ECA19F4C28A00D56CA6 /* GCDTCPServer.m in Sources */,
 				E298C47F19ED890500C76821 /* XLLogger.m in Sources */,
 				E298C48119ED890500C76821 /* XLStandardLogger.m in Sources */,
 				E298C48219ED890500C76821 /* XLDatabaseLogger.m in Sources */,
+				E2B03EC519F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */,
 				E298C48319ED890500C76821 /* XLHTTPServerLogger.m in Sources */,
+				E2B03EBB19F4C28A00D56CA6 /* GCDTCPClient.m in Sources */,
+				E2B03EC019F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */,
 				E298C48019ED890500C76821 /* XLLogRecord.m in Sources */,
 				E298C47B19ED890500C76821 /* XLASLLogger.m in Sources */,
+				E2B03EA019F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */,
 				E298C47A19ED866100C76821 /* XLFacility_Tests.m in Sources */,
 				E298C48519ED890500C76821 /* XLTelnetServerLogger.m in Sources */,
 				E298C47C19ED890500C76821 /* XLCallbackLogger.m in Sources */,
 				E298C48419ED890500C76821 /* XLTCPServerLogger.m in Sources */,
 				E2168F7319EDC8FF00865350 /* XLTCPClientLogger.m in Sources */,
+				E2B03EAA19F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */,
+				E2B03EA519F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */,
 				E25663DB19EF63330040CF5E /* XLFunctions.m in Sources */,
 				E298C47E19ED890500C76821 /* XLFileLogger.m in Sources */,
 			);
@@ -669,12 +790,19 @@
 				E29DC8C319EA425700A1B39F /* XLStandardLogger.m in Sources */,
 				E29DC8B919EA425700A1B39F /* XLCallbackLogger.m in Sources */,
 				E29DC8C719EA425700A1B39F /* XLHTTPServerLogger.m in Sources */,
+				E2B03E9E19F4C27D00D56CA6 /* GCDTelnetConnection.m in Sources */,
 				E29DC8BF19EA425700A1B39F /* XLLogger.m in Sources */,
 				E29DC8C919EA425700A1B39F /* XLTelnetServerLogger.m in Sources */,
 				E29DC8C119EA425700A1B39F /* XLLogRecord.m in Sources */,
 				E29DC8BD19EA425700A1B39F /* XLFileLogger.m in Sources */,
 				E29DC8B719EA425700A1B39F /* XLASLLogger.m in Sources */,
+				E2B03EC319F4C28A00D56CA6 /* GCDTCPPeer.m in Sources */,
 				E2BBC7FE19EAF0E90082CB48 /* XLUIKitOverlayLogger.m in Sources */,
+				E2B03EBE19F4C28A00D56CA6 /* GCDTCPConnection.m in Sources */,
+				E2B03EB919F4C28A00D56CA6 /* GCDTCPClient.m in Sources */,
+				E2B03EC819F4C28A00D56CA6 /* GCDTCPServer.m in Sources */,
+				E2B03EA819F4C27D00D56CA6 /* NSMutableString+ANSI.m in Sources */,
+				E2B03EA319F4C27D00D56CA6 /* GCDTelnetServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -25,15 +25,23 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'GCDNetworking' do |cs|
-    cs.source_files = 'GCDNetworking/GCDNetworking/*.{h,m}'
-    cs.private_header_files = "GCDNetworking/GCDNetworking/*Private.h"
+    cs.source_files = 'GCDTelnetServer/GCDNetworking/GCDNetworking/*.{h,m}'
+    cs.private_header_files = "GCDTelnetServer/GCDNetworking/GCDNetworking/*Private.h"
+    cs.requires_arc = true
+    cs.ios.frameworks = 'CFNetwork'
+  end
+
+  s.subspec 'GCDTelnetServer' do |cs|
+    cs.dependency 'XLFacility/GCDNetworking'
+    cs.source_files = 'GCDTelnetServer/GCDTelnetServer/*.{h,m}'
+    cs.private_header_files = "GCDTelnetServer/GCDTelnetServer/*Private.h"
     cs.requires_arc = true
     cs.ios.frameworks = 'CFNetwork'
   end
 
   s.subspec 'Extensions' do |cs|
     cs.dependency 'XLFacility/Core'
-    cs.dependency 'XLFacility/GCDNetworking'
+    cs.dependency 'XLFacility/GCDTelnetServer'
     cs.source_files = 'XLFacility/Extensions/*.{h,m}'
     cs.requires_arc = true
     cs.ios.library = 'sqlite3'

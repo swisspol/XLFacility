@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
-# Run GCDNetworking tests first
-pushd "GCDNetworking"
+# Run GCDTelnetServer tests first
+pushd "GCDTelnetServer"
 ./Run-Tests.sh
 popd
 

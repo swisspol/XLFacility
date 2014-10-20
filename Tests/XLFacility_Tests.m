@@ -45,6 +45,7 @@
 #import "GCDTCPClient.h"
 
 #define kLoggingDelay (100 * 1000)
+#define kCommunicationSleepDelay (100 * 1000)
 
 typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
 
@@ -282,10 +283,11 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
   [XLSharedFacility removeLogger:[XLASLLogger sharedLogger]];
 }
 
+// This is mostly copy-pasted from unit tests in GCDTelnetServer
 - (void)testTelnetLogger {
   XLTelnetServerLogger* logger = [[XLTelnetServerLogger alloc] initWithPort:3333 preserveHistory:YES];
   logger.format = @"[%L] %m";
-  logger.colorize = NO;
+  logger.shouldColorize = NO;
   [XLSharedFacility addLogger:logger];
   
   XLOG_INFO(@"Bonjour le monde!");
@@ -293,36 +295,49 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
   usleep(kLoggingDelay);
   
   XCTestExpectation* expectation = [self expectationWithDescription:nil];
-  [GCDTCPConnection connectAsynchronouslyToHost:@"localhost" port:3333 timeout:5.0 completion:^(GCDTCPConnection* connection) {
+  [GCDTCPConnection connectAsynchronouslyToHost:@"localhost" port:3333 timeout:1.0 completion:^(GCDTCPConnection* connection) {
     XCTAssertNotNil(connection);
     [connection open];
-    [connection readDataAsynchronously:^(NSData* data1) {
-      XCTAssertNotNil(data1);
-      NSString* string1 = [[NSString alloc] initWithData:data1 encoding:NSUTF8StringEncoding];
-      XCTAssertTrue([string1 hasPrefix:@"You are connected"]);
+    
+    usleep(kCommunicationSleepDelay);
+    
+    NSData* data1 = [connection readDataWithTimeout:1.0];
+    XCTAssertEqual(data1.length, 3);
+    unsigned char buffer1[] = {255, 253, 3};
+    XCTAssertTrue([connection writeData:[NSData dataWithBytes:buffer1 length:sizeof(buffer1)] withTimeout:1.0]);
+    
+    usleep(kCommunicationSleepDelay);
+    
+    NSData* data2 = [connection readDataWithTimeout:1.0];
+    XCTAssertEqual(data2.length, 3);
+    unsigned char buffer2[] = {255, 253, 1};
+    XCTAssertTrue([connection writeData:[NSData dataWithBytes:buffer2 length:sizeof(buffer2)] withTimeout:1.0]);
+    
+    usleep(kCommunicationSleepDelay);
+    
+    NSData* data3 = [connection readDataWithTimeout:1.0];
+    XCTAssertEqual(data3.length, 3);
+    unsigned char buffer3[] = {255, 254, 24};
+    XCTAssertTrue([connection writeData:[NSData dataWithBytes:buffer3 length:sizeof(buffer3)] withTimeout:1.0]);
+    
+    usleep(kCommunicationSleepDelay);
+    
+    NSData* data4 = [connection readDataWithTimeout:1.0];
+    XCTAssertNotNil(data4);
+    NSString* string4 = [[NSString alloc] initWithData:data4 encoding:NSASCIIStringEncoding];
+    
+    XCTAssertTrue([string4 containsString:@"[INFO     ] Bonjour le monde!\r\n[WARNING  ] Hello World!\r\n"]);
+    
+    XLOG_ERROR(@"Hello again!");
+    usleep(kLoggingDelay);
+    
+    [connection readDataAsynchronously:^(NSData* data5) {
+      XCTAssertNotNil(data5);
+      NSString* string5 = [[NSString alloc] initWithData:data5 encoding:NSUTF8StringEncoding];
+      XCTAssertEqualObjects(string5, @"[ERROR    ] Hello again!\r\n");
       
-      [connection readDataAsynchronously:^(NSData* data2) {
-        XCTAssertNotNil(data2);
-        NSString* string2 = [[NSString alloc] initWithData:data2 encoding:NSUTF8StringEncoding];
-        XCTAssertEqualObjects(string2, @"\
-[INFO     ] Bonjour le monde!\n\
-[WARNING  ] Hello World!\n\
-");
-        
-        XLOG_ERROR(@"Hello again!");
-        usleep(kLoggingDelay);
-        
-        [connection readDataAsynchronously:^(NSData* data3) {
-          XCTAssertNotNil(data3);
-          NSString* string3 = [[NSString alloc] initWithData:data3 encoding:NSUTF8StringEncoding];
-          XCTAssertEqualObjects(string3, @"[ERROR    ] Hello again!\n");
-          
-          [connection close];
-          [expectation fulfill];
-        }];
-        
-      }];
-      
+      [connection close];
+      [expectation fulfill];
     }];
   }];
   [self waitForExpectationsWithTimeout:10.0 handler:NULL];

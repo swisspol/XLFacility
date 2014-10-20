@@ -28,23 +28,6 @@
 #import "XLLogger.h"
 #import "GCDTCPClient.h"
 
-@class XLTCPClientLogger;
-
-/**
- *  The XLTCPClientLoggerConnection is an abstract class to implement connections
- *  for XLTCPClientLogger: it cannot be used directly.
- */
-@interface XLTCPClientLoggerConnection : GCDTCPClientConnection
-
-/**
- *  Returns the XLTCPClientLogger that owns the connection.
- *
- *  @warning This returns nil after the connection has been closed.
- */
-@property(nonatomic, assign, readonly) XLTCPClientLogger* logger;
-
-@end
-
 /**
  *  The XLTCPClientLogger class is a base class for loggers that connect
  *  to TCP servers.
@@ -71,9 +54,16 @@
 @property(nonatomic) NSTimeInterval sendTimeout;
 
 /**
+ *  Returns the class to use to instantiate the client.
+ *
+ *  The default implementation returns [GCDTCPClient class].
+ */
++ (Class)clientClass;
+
+/**
  *  Returns the class to use to instantiate client connections.
  *
- *  The default implementation returns [XLTCPClientLoggerConnection class].
+ *  The default implementation returns [GCDTCPClientConnection class].
  */
 + (Class)connectionClass;
 
@@ -83,5 +73,16 @@
  *  @warning The TCP client is not running until the logger is opened.
  */
 - (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port;
+
+@end
+
+@interface GCDTCPClientConnection (XLTCPClientLogger)
+
+/**
+ *  Returns the XLTCPClientLogger that owns the connection.
+ *
+ *  @warning This returns nil after the connection has been closed.
+ */
+@property(nonatomic, assign, readonly) XLTCPClientLogger* logger;
 
 @end

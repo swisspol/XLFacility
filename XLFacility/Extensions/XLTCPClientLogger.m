@@ -37,7 +37,7 @@
 
 static void* _associatedObjectKey = &_associatedObjectKey;
 
-@implementation XLTCPClientLoggerConnection
+@implementation GCDTCPClientConnection (XLTCPClientLogger)
 
 - (XLTCPClientLogger*)logger {
   return objc_getAssociatedObject(self.peer, _associatedObjectKey);
@@ -47,8 +47,12 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 
 @implementation XLTCPClientLogger
 
++ (Class)clientClass {
+  return [GCDTCPClient class];
+}
+
 + (Class)connectionClass {
-  return [XLTCPClientLoggerConnection class];
+  return [GCDTCPClientConnection class];
 }
 
 - (id)init {
@@ -57,9 +61,9 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 }
 
 - (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port {
-  XLOG_DEBUG_CHECK([[[self class] connectionClass] isSubclassOfClass:[XLTCPClientLoggerConnection class]]);
+  XLOG_DEBUG_CHECK([[[self class] clientClass] isSubclassOfClass:[GCDTCPClient class]]);
   if ((self = [super init])) {
-    _TCPClient = [[GCDTCPClient alloc] initWithConnectionClass:[[self class] connectionClass] host:hostname port:port];
+    _TCPClient = [[[[self class] clientClass] alloc] initWithConnectionClass:[[self class] connectionClass] host:hostname port:port];
     objc_setAssociatedObject(_TCPClient, _associatedObjectKey, self, OBJC_ASSOCIATION_ASSIGN);
     _sendTimeout = -1.0;
   }
