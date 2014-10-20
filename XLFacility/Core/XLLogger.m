@@ -303,7 +303,7 @@ static NSString* _uid = nil;
   
   FormatToken* token = (FormatToken*)_tokens.bytes;
   for (int i = 0; i < (int)(_tokens.length / sizeof(FormatToken)); ++i, ++token) {
-    switch (*token) {
+    switch ((unsigned char)*token) {
       
       case kFormatToken_Newline: {
         [string appendString:@"\n"];
