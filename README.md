@@ -33,7 +33,7 @@ Requirements:
 Getting Started
 ===============
 
-Download or check out the [latest release](https://github.com/swisspol/XLFacility/releases) of XLFacility then add the entire "XLFacility" subfolder to your Xcode project.
+Download or check out the [latest release](https://github.com/swisspol/XLFacility/releases) of XLFacility then add the "XLFacility", "" and "" subfolders to your Xcode project.
 
 Alternatively, you can install XLFacility using [CocoaPods](http://cocoapods.org/) by simply adding this line to your Xcode project's Podfile:
 ```
