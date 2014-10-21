@@ -906,6 +906,7 @@
 					"-Wno-direct-ivar-access",
 					"-Wno-objc-missing-property-synthesis",
 					"-Wno-implicit-retain-self",
+					"-Wno-switch-enum",
 					"-Wno-assign-enum",
 					"-Wno-documentation-unknown-command",
 					"-Wno-gnu-statement-expression",
