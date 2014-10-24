@@ -61,7 +61,6 @@
 - (BOOL)_writeHTTPResponseWithStatusCode:(NSInteger)statusCode htmlBody:(NSString*)htmlBody {
   BOOL success = NO;
   CFHTTPMessageRef response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, statusCode, NULL, kCFHTTPVersion1_1);
-  CFHTTPMessageCreateResponse(kCFAllocatorDefault, statusCode, NULL, kCFHTTPVersion1_1);
   CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Connection"), CFSTR("Close"));
   CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Server"), (__bridge CFStringRef)NSStringFromClass([self class]));
   CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Date"), (__bridge CFStringRef)[[(XLHTTPServerLogger*)self.logger dateFormatterRFC822] stringFromDate:[NSDate date]]);
