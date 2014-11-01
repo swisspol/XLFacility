@@ -145,10 +145,6 @@ static NSString* _uid = nil;
 - (void)performLogRecord:(XLLogRecord*)record {
   if (_open) {
     [self logRecord:record];
-  } else {
-#if DEBUG
-    abort();
-#endif
   }
 }
 
