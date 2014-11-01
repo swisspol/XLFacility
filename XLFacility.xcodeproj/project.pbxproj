@@ -189,6 +189,7 @@
 		E25663D419EF2CC40040CF5E /* c_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = c_test.c; sourceTree = "<group>"; };
 		E25663D619EF63330040CF5E /* XLFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLFunctions.h; sourceTree = "<group>"; };
 		E25663D719EF63330040CF5E /* XLFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLFunctions.m; sourceTree = "<group>"; };
+		E26A79651A054354009BEF26 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		E26ABB4E19EC278300654D9F /* XLTCPServerLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTCPServerLogger.h; sourceTree = "<group>"; };
 		E26ABB4F19EC278300654D9F /* XLTCPServerLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTCPServerLogger.m; sourceTree = "<group>"; };
 		E26ABC0A19EC9E2D00654D9F /* XLFacility.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XLFacility.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -196,7 +197,6 @@
 		E26ABC0E19EC9E2D00654D9F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E26ABC0F19EC9E2D00654D9F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		E26ABC1119EC9E2D00654D9F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		E26ABC1619EC9E2D00654D9F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		E26ABC2B19EC9F9A00654D9F /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E26ABC3C19ECA04F00654D9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E26ABC4219ECBE2900654D9F /* XLAppKitOverlayLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLAppKitOverlayLogger.h; sourceTree = "<group>"; };
@@ -840,7 +840,7 @@
 		E26ABC1519EC9E2D00654D9F /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				E26ABC1619EC9E2D00654D9F /* Base */,
+				E26A79651A054354009BEF26 /* en */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
