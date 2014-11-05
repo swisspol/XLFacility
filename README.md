@@ -23,7 +23,7 @@ Built-in loggers:
 * Telnet server which can be accessed from a terminal on a different computer to monitor log messages as they arrive
 * HTTP server which can be accessed from a web browser on a different computer to browse the past log messages and see live updates
 * Raw TCP connection which can send log messages to a remote server as they happen
-* User interface window overlay for OS X & iOS apps
+* User interface logging window overlay for OS X & iOS apps
 
 Requirements:
 * OS X 10.7 or later (x86_64)
@@ -92,7 +92,7 @@ Logging Messages With XLFacility
 
 Like pretty much all logging systems, XLFacility defines various logging levels, which are by order of importance: `DEBUG`, `VERBOSE`, `INFO`, `WARNING`, `ERROR`, `EXCEPTION` and `ABORT`. The idea is that when logging a message, you also provide the corresponding importance level: for instance `VERBOSE` to trace and help debug what is happening in the code, versus `WARNING` and above to report actual issues. The logging system can then be configured to "drop" messages that are below a certain level, allowing the user to control the "signal-to-noise" ratio.
 
-By default, when building your app in "Release" configuration, XLFacility ignores messages at the `DEBUG` and `VERBOSE` levels. When building in `Debug` configuration (requires the `DEBUG` preprocessor constant evaluating to non-zero), it keeps everything.
+By default, when building your app in "Release" configuration, XLFacility ignores messages at the `DEBUG` and `VERBOSE` levels. When building in "Debug" configuration (requires the `DEBUG` preprocessor constant evaluating to non-zero), it keeps everything.
 
 **IMPORTANT:** So far you've seen how to "override" `NSLog()` calls in your source code to redirect messages to XLFacility at the `INFO` level but this is not the best approach. Instead don't use `NSLog()` at all but call directly XLFacility functions to log messages.
 
@@ -115,8 +115,8 @@ XLOG_WARNING(@"Unable to load URL \"%@\": %@", myURL, myError);
 Other useful macros available to use in your source code:
 * `XLOG_CHECK(__CONDITION__)`: Checks a condition and if false calls `XLOG_ABORT()` with an automatically generated message
 * `XLOG_UNREACHABLE()`: Calls `XLOG_ABORT()` with an automatically generated message if the app reaches this point
-* `XLOG_DEBUG_CHECK(__CONDITION__)`: Same as `XLOG_CHECK()` but becomes a no-op if building "Release" (i.e. if the `DEBUG` preprocessor constant evaluates to zero)
-* `XLOG_DEBUG_UNREACHABLE()`: Same as `XLOG_UNREACHABLE()` but becomes a no-op if building "Release" (i.e. if the `DEBUG` preprocessor constant evaluates to zero)
+* `XLOG_DEBUG_CHECK(__CONDITION__)`: Same as `XLOG_CHECK()` but becomes a no-op if building in "Release" configuration (i.e. if the `DEBUG` preprocessor constant evaluates to zero)
+* `XLOG_DEBUG_UNREACHABLE()`: Same as `XLOG_UNREACHABLE()` but becomes a no-op if building in "Release" configuration (i.e. if the `DEBUG` preprocessor constant evaluates to zero)
 
 Here are some example use cases:
 ```objectivec
@@ -306,6 +306,6 @@ To implement more complex loggers, you will need to subclass `XLLogger` and impl
 
 @end
 ```
-If you need to perform specific setup and cleanup operations when an instance of your logger is added or removed from XLFacility, implement the `-open` and `-close` methods.
+If you need to perform specific setup and cleanup operations when an instance of your logger is added or removed from XLFacility, also implement the `-open` and `-close` methods.
 
 **IMPORTANT:** Due to the way XLFacility works, logger instances do not need to be reentrant, but they need to be able to run on arbitrary threads.
