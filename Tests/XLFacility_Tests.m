@@ -394,7 +394,7 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
   }];
   XCTAssertTrue([server start]);
   
-  XLTCPClientLogger* logger = [[XLTCPClientLogger alloc] initWithHost:@"localhost" port:4444];
+  XLTCPClientLogger* logger = [[XLTCPClientLogger alloc] initWithHost:@"localhost" port:4444 preserveHistory:NO];
   logger.format = @"[%L] %m";
   logger.TCPClient.minReconnectInterval = 1.0;
   logger.TCPClient.maxReconnectInterval = 1.0;

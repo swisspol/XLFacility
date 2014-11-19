@@ -37,10 +37,44 @@
 
 static void* _associatedObjectKey = &_associatedObjectKey;
 
+@interface XLTCPClientLogger () {
+@private
+  BOOL _useDatabase;
+}
+@end
+
 @implementation GCDTCPClientConnection (XLTCPClientLogger)
 
 - (XLTCPClientLogger*)logger {
   return objc_getAssociatedObject(self.peer, _associatedObjectKey);
+}
+
+- (void)didOpen {
+  XLTCPClientLogger* logger = (XLTCPClientLogger*)self.logger;
+  if (logger.databaseLogger) {
+    NSMutableString* string = [[NSMutableString alloc] init];
+    [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+      [string appendString:[logger formatRecord:record]];
+    }];
+    if (string.length) {
+      [self writeLogString:string withTimeout:logger.sendTimeout];
+    }
+  }
+}
+
+- (void)writeLogString:(NSString*)string withTimeout:(NSTimeInterval)timeout {
+  NSData* data = XLConvertNSStringToUTF8String(string);
+  if (timeout < 0.0) {
+    [self writeDataAsynchronously:data completion:^(BOOL success) {
+      if (!success) {
+        [self close];
+      }
+    }];
+  } else {
+    if (![self writeData:data withTimeout:timeout]) {
+      [self close];
+    }
+  }
 }
 
 @end
@@ -60,37 +94,53 @@ static void* _associatedObjectKey = &_associatedObjectKey;
   return nil;
 }
 
-- (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port {
+- (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port preserveHistory:(BOOL)preserveHistory {
   XLOG_DEBUG_CHECK([[[self class] clientClass] isSubclassOfClass:[GCDTCPClient class]]);
   if ((self = [super init])) {
     _TCPClient = [[[[self class] clientClass] alloc] initWithConnectionClass:[[self class] connectionClass] host:hostname port:port];
     objc_setAssociatedObject(_TCPClient, _associatedObjectKey, self, OBJC_ASSOCIATION_ASSIGN);
+    _useDatabase = preserveHistory;
     _sendTimeout = -1.0;
   }
   return self;
 }
 
 - (BOOL)open {
-  return [_TCPClient start];
+  if (_useDatabase) {
+    NSString* databasePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
+    _databaseLogger = [[XLDatabaseLogger alloc] initWithDatabasePath:databasePath appVersion:0];
+    if (![_databaseLogger open]) {
+      _databaseLogger = nil;
+      return NO;
+    }
+  }
+  
+  if (![_TCPClient start]) {
+    [_databaseLogger close];
+    [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
+    _databaseLogger = nil;
+    return NO;
+  }
+  
+  return YES;
 }
 
 - (void)logRecord:(XLLogRecord*)record {
-  NSData* data = XLConvertNSStringToUTF8String([self formatRecord:record]);
-  if (_sendTimeout < 0.0) {
-    [_TCPClient.connection writeDataAsynchronously:data completion:^(BOOL success) {
-      if (!success) {
-        [_TCPClient.connection close];
-      }
-    }];
-  } else {
-    if (![_TCPClient.connection writeData:data withTimeout:_sendTimeout]) {
-      [_TCPClient.connection close];
-    }
+  if (_databaseLogger) {
+    [_databaseLogger logRecord:record];
   }
+  
+  [_TCPClient.connection writeLogString:[self formatRecord:record] withTimeout:_sendTimeout];
 }
 
 - (void)close {
   [_TCPClient stop];
+  
+  if (_databaseLogger) {
+    [_databaseLogger close];
+    [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
+    _databaseLogger = nil;
+  }
 }
 
 @end

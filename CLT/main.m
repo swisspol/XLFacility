@@ -29,6 +29,7 @@
 #import "XLStandardLogger.h"
 #import "XLTelnetServerLogger.h"
 #import "XLHTTPServerLogger.h"
+#import "XLTCPClientLogger.h"
 
 extern void c_test();
 
@@ -48,6 +49,10 @@ int main(int argc, const char* argv[]) {
     [[XLStandardLogger sharedErrorLogger] setFormat:@"%t (%g) %l > %m%c"];
     [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
     [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] init]];
+    
+#if 1
+    [XLSharedFacility addLogger:[[XLTCPClientLogger alloc] initWithHost:@"localhost" port:8888 preserveHistory:YES]];
+#endif
     
     c_test();
     

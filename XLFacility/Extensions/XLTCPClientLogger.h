@@ -25,14 +25,19 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "XLLogger.h"
+#import "XLDatabaseLogger.h"
 #import "GCDTCPClient.h"
 
 /**
- *  The XLTCPClientLogger class is a base class for loggers that connect
- *  to TCP servers.
+ *  The XLTCPClientLogger class is a base class for loggers that connect to TCP
+ *  servers.
  *
  *  It simply sends log records formatted as a string to the server.
+ *
+ *  XLTCPClientLogger can optionally preserve the history of log records
+ *  received since the logger was opened. If this feature is enabled, when
+ *  connecting to the TCP server, all past log records are sent before any new
+ *  ones.
  */
 @interface XLTCPClientLogger : XLLogger
 
@@ -40,6 +45,11 @@
  *  Returns the XLTCPClient used internally.
  */
 @property(nonatomic, readonly) GCDTCPClient* TCPClient;
+
+/**
+ *  Returns the XLDatabaseLogger used internally if any.
+ */
+@property(nonatomic, readonly) XLDatabaseLogger* databaseLogger;
 
 /**
  *  Configures how long the TCP client should wait (and therefore potentially
@@ -72,7 +82,7 @@
  *
  *  @warning The TCP client is not running until the logger is opened.
  */
-- (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port;
+- (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port preserveHistory:(BOOL)preserveHistory;
 
 @end
 
