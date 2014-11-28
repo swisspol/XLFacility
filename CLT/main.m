@@ -50,7 +50,7 @@ int main(int argc, const char* argv[]) {
     [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
     [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] init]];
     
-#if 1
+#if 0
     [XLSharedFacility addLogger:[[XLTCPClientLogger alloc] initWithHost:@"localhost" port:8888 preserveHistory:YES]];
 #endif
     
