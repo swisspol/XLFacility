@@ -51,10 +51,15 @@
   XLOG_DEBUG_CHECK(sqlite3_threadsafe());
 }
 
-- (id)init {
+- (instancetype)init {
+  NSString* identifier = [[NSBundle mainBundle] bundleIdentifier];  // This may be nil
+  if (identifier == nil) {
+    identifier = [[NSProcessInfo processInfo] processName];
+  }
+  int version = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] intValue];  // This may be 0
   NSString* cachesPath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
-  NSString* databasePath = [cachesPath stringByAppendingPathComponent:[NSStringFromClass([self class]) stringByAppendingPathExtension:@"db"]];
-  int version = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] intValue];
+  NSString* databaseName = [NSString stringWithFormat:@"%@-%@.db", identifier, self.class];
+  NSString* databasePath = [cachesPath stringByAppendingPathComponent:databaseName];
   return [self initWithDatabasePath:databasePath appVersion:version];
 }
 

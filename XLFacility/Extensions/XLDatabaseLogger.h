@@ -50,9 +50,9 @@
 @property(nonatomic, readonly) int appVersion;
 
 /**
- *  Initializes a database logger in the Library/Cache directory and version set
- *  to "CFBundleVersion" from the main bundle" Info.plist" (which is expected to
- *  be an integer).
+ *  Initializes a database logger at "~/Library/Caches/{APP_NAME}.db" and sets
+ *  the app version to "CFBundleVersion" from the main bundle" Info.plist"
+ *  (which is expected to be an integer).
  */
 - (instancetype)init;
 
