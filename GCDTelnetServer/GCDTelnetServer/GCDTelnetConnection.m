@@ -100,7 +100,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
   _LOG_DEBUG_CHECK(buffer[0] == kTelnetCommand_IAC);
   
   if (![self writeBuffer:buffer length:length withTimeout:kSynchronousCommunicationTimeout]) {
-    _LOG_ERROR(@"Failed sending Telnet command: %@", _StringFromIACBuffer(buffer, sizeof(buffer)));
+    _LOG_ERROR(@"Failed sending Telnet command: %@", _StringFromIACBuffer(buffer, length));
     return nil;
   }
   _LOG_DEBUG(@"Telnet IAC (->) %@", _StringFromIACBuffer(buffer, length));
