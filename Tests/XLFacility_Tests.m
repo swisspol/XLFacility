@@ -389,12 +389,12 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
 
 - (void)testTCPClientLogger {
   __block GCDTCPPeerConnection* connection = nil;
-  TestServer* server = [[TestServer alloc] initWithPort:4444 connectionBlock:^(GCDTCPPeerConnection* newConnection) {
+  TestServer* server = [[TestServer alloc] initWithPort:4242 connectionBlock:^(GCDTCPPeerConnection* newConnection) {
     connection = newConnection;
   }];
   XCTAssertTrue([server start]);
   
-  XLTCPClientLogger* logger = [[XLTCPClientLogger alloc] initWithHost:@"localhost" port:4444 preserveHistory:NO];
+  XLTCPClientLogger* logger = [[XLTCPClientLogger alloc] initWithHost:@"localhost" port:4242 preserveHistory:NO];
   logger.format = @"[%L] %m";
   logger.TCPClient.minReconnectInterval = 1.0;
   logger.TCPClient.maxReconnectInterval = 1.0;
