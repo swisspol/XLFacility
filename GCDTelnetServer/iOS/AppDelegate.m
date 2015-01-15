@@ -27,6 +27,7 @@
 
 #import "AppDelegate.h"
 #import "GCDTelnetServer.h"
+#import "NSMutableString+ANSI.h"
 
 @implementation AppDelegate
 
@@ -39,11 +40,32 @@
   
   GCDTCPServer* server = [[GCDTelnetServer alloc] initWithPort:2323 startHandler:^NSString*(GCDTelnetConnection* connection) {
     
-    return [NSString stringWithFormat:@"You are connected using \"%@\"\n", connection.terminalType];
+    UIDevice* device = [UIDevice currentDevice];
+    NSMutableString* welcome = [[NSMutableString alloc] init];
+    [welcome appendANSIStringWithColor:kANSIColor_Green bold:NO format:@"You are connected from %@ using \"%@\"\n", connection.remoteIPAddress, connection.terminalType];
+    [welcome appendANSIStringWithColor:kANSIColor_Green bold:NO format:@"Current device is %@ running %@ %@\n", device.model, device.systemName, device.systemVersion];
+    return welcome;
     
-  } lineHandler:^NSString*(GCDTelnetConnection* connection, NSString* line) {
+  } commandHandler:^NSString*(GCDTelnetConnection* connection, NSString* command, NSArray* arguments) {
     
-    return [line stringByAppendingString:@"\n"];
+    if ([command isEqualToString:@"quit"]) {
+      [connection close];
+      return nil;
+    } else if ([command isEqualToString:@"crash"]) {
+      abort();
+    } else if ([command isEqualToString:@"setwcolor"]) {
+      if (arguments.count == 3) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          _window.backgroundColor = [UIColor colorWithRed:[arguments[0] doubleValue] green:[arguments[1] doubleValue] blue:[arguments[2] doubleValue] alpha:1.0];
+        });
+        return @"OK\n";
+      }
+      return @"Usage: setwcolor red green blue\n";
+    }
+    
+    NSMutableString* error = [[NSMutableString alloc] init];
+    [error appendANSIStringWithColor:kANSIColor_Red bold:YES format:@"UNKNOWN COMMAND = %@ (%@)\n", command, [arguments componentsJoinedByString:@", "]];
+    return error;
     
   }];
   if (![server start]) {
@@ -52,4 +74,5 @@
   
   return YES;
 }
+
 @end

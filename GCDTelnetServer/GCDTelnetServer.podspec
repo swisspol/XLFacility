@@ -7,11 +7,11 @@
 
 Pod::Spec.new do |s|
   s.name     = 'GCDTelnetServer'
-  s.version  = '1.0'
+  s.version  = '1.1.1'
   s.author   =  { 'Pierre-Olivier Latour' => 'info@pol-online.net' }
   s.license  = { :type => 'BSD', :file => 'LICENSE' }
   s.homepage = 'https://github.com/swisspol/GCDTelnetServer'
-  s.summary  = 'Networking framework based on GCD'
+  s.summary  = 'Drop-in embedded Telnet server for iOS and OS X apps'
 
   s.source   = { :git => 'https://github.com/swisspol/GCDTelnetServer.git', :tag => s.version.to_s }
   s.ios.deployment_target = '5.0'
