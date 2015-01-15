@@ -162,11 +162,11 @@
 - (NSData*)processOtherASCIICharacter:(unsigned char)character;
 
 /*
- *  Called when unexpected data has been received.
+ *  Called when a non-ASCII character has been received.
  *
- *  The default implementation just beeps.
+ *  The default implementation does nothing.
  */
-- (NSData*)processOtherData:(NSData*)data;
+- (NSData*)processNonASCIICharacter:(unsigned char)character;
 
 /*
  *  Called whenever input data has been received from the remote terminal.
@@ -174,7 +174,7 @@
  *  The default implementation parses the data and calls one of the other
  *  methods.
  */
-- (NSData*)processRawInput:(NSData*)data;
+- (NSData*)processRawInput:(NSData*)input;
 
 /*
  *  Called whenever a line has been fully received from the remote terminal.
@@ -188,7 +188,16 @@
 @interface GCDTelnetConnection (Extensions)
 
 /**
- *  Returns a sanitized version of a string to send to the remote terminal.
+ *  Parses a line like a command line interface extracting the command and
+ *  arguments.
+ *
+ *  This methods supports quoted arguments using single or double quotes.
+ */
+- (NSArray*)parseLineAsCommandAndArguments:(NSString*)line;
+
+/**
+ *  Returns a sanitized version of a string suitable for sending to the remote
+ *  terminal.
  *
  *  The current implementation replaces all newline characters by carriage
  *  returns.

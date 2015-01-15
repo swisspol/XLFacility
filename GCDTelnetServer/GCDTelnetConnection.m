@@ -45,6 +45,8 @@ static const char* _telnetOptionStrings[] = {
   NULL, "Window Size", "Terminal Speed", "Remote Flow Control", "Linemode", NULL, "Environment Variables", NULL, NULL, NULL // 30-39
 };
 
+static NSRegularExpression* _commandLineParser = nil;
+
 @interface GCDTelnetConnection () {
 @private
   NSMutableString* _lineBuffer;
@@ -55,6 +57,13 @@ static const char* _telnetOptionStrings[] = {
 @end
 
 @implementation GCDTelnetConnection
+
++ (void)initialize {
+  if (self == [GCDTelnetConnection class]) {
+    _commandLineParser = [[NSRegularExpression alloc] initWithPattern:@"(\"[^\"]+\"|'[^']+'|[^\\s\"]+)" options:0 error:NULL];
+    _LOG_DEBUG_CHECK(_commandLineParser);
+  }
+}
 
 - (instancetype)initWithSocket:(int)socket {
   if ((self = [super initWithSocket:socket])) {
@@ -100,7 +109,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
   _LOG_DEBUG_CHECK(buffer[0] == kTelnetCommand_IAC);
   
   if (![self writeBuffer:buffer length:length withTimeout:kSynchronousCommunicationTimeout]) {
-    _LOG_ERROR(@"Failed sending Telnet command: %@", _StringFromIACBuffer(buffer, sizeof(buffer)));
+    _LOG_ERROR(@"Failed sending Telnet command: %@", _StringFromIACBuffer(buffer, length));
     return nil;
   }
   _LOG_DEBUG(@"Telnet IAC (->) %@", _StringFromIACBuffer(buffer, length));
@@ -302,9 +311,10 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
 - (NSData*)processDelete {
   if (_lineBuffer.length) {
     [_lineBuffer deleteCharactersInRange:NSMakeRange(_lineBuffer.length - 1, 1)];
+    unsigned char buffer[] = {0x08, 0x20, 0x08};  // http://stackoverflow.com/questions/1689554/telnet-server-backspace-delete-not-working
+    return [NSData dataWithBytes:buffer length:sizeof(buffer)];
   }
-  unsigned char buffer[] = {0x08, 0x20, 0x08};  // http://stackoverflow.com/questions/1689554/telnet-server-backspace-delete-not-working
-  return [NSData dataWithBytes:buffer length:sizeof(buffer)];
+  return [self _beepData];
 }
 
 - (NSData*)processCarriageReturn {
@@ -342,13 +352,14 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
   return [NSData dataWithBytes:&character length:1];
 }
 
-- (NSData*)processOtherData:(NSData*)data {
-  return [self _beepData];
+- (NSData*)processNonASCIICharacter:(unsigned char)character {
+  return nil;
 }
 
-- (NSData*)processRawInput:(NSData*)data {
-  const unsigned char* bytes = data.bytes;
-  NSUInteger length = data.length;
+- (NSData*)processRawInput:(NSData*)input {
+  const unsigned char* bytes = input.bytes;
+  NSUInteger length = input.length;
+  
   if ((length > 2) && (bytes[0] == kCSIPrefix[0]) && (bytes[1] == kCSIPrefix[1])) {
     if (length == 3) {
       switch (bytes[2]) {
@@ -360,24 +371,45 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
         
       }
     }
-    return [self processOtherANSIEscapeSequence:data];
-  } else if ((length == 2) && (bytes[0] == kControlCode_CR) && (bytes[1] == kControlCode_NUL)) {
-    return [self processCarriageReturn];
-  } else if (length == 1) {
-    switch (bytes[0]) {
-      
-      case 0x09: return [self processTab];
-      case 0x7F: return [self processDelete];
-      
-      default:
-        if (bytes[0] <= 127) {
-          return [self processOtherASCIICharacter:bytes[0]];
-        }
-        break;
-      
+    return [self processOtherANSIEscapeSequence:input];
+  }
+  
+  NSMutableData* output = [[NSMutableData alloc] init];
+  while (length) {
+    NSData* data = nil;
+    if ((length >= 2) && (bytes[0] == kControlCode_CR) && (bytes[1] == kControlCode_NUL)) {
+      data = [self processCarriageReturn];
+      bytes += 2;
+      length -= 2;
+    } else {
+      switch (bytes[0]) {
+        
+        case 0x09:
+          data = [self processTab];
+          break;
+        
+        case 0x7F:
+          data = [self processDelete];
+          break;
+        
+        default:
+          if (bytes[0] <= 127) {
+            data = [self processOtherASCIICharacter:bytes[0]];
+          } else {
+            data = [self processNonASCIICharacter:bytes[0]];
+          }
+          break;
+        
+      }
+      bytes += 1;
+      length -= 1;
+    }
+    if (data.length) {
+      [output appendData:data];
     }
   }
-  return [self processOtherData:data];
+  
+  return output;
 }
 
 - (NSString*)processLine:(NSString*)line {
@@ -391,6 +423,19 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
 @end
 
 @implementation GCDTelnetConnection (Extensions)
+
+- (NSArray*)parseLineAsCommandAndArguments:(NSString*)line {
+  NSMutableArray* array = [[NSMutableArray alloc] init];
+  [_commandLineParser enumerateMatchesInString:line options:0 range:NSMakeRange(0, line.length) usingBlock:^(NSTextCheckingResult* result, NSMatchingFlags flags, BOOL* stop) {
+    NSString* string = [line substringWithRange:result.range];
+    if (([string hasPrefix:@"\""] && [string hasSuffix:@"\""]) || ([string hasPrefix:@"'"] && [string hasSuffix:@"'"])) {  // TODO: Strip quotes directly in Regex
+      [array addObject:[string substringWithRange:NSMakeRange(1, string.length - 2)]];
+    } else {
+      [array addObject:string];
+    }
+  }];
+  return array;
+}
 
 - (NSString*)sanitizeStringForTerminal:(NSString*)string {
   return [string stringByReplacingOccurrencesOfString:@"\n" withString:kCarriageReturnString];

@@ -50,14 +50,29 @@ typedef NSString* (^GCDTelnetStartHandler)(GCDTelnetConnection* connection);
 typedef NSString* (^GCDTelnetLineHandler)(GCDTelnetConnection* connection, NSString* line);
 
 /**
+ *  The GCDTelnetCommandHandler is a special line handler that pre-parses the
+ *  line like a command line interface extracting the command and arguments.
+ *
+ *  @warning This block will be executed on arbitrary threads.
+ */
+typedef NSString* (^GCDTelnetCommandHandler)(GCDTelnetConnection* connection, NSString* command, NSArray* arguments);
+
+/**
  *  The GCDTelnetServer class implements a Telnet server.
  */
 @interface GCDTelnetServer : GCDTCPServer
 
 /**
- *  Initializes a Telnet server on a given port and using the default GCDTelnetConnection class.
+ *  Initializes a Telnet server on a given port and using the default
+ *  GCDTelnetConnection class.
  */
 - (instancetype)initWithPort:(NSUInteger)port startHandler:(GCDTelnetStartHandler)startHandler lineHandler:(GCDTelnetLineHandler)lineHandler;
+
+/**
+ *  Initializes a Telnet server on a given port and using the default
+ *  GCDTelnetConnection class but with a command handler instead of a line hander.
+ */
+- (instancetype)initWithPort:(NSUInteger)port startHandler:(GCDTelnetStartHandler)startHandler commandHandler:(GCDTelnetCommandHandler)commandHandler;
 
 /**
  *  This method is the designated initializer for the class.

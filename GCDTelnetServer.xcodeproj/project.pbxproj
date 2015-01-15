@@ -442,6 +442,7 @@
 					"-Wno-implicit-retain-self",
 					"-Wno-documentation-unknown-command",
 					"-Wno-gnu-statement-expression",
+					"-Wno-assign-enum",
 				);
 			};
 			name = Debug;
