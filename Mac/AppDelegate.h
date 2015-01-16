@@ -29,5 +29,6 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 @property(nonatomic, weak) IBOutlet NSWindow* window;
-- (IBAction)click:(id)sender;
+- (IBAction)testLog:(id)sender;
+- (IBAction)testAbort:(id)sender;
 @end

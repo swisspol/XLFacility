@@ -32,8 +32,12 @@
 
 @implementation AppDelegate
 
-- (void)_tap:(id)sender {
+- (void)_testLog:(id)sender {
   XLOG_INFO(@"%s", __FUNCTION__);
+}
+
+- (void)_testAbort:(id)sender {
+  XLOG_ABORT(@"%s", __FUNCTION__);
 }
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
@@ -43,12 +47,19 @@
   _window.rootViewController.view = [[UIView alloc] init];
   [_window makeKeyAndVisible];
   
-  UIButton* button = [UIButton buttonWithType:UIButtonTypeSystem];
-  [button setTitle:@"Tap Me!" forState:UIControlStateNormal];
-  [button addTarget:self action:@selector(_tap:) forControlEvents:UIControlEventTouchDown];
-  button.frame = CGRectMake(100, 100, 200, 50);
-  [button sizeToFit];
-  [_window.rootViewController.view addSubview:button];
+  UIButton* button1 = [UIButton buttonWithType:UIButtonTypeSystem];
+  [button1 setTitle:@"Test Log" forState:UIControlStateNormal];
+  [button1 addTarget:self action:@selector(_testLog:) forControlEvents:UIControlEventTouchDown];
+  button1.frame = CGRectMake(100, 100, 100, 50);
+  [button1 sizeToFit];
+  [_window.rootViewController.view addSubview:button1];
+  
+  UIButton* button2 = [UIButton buttonWithType:UIButtonTypeSystem];
+  [button2 setTitle:@"Test Abort" forState:UIControlStateNormal];
+  [button2 addTarget:self action:@selector(_testAbort:) forControlEvents:UIControlEventTouchDown];
+  button2.frame = CGRectMake(300, 100, 100, 50);
+  [button2 sizeToFit];
+  [_window.rootViewController.view addSubview:button2];
   
   [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
   [XLSharedFacility addLogger:[XLUIKitOverlayLogger sharedLogger]];

@@ -32,8 +32,12 @@
 
 @implementation AppDelegate
 
-- (IBAction)click:(id)sender {
+- (IBAction)testLog:(id)sender {
   XLOG_INFO(@"%s", __FUNCTION__);
+}
+
+- (IBAction)testAbort:(id)sender {
+  XLOG_ABORT(@"%s", __FUNCTION__);
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {

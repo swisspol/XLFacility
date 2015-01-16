@@ -230,6 +230,13 @@ static void _ExitHandler() {
     return;
   }
   
+#if DEBUG
+  // If the log record is at ABORT level and we are being debugged, kill the process immediately
+  if ((level >= kXLLogLevel_Abort) && XLIsDebuggerAttached()) {
+    abort();
+  }
+#endif
+  
   // Save current absolute time
   CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
   
