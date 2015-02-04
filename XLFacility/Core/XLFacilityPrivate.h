@@ -48,9 +48,6 @@ extern int XLOriginalStdOut;
 extern int XLOriginalStdErr;
 
 extern NSString* XLPaddedStringFromLogLevelName(XLLogLevel level);
-#if DEBUG
-extern BOOL XLIsDebuggerAttached();
-#endif
 
 @interface XLLogRecord ()
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime

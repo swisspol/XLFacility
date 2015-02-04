@@ -91,22 +91,16 @@ const char* XLConvertNSStringToUTF8CString(NSString* string) {
   return utf8String;
 }
 
-#if DEBUG
-
 // From http://developer.apple.com/mac/library/qa/qa2004/qa1361.html
 BOOL XLIsDebuggerAttached() {
-  struct kinfo_proc info;
-  info.kp_proc.p_flag = 0;
-  
   int mib[4];
   mib[0] = CTL_KERN;
   mib[1] = KERN_PROC;
   mib[2] = KERN_PROC_PID;
   mib[3] = getpid();
+  struct kinfo_proc info;
+  info.kp_proc.p_flag = 0;
   size_t size = sizeof(info);
   int result = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
-  
   return !result && (info.kp_proc.p_flag & P_TRACED);  // We're being debugged if the P_TRACED flag is set
 }
-
-#endif
