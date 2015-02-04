@@ -35,6 +35,7 @@
 #import <netdb.h>
 
 #import "XLStandardLogger.h"
+#import "XLFunctions.h"
 #import "XLFacilityPrivate.h"
 
 #define kMinLogLevelEnvironmentVariable "XLFacilityMinLogLevel"
