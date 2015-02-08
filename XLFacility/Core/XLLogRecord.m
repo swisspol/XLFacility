@@ -64,9 +64,11 @@
   const char* label = NULL;
 #if TARGET_OS_IPHONE
   if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+#else
+  if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber10_9)
 #endif
   {
-    label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);  // This returns garbage on iOS 5.1.1 (e.g. an non-accessible string at 0x00000038)
+    label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);  // This returns garbage on iOS 5 and OS X 10.8 (e.g. an non-accessible string)
     if (!label[0]) {
       label = NULL;
     }
