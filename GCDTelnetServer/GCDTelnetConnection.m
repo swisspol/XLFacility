@@ -161,10 +161,10 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
   const unsigned char* bytes2 = data2.bytes;
   NSUInteger length2 = data2.length;
   if ((bytes2[1] != kTelnetCommand_SB) || (bytes2[2] != kTelnetOption_TerminalType) || (bytes2[3] != 0)) {
-    return NO;
+    return nil;
   }
   if ((bytes2[length2 - 2] != kTelnetCommand_IAC) || (bytes2[length2 - 1] != kTelnetCommand_SE)) {
-    return NO;
+    return nil;
   }
   
   return [[NSString alloc] initWithBytes:&bytes2[4] length:(length2 - 6) encoding:NSASCIIStringEncoding];
