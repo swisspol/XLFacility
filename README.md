@@ -235,7 +235,7 @@ fileLogger.format = @"%d\t%m";
 
 The more powerful solution is to use `XLDatabaseLogger` which uses a [SQLite](http://www.sqlite.org/) database under the hood:
 ```objectivec
-XLDatabaseLogger* databaseLogger = [[XLDatabaseLogger alloc] initWithDatabasePath:@"my-database.db" appVersion:0];      
+XLDatabaseLogger* databaseLogger = [[XLDatabaseLogger alloc] initWithDatabasePath:@"my-database.db" appVersion:0];
 [XLSharedFacility addLogger:databaseLogger];
 ```
 
