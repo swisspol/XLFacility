@@ -50,7 +50,7 @@ void XLLogCMessage(const char* tag, int level, const char* format, ...) {
 #pragma clang diagnostic pop
 
 NSString* XLStringFromLogLevelName(XLLogLevel level) {
-  static NSString* names[] = {@"DEBUG", @"VERBOSE", @"INFO", @"WARNING", @"ERROR", @"EXCEPTION", @"ABORT"};
+  static NSString* names[] = {@"DEBUG👀", @"VERBOSE🌀", @"INFO🔵", @"WARNING⚠️", @"ERROR❌", @"EXCEPTION‼️", @"ABORT💀"};
   if ((level >= kXLMinLogLevel) && (level <= kXLMaxLogLevel)) {
     return names[level];
   }
@@ -59,7 +59,7 @@ NSString* XLStringFromLogLevelName(XLLogLevel level) {
 }
 
 NSString* XLPaddedStringFromLogLevelName(XLLogLevel level) {
-  static NSString* names[] = {@"DEBUG    ", @"VERBOSE  ", @"INFO     ", @"WARNING  ", @"ERROR    ", @"EXCEPTION", @"ABORT    "};
+static NSString* names[] = {@"DEBUG👀    ", @"VERBOSE🌀  ", @"INFO🔵     ", @"WARNING⚠️  ", @"ERROR❌    ", @"EXCEPTION‼️", @"ABORT💀    "};
   if ((level >= kXLMinLogLevel) && (level <= kXLMaxLogLevel)) {
     return names[level];
   }
