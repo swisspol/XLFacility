@@ -32,6 +32,8 @@
 
 #import "GCDNetworking.h"
 
+#define kTestPort 3333
+
 typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
 
 @interface TCPServer : GCDTCPServer
@@ -51,7 +53,7 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
 
 - (void)willOpenConnection:(GCDTCPPeerConnection*)connection {
   [super willOpenConnection:connection];
-  
+
   _block(connection);
 }
 
@@ -64,72 +66,75 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
 
 - (void)testReading {
   __block GCDTCPPeerConnection* inConnection = nil;
-  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(GCDTCPPeerConnection* connection) {
-    inConnection = connection;
-  }];
+  TCPServer* server = [[TCPServer alloc] initWithPort:kTestPort
+                                      connectionBlock:^(GCDTCPPeerConnection* connection) {
+                                        inConnection = connection;
+                                      }];
   XCTAssertTrue([server start]);
-  
-  GCDTCPClient* client = [[GCDTCPClient alloc] initWithConnectionClass:[GCDTCPClientConnection class] host:@"localhost" port:4444];
+
+  GCDTCPClient* client = [[GCDTCPClient alloc] initWithConnectionClass:[GCDTCPClientConnection class] host:@"localhost" port:kTestPort];
   XCTAssertTrue([client start]);
-  
+
   sleep(1);
-  
+
   XCTAssertNotNil(inConnection);
   GCDTCPClientConnection* outConnection = client.connection;
   XCTAssertNotNil(outConnection);
-  
+
   NSData* data1 = [inConnection readDataWithTimeout:3.0];
   XCTAssertNil(data1);
-  
-  XCTestExpectation* expectation = [self expectationWithDescription:nil];
-  [outConnection writeDataAsynchronously:[@"Hello World!\n" dataUsingEncoding:NSUTF8StringEncoding] completion:^(BOOL success) {
-    XCTAssertTrue(success);
-    [expectation fulfill];
-  }];
+
+  XCTestExpectation* expectation = [self expectationWithDescription:@""];
+  [outConnection writeDataAsynchronously:[@"Hello World!\n" dataUsingEncoding:NSUTF8StringEncoding]
+                              completion:^(BOOL success) {
+                                XCTAssertTrue(success);
+                                [expectation fulfill];
+                              }];
   [self waitForExpectationsWithTimeout:10.0 handler:NULL];
   NSData* data2 = [inConnection readDataWithTimeout:3.0];
   XCTAssertNotNil(data2);
   NSString* string = [[NSString alloc] initWithData:data2 encoding:NSUTF8StringEncoding];
   XCTAssertEqualObjects(string, @"Hello World!\n");
-  
+
   [outConnection close];
   [inConnection close];
-  
+
   [client stop];
   [server stop];
 }
 
 - (void)testWriting {
   __block GCDTCPPeerConnection* inConnection = nil;
-  TCPServer* server = [[TCPServer alloc] initWithPort:4444 connectionBlock:^(GCDTCPPeerConnection* connection) {
-    inConnection = connection;
-  }];
+  TCPServer* server = [[TCPServer alloc] initWithPort:kTestPort
+                                      connectionBlock:^(GCDTCPPeerConnection* connection) {
+                                        inConnection = connection;
+                                      }];
   XCTAssertTrue([server start]);
-  
-  GCDTCPClient* client = [[GCDTCPClient alloc] initWithConnectionClass:[GCDTCPClientConnection class] host:@"localhost" port:4444];
+
+  GCDTCPClient* client = [[GCDTCPClient alloc] initWithConnectionClass:[GCDTCPClientConnection class] host:@"localhost" port:kTestPort];
   XCTAssertTrue([client start]);
-  
+
   sleep(1);
-  
+
   XCTAssertNotNil(inConnection);
   GCDTCPClientConnection* outConnection = client.connection;
   XCTAssertNotNil(outConnection);
-  
-  XCTestExpectation* expectation = [self expectationWithDescription:nil];
+
+  XCTestExpectation* expectation = [self expectationWithDescription:@""];
   [inConnection readDataAsynchronously:^(NSData* data) {
     XCTAssertNotNil(data);
     NSString* string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(string, @"Hello World!\n");
-    
+
     [expectation fulfill];
   }];
   BOOL success = [outConnection writeData:[@"Hello World!\n" dataUsingEncoding:NSUTF8StringEncoding] withTimeout:3.0];
   XCTAssertTrue(success);
   [self waitForExpectationsWithTimeout:10.0 handler:NULL];
-  
+
   [outConnection close];
   [inConnection close];
-  
+
   [client stop];
   [server stop];
 }

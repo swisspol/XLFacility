@@ -2,20 +2,20 @@
 # http://guides.cocoapods.org/making/getting-setup-with-trunk.html
 # $ sudo gem update cocoapods
 # (optional) $ pod trunk register {email} {name} --description={computer}
-# $ pod trunk push
+# $ pod trunk --verbose push
 # DELETE THIS SECTION BEFORE PROCEEDING!
 
 Pod::Spec.new do |s|
   s.name     = 'GCDTelnetServer'
-  s.version  = '1.1.2'
+  s.version  = '1.1.3'
   s.author   =  { 'Pierre-Olivier Latour' => 'info@pol-online.net' }
   s.license  = { :type => 'BSD', :file => 'LICENSE' }
   s.homepage = 'https://github.com/swisspol/GCDTelnetServer'
   s.summary  = 'Drop-in embedded Telnet server for iOS and OS X apps'
 
   s.source   = { :git => 'https://github.com/swisspol/GCDTelnetServer.git', :tag => s.version.to_s }
-  s.ios.deployment_target = '5.0'
-  s.osx.deployment_target = '10.7'
+  s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.8'
   s.requires_arc = true
 
   s.subspec 'GCDNetworking' do |cs|

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 48;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -145,7 +145,9 @@
 				E2B3CF2E19E919AC003ED065 /* iOS Frameworks and Libraries */,
 				E26DC16819E8494700C68DDC /* Products */,
 			);
+			indentWidth = 2;
 			sourceTree = "<group>";
+			tabWidth = 2;
 		};
 		E26DC16819E8494700C68DDC /* Products */ = {
 			isa = PBXGroup;
@@ -269,7 +271,7 @@
 		E26DC15F19E8494700C68DDC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					E26DC16619E8494700C68DDC = {
@@ -288,7 +290,7 @@
 				};
 			};
 			buildConfigurationList = E26DC16219E8494700C68DDC /* Build configuration list for PBXProject "GCDNetworking" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -397,6 +399,9 @@
 					"-Wno-implicit-retain-self",
 					"-Wno-documentation-unknown-command",
 					"-Wno-gnu-statement-expression",
+					"-Wno-reserved-id-macro",
+					"-Wno-cstring-format-directive",
+					"-Wno-partial-availability",
 				);
 			};
 			name = Debug;
@@ -417,7 +422,7 @@
 		E26DC16F19E8494700C68DDC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = GCDNetworking;
 				SDKROOT = macosx;
 			};
@@ -426,7 +431,7 @@
 		E26DC17019E8494700C68DDC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = GCDNetworking;
 				SDKROOT = macosx;
 			};
@@ -439,7 +444,7 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Tests;
 				SDKROOT = macosx;
 			};
@@ -452,7 +457,7 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Tests;
 				SDKROOT = macosx;
 			};
@@ -476,10 +481,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 88W3E55T4B;
 				INFOPLIST_FILE = iOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = GCDNetworking;
-				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -489,10 +494,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 88W3E55T4B;
 				INFOPLIST_FILE = iOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = GCDNetworking;
-				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

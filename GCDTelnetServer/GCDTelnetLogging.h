@@ -105,15 +105,33 @@ extern GCDNetworkingLoggingLevel GCDNetworkingLogLevel;
 extern void GCDNetworkingLogMessage(GCDNetworkingLoggingLevel level, NSString* format, ...) NS_FORMAT_FUNCTION(2, 3);
 
 #if DEBUG
-#define GN_LOG_DEBUG(...) do { if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Debug) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Debug, __VA_ARGS__); } while (0)
+#define GN_LOG_DEBUG(...)                                                                                                                  \
+  do {                                                                                                                                     \
+    if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Debug) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Debug, __VA_ARGS__); \
+  } while (0)
 #else
 #define GN_LOG_DEBUG(...)
 #endif
-#define GN_LOG_VERBOSE(...) do { if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Verbose) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Verbose, __VA_ARGS__); } while (0)
-#define GN_LOG_INFO(...) do { if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Info) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Info, __VA_ARGS__); } while (0)
-#define GN_LOG_WARNING(...) do { if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Warning) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Warning, __VA_ARGS__); } while (0)
-#define GN_LOG_ERROR(...) do { if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Error) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Error, __VA_ARGS__); } while (0)
-#define GN_LOG_EXCEPTION(__EXCEPTION__) do { if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Exception) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Exception, @"%@", __EXCEPTION__); } while (0)
+#define GN_LOG_VERBOSE(...)                                                                                                                    \
+  do {                                                                                                                                         \
+    if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Verbose) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Verbose, __VA_ARGS__); \
+  } while (0)
+#define GN_LOG_INFO(...)                                                                                                                 \
+  do {                                                                                                                                   \
+    if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Info) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Info, __VA_ARGS__); \
+  } while (0)
+#define GN_LOG_WARNING(...)                                                                                                                    \
+  do {                                                                                                                                         \
+    if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Warning) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Warning, __VA_ARGS__); \
+  } while (0)
+#define GN_LOG_ERROR(...)                                                                                                                  \
+  do {                                                                                                                                     \
+    if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Error) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Error, __VA_ARGS__); \
+  } while (0)
+#define GN_LOG_EXCEPTION(__EXCEPTION__)                                                                                                                     \
+  do {                                                                                                                                                      \
+    if (GCDNetworkingLogLevel <= kGCDNetworkingLoggingLevel_Exception) GCDNetworkingLogMessage(kGCDNetworkingLoggingLevel_Exception, @"%@", __EXCEPTION__); \
+  } while (0)
 
 #endif
 
@@ -126,10 +144,10 @@ extern void GCDNetworkingLogMessage(GCDNetworkingLoggingLevel level, NSString* f
 #if DEBUG
 
 #define GN_DCHECK(__CONDITION__) \
-  do { \
-    if (!(__CONDITION__)) { \
-      abort(); \
-    } \
+  do {                           \
+    if (!(__CONDITION__)) {      \
+      abort();                   \
+    }                            \
   } while (0)
 #define GN_DNOT_REACHED() abort()
 

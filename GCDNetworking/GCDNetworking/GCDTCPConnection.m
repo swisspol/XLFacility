@@ -61,8 +61,10 @@ static NSString* _IPAddressFromAddressData(const struct sockaddr* address) {
 
 static NSUInteger _PortFromAddressData(const struct sockaddr* address) {
   switch (address->sa_family) {
-    case AF_INET: return ntohs(((const struct sockaddr_in*)address)->sin_port);
-    case AF_INET6: return ntohs(((const struct sockaddr_in6*)address)->sin6_port);
+    case AF_INET:
+      return ntohs(((const struct sockaddr_in*)address)->sin_port);
+    case AF_INET6:
+      return ntohs(((const struct sockaddr_in6*)address)->sin6_port);
   }
   _LOG_DEBUG_UNREACHABLE();
   return 0;
@@ -85,7 +87,7 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
   if (connectedSocket >= 0) {
     BOOL success = NO;
     fcntl(connectedSocket, F_SETFL, O_NONBLOCK);
-    
+
     _LOG_DEBUG(@"Connecting %s socket to \"%@:%i\" (%@)...", isIPv6 ? "IPv6" : "IPv4", hostname, (int)port, _IPAddressFromAddressData(addr));
     int result = connect(connectedSocket, addr, len);
     if ((result == -1) && (errno == EINPROGRESS)) {
@@ -97,7 +99,6 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
       tv.tv_usec = fmod(timeout * 1000000.0, 1.0);
       result = select(connectedSocket + 1, NULL, &fdset, NULL, &tv);
       if (result == 1) {
-        
         int error;
         socklen_t errorlen = sizeof(error);
         result = getsockopt(connectedSocket, SOL_SOCKET, SO_ERROR, &error, &errorlen);
@@ -110,14 +111,14 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
         } else {
           _LOG_ERROR(@"Failed retrieving %s socket option: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
         }
-        
+
       } else if (result == 0) {
         _LOG_ERROR(@"Timed out connecting %s socket to \"%@:%i\" (%@)", isIPv6 ? "IPv6" : "IPv4", hostname, (int)port, _IPAddressFromAddressData(addr));
       }
     } else {
       _LOG_ERROR(@"Failed connecting %s socket to \"%@:%i\" (%@): %s", isIPv6 ? "IPv6" : "IPv4", hostname, (int)port, _IPAddressFromAddressData(addr), strerror(errno));
     }
-    
+
     if (success) {
       fcntl(connectedSocket, F_SETFL, 0);
     } else {
@@ -133,7 +134,7 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
 + (void)connectAsynchronouslyToHost:(NSString*)hostname port:(NSUInteger)port timeout:(NSTimeInterval)timeout completion:(void (^)(GCDTCPConnection* connection))completion {
   dispatch_async(GN_GLOBAL_DISPATCH_QUEUE, ^{
     GCDTCPConnection* connection = nil;
-    
+
     CFHostRef host = CFHostCreateWithName(kCFAllocatorDefault, (__bridge CFStringRef)hostname);  // Consider using low-level getaddrinfo() instead
     CFStreamError error = {0};
     if (CFHostStartInfoResolution(host, kCFHostAddresses, &error)) {
@@ -143,7 +144,7 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
         bcopy(addressData.bytes, &address, addressData.length);
         if (((address.addr.sa_family == AF_INET) && (address.addr.sa_len == sizeof(struct sockaddr_in)))  // Allow IPv4 hosts
             || ((address.addr.sa_family == AF_INET6) && (address.addr.sa_len == sizeof(struct sockaddr_in6)))) {  // Allow IPv6 hosts
-          
+
           if (address.addr.sa_family == AF_INET6) {
             address.addr6.sin6_port = htons(port);
           } else {
@@ -159,14 +160,13 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
               close(socket);
             }
           }
-          
         }
       }
     } else {
       _LOG_ERROR(@"Failed resolving host \"%@\": (%i, %i)", hostname, (int)error.domain, (int)error.error);
     }
     CFRelease(host);
-    
+
     completion(connection);
   });
 }
@@ -192,21 +192,21 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
     _lockQueue = dispatch_queue_create(GN_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _state = kXLTCPConnectionState_Initialized;
     _socket = socket;
-    
+
     [self _setSocketOption:SO_NOSIGPIPE withIntValue:1];  // Make sure this socket cannot generate SIG_PIPE when closed
     [self _setSocketOption:SO_KEEPALIVE withIntValue:1];  // Enable TCP keep-alive
-    
-    struct sockaddr localSockAddr;
+
+    struct sockaddr_storage localSockAddr;
     socklen_t localAddrLen = sizeof(localSockAddr);
-    if (getsockname(_socket, &localSockAddr, &localAddrLen) == 0) {
+    if (getsockname(_socket, (struct sockaddr*)&localSockAddr, &localAddrLen) == 0) {
       _localAddressData = [[NSData alloc] initWithBytes:&localSockAddr length:localAddrLen];
     } else {
       _LOG_ERROR(@"Failed retrieving local socket address: %s", strerror(errno));
     }
-    
-    struct sockaddr remoteSockAddr;
+
+    struct sockaddr_storage remoteSockAddr;
     socklen_t remoteAddrLen = sizeof(remoteSockAddr);
-    if (getpeername(_socket, &remoteSockAddr, &remoteAddrLen) == 0) {
+    if (getpeername(_socket, (struct sockaddr*)&remoteSockAddr, &remoteAddrLen) == 0) {
       _remoteAddressData = [[NSData alloc] initWithBytes:&remoteSockAddr length:remoteAddrLen];
     } else {
       _LOG_ERROR(@"Failed retrieving remote socket address: %s", strerror(errno));
@@ -257,7 +257,7 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
       tv.tv_sec = timeout;
       tv.tv_usec = fmod(timeout * 1000000.0, 1.0);
       [self _setSocketOption:SO_RCVTIMEO valuePtr:&tv valueLength:sizeof(tv)];
-      
+
       data = [[NSMutableData alloc] initWithLength:kReadBufferSize];
       ssize_t len = recv(_socket, data.mutableBytes, data.length, 0);
       if (len >= 0) {
@@ -278,7 +278,6 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
     if (_state == kXLTCPConnectionState_Opened) {
       dispatch_read(_socket, SIZE_MAX, GN_GLOBAL_DISPATCH_QUEUE, ^(dispatch_data_t data, int error) {
         @autoreleasepool {
-          
           if (error) {
             _LOG_ERROR(@"Failed reading asynchronously from socket: %s", strerror(error));
             if (completion) {
@@ -287,7 +286,6 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
           } else if (completion) {
             completion(data);
           }
-          
         }
       });
     } else if (completion) {
@@ -323,7 +321,7 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
       tv.tv_sec = timeout;
       tv.tv_usec = fmod(timeout * 1000000.0, 1.0);
       [self _setSocketOption:SO_SNDTIMEO valuePtr:&tv valueLength:sizeof(tv)];
-      
+
       ssize_t len = send(_socket, bytes, length, 0);
       if (len == (ssize_t)length) {
         result = YES;
@@ -344,7 +342,6 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
     if (_state == kXLTCPConnectionState_Opened) {
       dispatch_write(_socket, buffer, GN_GLOBAL_DISPATCH_QUEUE, ^(dispatch_data_t data, int error) {
         @autoreleasepool {
-          
           if (error) {
             if (error != EPIPE) {
               _LOG_ERROR(@"Failed writing asynchronously to socket: %s", strerror(error));
@@ -355,7 +352,6 @@ static int _CreateConnectedSocket(NSString* hostname, NSUInteger port, const str
           } else if (completion) {
             completion(YES);
           }
-          
         }
       });
     } else if (completion) {

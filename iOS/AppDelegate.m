@@ -37,41 +37,43 @@
   _window.rootViewController = [[UIViewController alloc] init];
   _window.rootViewController.view = [[UIView alloc] init];
   [_window makeKeyAndVisible];
-  
-  GCDTCPServer* server = [[GCDTelnetServer alloc] initWithPort:2323 startHandler:^NSString*(GCDTelnetConnection* connection) {
-    
-    UIDevice* device = [UIDevice currentDevice];
-    NSMutableString* welcome = [[NSMutableString alloc] init];
-    [welcome appendANSIStringWithColor:kANSIColor_Green bold:NO format:@"You are connected from %@ using \"%@\"\n", connection.remoteIPAddress, connection.terminalType];
-    [welcome appendANSIStringWithColor:kANSIColor_Green bold:NO format:@"Current device is %@ running %@ %@\n", device.model, device.systemName, device.systemVersion];
-    return welcome;
-    
-  } commandHandler:^NSString*(GCDTelnetConnection* connection, NSString* command, NSArray* arguments) {
-    
-    if ([command isEqualToString:@"quit"]) {
-      [connection close];
-      return nil;
-    } else if ([command isEqualToString:@"crash"]) {
-      abort();
-    } else if ([command isEqualToString:@"setwcolor"]) {
-      if (arguments.count == 3) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-          _window.backgroundColor = [UIColor colorWithRed:[arguments[0] doubleValue] green:[arguments[1] doubleValue] blue:[arguments[2] doubleValue] alpha:1.0];
-        });
-        return @"OK\n";
+
+  GCDTCPServer* server = [[GCDTelnetServer alloc] initWithPort:2323
+      startHandler:^NSString*(GCDTelnetConnection* connection) {
+
+        UIDevice* device = [UIDevice currentDevice];
+        NSMutableString* welcome = [[NSMutableString alloc] init];
+        [welcome appendANSIStringWithColor:kANSIColor_Green bold:NO format:@"You are connected from %@ using \"%@\"\n", connection.remoteIPAddress, connection.terminalType];
+        [welcome appendANSIStringWithColor:kANSIColor_Green bold:NO format:@"Current device is %@ running %@ %@\n", device.model, device.systemName, device.systemVersion];
+        return welcome;
+
       }
-      return @"Usage: setwcolor red green blue\n";
-    }
-    
-    NSMutableString* error = [[NSMutableString alloc] init];
-    [error appendANSIStringWithColor:kANSIColor_Red bold:YES format:@"UNKNOWN COMMAND = %@ (%@)\n", command, [arguments componentsJoinedByString:@", "]];
-    return error;
-    
-  }];
+      commandHandler:^NSString*(GCDTelnetConnection* connection, NSString* command, NSArray* arguments) {
+
+        if ([command isEqualToString:@"quit"]) {
+          [connection close];
+          return nil;
+        } else if ([command isEqualToString:@"crash"]) {
+          abort();
+        } else if ([command isEqualToString:@"setwcolor"]) {
+          if (arguments.count == 3) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+              _window.backgroundColor = [UIColor colorWithRed:[arguments[0] doubleValue] green:[arguments[1] doubleValue] blue:[arguments[2] doubleValue] alpha:1.0];
+            });
+            return @"OK\n";
+          }
+          return @"Usage: setwcolor red green blue\n";
+        }
+
+        NSMutableString* error = [[NSMutableString alloc] init];
+        [error appendANSIStringWithColor:kANSIColor_Red bold:YES format:@"UNKNOWN COMMAND = %@ (%@)\n", command, [arguments componentsJoinedByString:@", "]];
+        return error;
+
+      }];
   if (![server start]) {
     abort();
   }
-  
+
   return YES;
 }
 

@@ -97,7 +97,7 @@ extern int _LoggingMinLevel;
 #endif
 #define _LOG_WARNING(...) NSLog(__VA_ARGS__)
 #define _LOG_ERROR(...) NSLog(__VA_ARGS__)
-#define _LOG_EXCEPTION(__EXCEPTION__)  NSLog(@"%@", __EXCEPTION__)
+#define _LOG_EXCEPTION(__EXCEPTION__) NSLog(@"%@", __EXCEPTION__)
 
 #endif
 
@@ -106,30 +106,30 @@ extern int _LoggingMinLevel;
  */
 
 #if !defined(_LOG_CHECK)
-  #define _LOG_CHECK(__CONDITION__) \
-    do { \
-      if (!(__CONDITION__)) { \
-        abort(); \
-      } \
-    } while (0)
+#define _LOG_CHECK(__CONDITION__) \
+  do {                            \
+    if (!(__CONDITION__)) {       \
+      abort();                    \
+    }                             \
+  } while (0)
 #endif
 
 #if !defined(_LOG_DEBUG_CHECK)
-  #if DEBUG
-    #define _LOG_DEBUG_CHECK(__CONDITION__) _LOG_CHECK(__CONDITION__)
-  #else
-    #define _LOG_DEBUG_CHECK(__CONDITION__)
-  #endif
+#if DEBUG
+#define _LOG_DEBUG_CHECK(__CONDITION__) _LOG_CHECK(__CONDITION__)
+#else
+#define _LOG_DEBUG_CHECK(__CONDITION__)
+#endif
 #endif
 
 #if !defined(_LOG_UNREACHABLE)
-  #define _LOG_UNREACHABLE() abort()
+#define _LOG_UNREACHABLE() abort()
 #endif
 
 #if !defined(_LOG_DEBUG_UNREACHABLE)
-  #if DEBUG
-    #define _LOG_DEBUG_UNREACHABLE() _LOG_UNREACHABLE()
-  #else
-    #define _LOG_DEBUG_UNREACHABLE()
-  #endif
+#if DEBUG
+#define _LOG_DEBUG_UNREACHABLE() _LOG_UNREACHABLE()
+#else
+#define _LOG_DEBUG_UNREACHABLE()
+#endif
 #endif
