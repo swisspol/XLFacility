@@ -58,6 +58,7 @@
   if (![server start]) {
     abort();
   }
+  NSLog(@"TCP server running on %@", GCDTCPServerGetPrimaryIPAddress(false));
 
   return YES;
 }

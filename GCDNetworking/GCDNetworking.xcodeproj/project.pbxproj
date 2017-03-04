@@ -38,6 +38,8 @@
 		E2812BC519F2E9780046DDC1 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB819F2E9780046DDC1 /* GCDTCPServer.m */; };
 		E2812BC619F2E9780046DDC1 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB819F2E9780046DDC1 /* GCDTCPServer.m */; };
 		E2812BC819F2E9780046DDC1 /* GCDTCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2812BB819F2E9780046DDC1 /* GCDTCPServer.m */; };
+		E295AF8C1E6B4B1F00EAC2FF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E295AF8B1E6B4B1F00EAC2FF /* SystemConfiguration.framework */; };
+		E295AF8D1E6B4B5C00EAC2FF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E295AF8B1E6B4B1F00EAC2FF /* SystemConfiguration.framework */; };
 		E298C47A19ED866100C76821 /* GCDNetworking_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = E298C47919ED866100C76821 /* GCDNetworking_Tests.m */; };
 		E298C48619ED892500C76821 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1319E9FF5000D85595 /* CFNetwork.framework */; };
 		E2B3CF1B19E91825003ED065 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E2B3CF1819E91825003ED065 /* AppDelegate.m */; };
@@ -85,6 +87,7 @@
 		E2812BB619F2E9780046DDC1 /* GCDTCPPeer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPPeer.m; sourceTree = "<group>"; };
 		E2812BB719F2E9780046DDC1 /* GCDTCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPServer.h; sourceTree = "<group>"; };
 		E2812BB819F2E9780046DDC1 /* GCDTCPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTCPServer.m; sourceTree = "<group>"; };
+		E295AF8B1E6B4B1F00EAC2FF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		E298C46C19ED859F00C76821 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E298C47919ED866100C76821 /* GCDNetworking_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDNetworking_Tests.m; sourceTree = "<group>"; };
 		E2B03E3A19F493A500D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
@@ -101,6 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E295AF8C1E6B4B1F00EAC2FF /* SystemConfiguration.framework in Frameworks */,
 				E280BF1419E9FF5000D85595 /* CFNetwork.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -109,6 +113,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E295AF8D1E6B4B5C00EAC2FF /* SystemConfiguration.framework in Frameworks */,
 				E298C48619ED892500C76821 /* CFNetwork.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -162,6 +167,7 @@
 		E26DC19E19E883CC00C68DDC /* Mac Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				E295AF8B1E6B4B1F00EAC2FF /* SystemConfiguration.framework */,
 				E280BF1319E9FF5000D85595 /* CFNetwork.framework */,
 			);
 			name = "Mac Frameworks and Libraries";
