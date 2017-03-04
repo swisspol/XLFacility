@@ -92,7 +92,9 @@
                                                 maxRecords:0
                                                 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
                                                   const char* style = "color: dimgray;";
-                                                  if (record.level == kXLLogLevel_Warning) {
+                                                  if (record.level == kXLLogLevel_Info) {
+                                                    style = "color: green;";
+                                                  } else if (record.level == kXLLogLevel_Warning) {
                                                     style = "color: orange;";
                                                   } else if (record.level == kXLLogLevel_Error) {
                                                     style = "color: red;";

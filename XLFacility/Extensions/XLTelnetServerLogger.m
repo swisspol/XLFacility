@@ -100,7 +100,9 @@
   if (_shouldColorize) {
     char color = -1;
     BOOL bold = NO;
-    if (record.level == kXLLogLevel_Warning) {
+    if (record.level == kXLLogLevel_Info) {
+      color = kANSIColor_Green;
+    } else if (record.level == kXLLogLevel_Warning) {
       color = kANSIColor_Yellow;
     } else if (record.level == kXLLogLevel_Error) {
       color = kANSIColor_Red;
