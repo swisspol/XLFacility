@@ -30,22 +30,24 @@
 
 int main(int argc, const char* argv[]) {
   @autoreleasepool {
-    GCDTCPServer* server = [[GCDTelnetServer alloc] initWithPort:2323 startHandler:^NSString*(GCDTelnetConnection* connection) {
-      
-      NSMutableString* string = [[NSMutableString alloc] init];
-      if (connection.colorTerminal) {
-        [string appendANSIString:@"Welcome in color!" withColor:kANSIColor_Green bold:NO];
-      } else {
-        [string appendString:@"Welcome!"];
-      }
-      [string appendFormat:@"\nYou are connected using \"%@\"\n", connection.terminalType];
-      return string;
-      
-    } lineHandler:^NSString*(GCDTelnetConnection* connection, NSString* line) {
-      
-      return [line stringByAppendingString:@"\n"];
-      
-    }];
+    GCDTCPServer* server = [[GCDTelnetServer alloc] initWithPort:2323
+        startHandler:^NSString*(GCDTelnetConnection* connection) {
+
+          NSMutableString* string = [[NSMutableString alloc] init];
+          if (connection.colorTerminal) {
+            [string appendANSIString:@"Welcome in color!" withColor:kANSIColor_Green bold:NO];
+          } else {
+            [string appendString:@"Welcome!"];
+          }
+          [string appendFormat:@"\nYou are connected using \"%@\"\n", connection.terminalType];
+          return string;
+
+        }
+        lineHandler:^NSString*(GCDTelnetConnection* connection, NSString* line) {
+
+          return [line stringByAppendingString:@"\n"];
+
+        }];
     if (![server start]) {
       abort();
     }

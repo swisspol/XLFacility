@@ -44,7 +44,7 @@
 
 - (void)didClose {
   [super didClose];
-  
+
   [_peer didCloseConnection:self];
   _peer = nil;
 }
@@ -74,16 +74,19 @@
   _LOG_DEBUG_CHECK([connectionClass isSubclassOfClass:[GCDTCPPeerConnection class]]);
   if ((self = [super init])) {
     _connectionClass = connectionClass;
-    
+
     _lockQueue = dispatch_queue_create(GN_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _syncGroup = dispatch_group_create();
     _connections = [[NSMutableSet alloc] init];
 #if TARGET_OS_IPHONE
     _backgroundTask = UIBackgroundTaskInvalid;
 #endif
-    
+
 #if TARGET_OS_IPHONE
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_didEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(_didEnterBackground:)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_willEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 #endif
   }
@@ -92,10 +95,12 @@
 
 - (void)dealloc {
 #if TARGET_OS_IPHONE
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIApplicationDidEnterBackgroundNotification
+                                                object:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 #endif
-  
+
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
   dispatch_release(_syncGroup);
   dispatch_release(_lockQueue);
@@ -112,24 +117,24 @@
 
 - (BOOL)start {
   _LOG_DEBUG_CHECK(!_running);
-  
+
   if (![self willStart]) {
     return NO;
   }
-  
+
 #if TARGET_OS_IPHONE
   if (!_suspendInBackground) {
     _backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
       [self stop];
       _restart = YES;
-      
+
       [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
       _backgroundTask = UIBackgroundTaskInvalid;
     }];
   }
   _restart = NO;
 #endif
-  
+
   _running = YES;
   _LOG_DEBUG(@"%@ started", [self class]);
   return YES;
@@ -154,22 +159,22 @@
 
 - (void)stop {
   _LOG_DEBUG_CHECK(_running);
-  
+
 #if TARGET_OS_IPHONE
   if (_backgroundTask != UIBackgroundTaskInvalid) {
     [[UIApplication sharedApplication] endBackgroundTask:_backgroundTask];
     _backgroundTask = UIBackgroundTaskInvalid;
   }
 #endif
-  
+
   [self didStop];
-  
+
   NSSet* connections = self.connections;
   for (GCDTCPPeerConnection* connection in connections) {  // No need to use "_lockQueue" since no new connections can be created anymore and it would deadlock with -didCloseConnection:
     [connection close];
   }
   dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);  // Wait until all connections are closed
-  
+
   _running = NO;
   _LOG_DEBUG(@"%@ stopped", [self class]);
 }

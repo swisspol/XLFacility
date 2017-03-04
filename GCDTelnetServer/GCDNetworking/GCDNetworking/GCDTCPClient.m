@@ -55,7 +55,7 @@
   if ((self = [super initWithConnectionClass:connectionClass])) {
     _host = [hostname copy];
     _port = port;
-    
+
     _connectionTimeout = 10.0;
     _automaticallyReconnects = YES;
     _minReconnectInterval = 1.0;
@@ -82,37 +82,39 @@
   _LOG_DEBUG(@"%@ attempting to connect to \"%@:%i\"", [self class], _host, (int)_port);
   _generation += 1;
   NSUInteger lastGeneration = _generation;
-  [self.connectionClass connectAsynchronouslyToHost:_host port:_port timeout:_connectionTimeout completion:^(GCDTCPConnection* connection) {
-    if (connection) {
-      if (lastGeneration == _generation) {
-        
-        [self willOpenConnection:(GCDTCPPeerConnection*)connection];
-        
-        dispatch_sync(self.lockQueue, ^{
-          _reconnectionDelay = _minReconnectInterval;
-        });
-        
-      } else {
-        _LOG_DEBUG(@"%@ ignoring stalled connection to \"%@:%i\"", [self class], _host, (int)_port);
-        [connection close];
-      }
-    } else if (_automaticallyReconnects) {
-      dispatch_sync(self.lockQueue, ^{
-        if (_reconnectionDelay > 0.0) {
-          [self _scheduleReconnection];
-        }
-      });
-    }
-  }];
+  [self.connectionClass connectAsynchronouslyToHost:_host
+                                               port:_port
+                                            timeout:_connectionTimeout
+                                         completion:^(GCDTCPConnection* connection) {
+                                           if (connection) {
+                                             if (lastGeneration == _generation) {
+                                               [self willOpenConnection:(GCDTCPPeerConnection*)connection];
+
+                                               dispatch_sync(self.lockQueue, ^{
+                                                 _reconnectionDelay = _minReconnectInterval;
+                                               });
+
+                                             } else {
+                                               _LOG_DEBUG(@"%@ ignoring stalled connection to \"%@:%i\"", [self class], _host, (int)_port);
+                                               [connection close];
+                                             }
+                                           } else if (_automaticallyReconnects) {
+                                             dispatch_sync(self.lockQueue, ^{
+                                               if (_reconnectionDelay > 0.0) {
+                                                 [self _scheduleReconnection];
+                                               }
+                                             });
+                                           }
+                                         }];
 }
 
 - (BOOL)willStart {
   dispatch_sync(self.lockQueue, ^{
     _reconnectionDelay = _minReconnectInterval;
   });
-  
+
   [self _reconnect];
-  
+
   return YES;
 }
 
@@ -124,7 +126,7 @@
 
 - (void)didCloseConnection:(GCDTCPPeerConnection*)connection {
   [super didCloseConnection:connection];
-  
+
   dispatch_sync(self.lockQueue, ^{
     if (_reconnectionDelay > 0.0) {
       [self _scheduleReconnection];

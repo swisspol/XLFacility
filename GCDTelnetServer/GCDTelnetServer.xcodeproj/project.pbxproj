@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 48;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -92,7 +92,7 @@
 		E2B03E0719F46A7300D56CA6 /* NSMutableString+ANSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableString+ANSI.h"; sourceTree = "<group>"; };
 		E2B03E0819F46A7300D56CA6 /* NSMutableString+ANSI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableString+ANSI.m"; sourceTree = "<group>"; };
 		E2B03E0C19F46B1C00D56CA6 /* GCDTelnetConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTelnetConnection.h; sourceTree = "<group>"; };
-		E2B03E0D19F46B1C00D56CA6 /* GCDTelnetConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTelnetConnection.m; sourceTree = "<group>"; };
+		E2B03E0D19F46B1C00D56CA6 /* GCDTelnetConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = GCDTelnetConnection.m; sourceTree = "<group>"; tabWidth = 2; };
 		E2B03E1119F46BBB00D56CA6 /* GCDTelnetPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDTelnetPrivate.h; sourceTree = "<group>"; };
 		E2B03E3919F4939000D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
 		E2B03E7C19F49EAD00D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
@@ -305,7 +305,7 @@
 		E26DC15F19E8494700C68DDC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					E26DC16619E8494700C68DDC = {
@@ -324,7 +324,7 @@
 				};
 			};
 			buildConfigurationList = E26DC16219E8494700C68DDC /* Build configuration list for PBXProject "GCDTelnetServer" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -443,6 +443,9 @@
 					"-Wno-documentation-unknown-command",
 					"-Wno-gnu-statement-expression",
 					"-Wno-assign-enum",
+					"-Wno-reserved-id-macro",
+					"-Wno-cstring-format-directive",
+					"-Wno-partial-availability",
 				);
 			};
 			name = Debug;
@@ -463,7 +466,7 @@
 		E26DC16F19E8494700C68DDC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = GCDTelnetServer;
 				SDKROOT = macosx;
 			};
@@ -472,7 +475,7 @@
 		E26DC17019E8494700C68DDC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = GCDTelnetServer;
 				SDKROOT = macosx;
 			};
@@ -485,7 +488,7 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Tests;
 				SDKROOT = macosx;
 			};
@@ -498,7 +501,7 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Tests;
 				SDKROOT = macosx;
 			};
@@ -522,10 +525,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 88W3E55T4B;
 				INFOPLIST_FILE = iOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = GCDTelnetServer;
-				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -535,10 +538,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 88W3E55T4B;
 				INFOPLIST_FILE = iOS/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				PRODUCT_NAME = GCDTelnetServer;
-				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -53,7 +53,7 @@
   _LOG_DEBUG_CHECK([connectionClass isSubclassOfClass:[GCDTCPServerConnection class]]);
   if ((self = [super initWithConnectionClass:connectionClass])) {
     _port = port;
-    
+
     _sourceGroup = dispatch_group_create();
   }
   return self;
@@ -72,7 +72,7 @@
   if (listeningSocket >= 0) {
     int yes = 1;
     setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-    
+
     if (bind(listeningSocket, address, length) == 0) {
       if (listen(listeningSocket, kMaxPendingConnections) == 0) {
         return listeningSocket;
@@ -99,7 +99,6 @@
   });
   dispatch_source_set_event_handler(source, ^{
     @autoreleasepool {
-      
       struct sockaddr remoteSockAddr;
       socklen_t remoteAddrLen = sizeof(remoteSockAddr);
       int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
@@ -114,7 +113,6 @@
       } else {
         _LOG_ERROR(@"Failed accepting %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
       }
-      
     }
   });
   return source;
@@ -128,7 +126,7 @@
   addr4.sin_port = htons(_port);
   addr4.sin_addr.s_addr = htonl(INADDR_ANY);
   int listeningSocket4 = [self _createListeningSocket:NO localAddress:&addr4 length:sizeof(addr4)];
-  
+
   struct sockaddr_in6 addr6;
   bzero(&addr6, sizeof(addr6));
   addr6.sin6_len = sizeof(addr6);
@@ -136,19 +134,19 @@
   addr6.sin6_port = htons(_port);
   addr6.sin6_addr = in6addr_any;
   int listeningSocket6 = [self _createListeningSocket:YES localAddress:&addr6 length:sizeof(addr6)];
-  
+
   if ((listeningSocket4 < 0) || (listeningSocket6 < 0)) {
     close(listeningSocket4);
     close(listeningSocket6);
     return NO;
   }
-  
+
   _source4 = [self _createDispatchSourceWithListeningSocket:listeningSocket4 isIPv6:NO];
   dispatch_resume(_source4);
-  
+
   _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
   dispatch_resume(_source6);
-  
+
   return YES;
 }
 

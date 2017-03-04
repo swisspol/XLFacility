@@ -35,14 +35,13 @@
 #define kSynchronousCommunicationTimeout 3.0
 
 static const char* _telnetCommandStrings[] = {
-  "SE", "NOP", "DM", "BRK", "IP", "AO", "AYT", "EC", "EL", "GA", "SB", "WILL", "WONT", "DO", "DONT", "IAC"
-};
+    "SE", "NOP", "DM", "BRK", "IP", "AO", "AYT", "EC", "EL", "GA", "SB", "WILL", "WONT", "DO", "DONT", "IAC"};
 
 static const char* _telnetOptionStrings[] = {
-  NULL, "Echo", NULL, "Supress Go Ahead", NULL, "Status", "Timing Mark", NULL, NULL, NULL,  // 0-9
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, // 10-29
-  NULL, NULL, NULL, NULL, "Terminal Type", NULL, NULL, NULL, NULL, NULL, // 20-29
-  NULL, "Window Size", "Terminal Speed", "Remote Flow Control", "Linemode", NULL, "Environment Variables", NULL, NULL, NULL // 30-39
+    NULL, "Echo", NULL, "Supress Go Ahead", NULL, "Status", "Timing Mark", NULL, NULL, NULL,  // 0-9
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  // 10-29
+    NULL, NULL, NULL, NULL, "Terminal Type", NULL, NULL, NULL, NULL, NULL,  // 20-29
+    NULL, "Window Size", "Terminal Speed", "Remote Flow Control", "Linemode", NULL, "Environment Variables", NULL, NULL, NULL  // 30-39
 };
 
 static NSRegularExpression* _commandLineParser = nil;
@@ -107,13 +106,13 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
 
 - (NSData*)_sendIACBuffer:(const unsigned char*)buffer length:(NSUInteger)length {
   _LOG_DEBUG_CHECK(buffer[0] == kTelnetCommand_IAC);
-  
+
   if (![self writeBuffer:buffer length:length withTimeout:kSynchronousCommunicationTimeout]) {
     _LOG_ERROR(@"Failed sending Telnet command: %@", _StringFromIACBuffer(buffer, length));
     return nil;
   }
   _LOG_DEBUG(@"Telnet IAC (->) %@", _StringFromIACBuffer(buffer, length));
-  
+
   NSData* data = [self readDataWithTimeout:kSynchronousCommunicationTimeout];
   if (!data.length) {
     return nil;
@@ -124,7 +123,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
     return nil;
   }
   _LOG_DEBUG(@"Telnet IAC (<-) %@", _StringFromIACBuffer(data.bytes, data.length));
-  
+
   return data;
 }
 
@@ -152,7 +151,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
   if ((bytes1[1] != kTelnetCommand_WILL) || (bytes1[2] != kTelnetOption_TerminalType)) {
     return nil;
   }
-  
+
   unsigned char buffer2[] = {kTelnetCommand_IAC, kTelnetCommand_SB, kTelnetOption_TerminalType, 1, kTelnetCommand_IAC, kTelnetCommand_SE};
   NSData* data2 = [self _sendIACBuffer:buffer2 length:sizeof(buffer2)];
   if (data2.length < 6) {
@@ -166,7 +165,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
   if ((bytes2[length2 - 2] != kTelnetCommand_IAC) || (bytes2[length2 - 1] != kTelnetCommand_SE)) {
     return nil;
   }
-  
+
   return [[NSString alloc] initWithBytes:&bytes2[4] length:(length2 - 6) encoding:NSASCIIStringEncoding];
 }
 
@@ -175,13 +174,14 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
     if (data.length) {
       data = [self processRawInput:data];
       if (data) {
-        [self writeDataAsynchronously:data completion:^(BOOL success) {
-          if (success) {
-            [self _readInput];
-          } else {
-            [self close];
-          }
-        }];
+        [self writeDataAsynchronously:data
+                           completion:^(BOOL success) {
+                             if (success) {
+                               [self _readInput];
+                             } else {
+                               [self close];
+                             }
+                           }];
       } else {
         [self _readInput];
       }
@@ -194,7 +194,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
 - (void)didOpen {
   [self _setIACOption:kTelnetOption_SuppressGoAhead];
   [self _setIACOption:kTelnetOption_Echo];
-  
+
   _terminalType = [self _retrieveTerminalType];
   if (_terminalType.length) {
     NSRange range = [_terminalType rangeOfString:@"color" options:NSCaseInsensitiveSearch];
@@ -211,13 +211,14 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
     [string appendString:_prompt];
   }
   if (string.length) {
-    [self writeASCIIStringAsynchronously:string completion:^(BOOL success) {
-      if (success) {
-        [self _readInput];
-      } else {
-        [self close];
-      }
-    }];
+    [self writeASCIIStringAsynchronously:string
+                              completion:^(BOOL success) {
+                                if (success) {
+                                  [self _readInput];
+                                } else {
+                                  [self close];
+                                }
+                              }];
   } else {
     [self _readInput];
   }
@@ -246,8 +247,8 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
 
 - (NSMutableData*)_emptyLineData {
   unsigned char buffer[] = {
-    kCSIPrefix[0], kCSIPrefix[1], '2', 'K',  // Clear entire line
-    kCSIPrefix[0], kCSIPrefix[1], '1', 'G'  // Move cursor to column 1
+      kCSIPrefix[0], kCSIPrefix[1], '2', 'K',  // Clear entire line
+      kCSIPrefix[0], kCSIPrefix[1], '1', 'G'  // Move cursor to column 1
   };
   NSMutableData* data = [NSMutableData dataWithBytes:buffer length:sizeof(buffer)];
   if (_prompt) {
@@ -332,7 +333,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
     }
     _historyIndex = NSNotFound;
     _savedLine = nil;
-    
+
     NSMutableString* string = [[NSMutableString alloc] init];
     [string appendString:kCarriageReturnString];
     [string appendString:result];
@@ -359,21 +360,23 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
 - (NSData*)processRawInput:(NSData*)input {
   const unsigned char* bytes = input.bytes;
   NSUInteger length = input.length;
-  
+
   if ((length > 2) && (bytes[0] == kCSIPrefix[0]) && (bytes[1] == kCSIPrefix[1])) {
     if (length == 3) {
       switch (bytes[2]) {
-        
-        case 'A': return [self processCursorUp];
-        case 'B': return [self processCursorDown];
-        case 'C': return [self processCursorForward];
-        case 'D': return [self processCursorBack];
-        
+        case 'A':
+          return [self processCursorUp];
+        case 'B':
+          return [self processCursorDown];
+        case 'C':
+          return [self processCursorForward];
+        case 'D':
+          return [self processCursorBack];
       }
     }
     return [self processOtherANSIEscapeSequence:input];
   }
-  
+
   NSMutableData* output = [[NSMutableData alloc] init];
   while (length) {
     NSData* data = nil;
@@ -383,15 +386,14 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
       length -= 2;
     } else {
       switch (bytes[0]) {
-        
         case 0x09:
           data = [self processTab];
           break;
-        
+
         case 0x7F:
           data = [self processDelete];
           break;
-        
+
         default:
           if (bytes[0] <= 127) {
             data = [self processOtherASCIICharacter:bytes[0]];
@@ -399,7 +401,6 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
             data = [self processNonASCIICharacter:bytes[0]];
           }
           break;
-        
       }
       bytes += 1;
       length -= 1;
@@ -408,7 +409,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
       [output appendData:data];
     }
   }
-  
+
   return output;
 }
 
@@ -426,14 +427,17 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
 
 - (NSArray*)parseLineAsCommandAndArguments:(NSString*)line {
   NSMutableArray* array = [[NSMutableArray alloc] init];
-  [_commandLineParser enumerateMatchesInString:line options:0 range:NSMakeRange(0, line.length) usingBlock:^(NSTextCheckingResult* result, NSMatchingFlags flags, BOOL* stop) {
-    NSString* string = [line substringWithRange:result.range];
-    if (([string hasPrefix:@"\""] && [string hasSuffix:@"\""]) || ([string hasPrefix:@"'"] && [string hasSuffix:@"'"])) {  // TODO: Strip quotes directly in Regex
-      [array addObject:[string substringWithRange:NSMakeRange(1, string.length - 2)]];
-    } else {
-      [array addObject:string];
-    }
-  }];
+  [_commandLineParser enumerateMatchesInString:line
+                                       options:0
+                                         range:NSMakeRange(0, line.length)
+                                    usingBlock:^(NSTextCheckingResult* result, NSMatchingFlags flags, BOOL* stop) {
+                                      NSString* string = [line substringWithRange:result.range];
+                                      if (([string hasPrefix:@"\""] && [string hasSuffix:@"\""]) || ([string hasPrefix:@"'"] && [string hasSuffix:@"'"])) {  // TODO: Strip quotes directly in Regex
+                                        [array addObject:[string substringWithRange:NSMakeRange(1, string.length - 2)]];
+                                      } else {
+                                        [array addObject:string];
+                                      }
+                                    }];
   return array;
 }
 

@@ -35,11 +35,12 @@
 
 - (void)didOpen {
   [super didOpen];
-  
+
   NSString* welcome = @"Hello World!\n";
-  [self writeDataAsynchronously:[welcome dataUsingEncoding:NSUTF8StringEncoding] completion:^(BOOL success) {
-    [self close];
-  }];
+  [self writeDataAsynchronously:[welcome dataUsingEncoding:NSUTF8StringEncoding]
+                     completion:^(BOOL success) {
+                       [self close];
+                     }];
 }
 
 @end
@@ -52,12 +53,12 @@
   _window.rootViewController = [[UIViewController alloc] init];
   _window.rootViewController.view = [[UIView alloc] init];
   [_window makeKeyAndVisible];
-  
+
   GCDTCPServer* server = [[GCDTCPServer alloc] initWithConnectionClass:[Connection class] port:2323];
   if (![server start]) {
     abort();
   }
-  
+
   return YES;
 }
 @end

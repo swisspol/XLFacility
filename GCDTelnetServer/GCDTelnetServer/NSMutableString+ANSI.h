@@ -56,6 +56,6 @@ typedef NS_ENUM(unsigned char, ANSIColor) {
 /**
  *  Appends a formatted string using the provided ANSI color and optionally in bold.
  */
-- (void)appendANSIStringWithColor:(ANSIColor)color bold:(BOOL)bold format:(NSString*)format, ... NS_FORMAT_FUNCTION(3,4);
+- (void)appendANSIStringWithColor:(ANSIColor)color bold:(BOOL)bold format:(NSString*)format, ... NS_FORMAT_FUNCTION(3, 4);
 
 @end
