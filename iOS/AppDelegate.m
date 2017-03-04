@@ -64,6 +64,7 @@
   [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
   [XLSharedFacility addLogger:[XLUIKitOverlayLogger sharedLogger]];
   [[XLUIKitOverlayLogger sharedLogger] setOverlayOpacity:0.66];
+  XLOG_VERBOSE(@"XLFacility servers running on %@", GCDTCPServerGetPrimaryIPAddress(false));
 
   XLOG_INFO(@"%s", __FUNCTION__);
 

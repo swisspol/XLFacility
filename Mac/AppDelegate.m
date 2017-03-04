@@ -43,6 +43,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
   [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
   [XLSharedFacility addLogger:[XLAppKitOverlayLogger sharedLogger]];
+  XLOG_VERBOSE(@"XLFacility servers running on %@", GCDTCPServerGetPrimaryIPAddress(false));
 
   XLOG_INFO(@"%s", __FUNCTION__);
 }

@@ -49,6 +49,7 @@ int main(int argc, const char* argv[]) {
     [[XLStandardLogger sharedErrorLogger] setFormat:@"%t (%g) %l > %m%c"];
     [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
     [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] init]];
+    XLOG_VERBOSE(@"XLFacility servers running on %@", GCDTCPServerGetPrimaryIPAddress(false));
 
 #if 0
     [XLSharedFacility addLogger:[[XLTCPClientLogger alloc] initWithHost:@"localhost" port:8888 preserveHistory:YES]];

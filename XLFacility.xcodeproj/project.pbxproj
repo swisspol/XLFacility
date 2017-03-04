@@ -66,6 +66,10 @@
 		E26DC19D19E883C600C68DDC /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E26DC19C19E883C600C68DDC /* libsqlite3.dylib */; };
 		E280BF1419E9FF5000D85595 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1319E9FF5000D85595 /* CFNetwork.framework */; };
 		E280BF1619E9FF5500D85595 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E280BF1519E9FF5500D85595 /* CFNetwork.framework */; };
+		E295AF941E6B4DEF00EAC2FF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E295AF931E6B4DEF00EAC2FF /* SystemConfiguration.framework */; };
+		E295AF951E6B4E0200EAC2FF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E295AF931E6B4DEF00EAC2FF /* SystemConfiguration.framework */; };
+		E295AF961E6B4E0E00EAC2FF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E295AF931E6B4DEF00EAC2FF /* SystemConfiguration.framework */; };
+		E295AF971E6B4E2000EAC2FF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E295AF931E6B4DEF00EAC2FF /* SystemConfiguration.framework */; };
 		E298C47A19ED866100C76821 /* XLFacility_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = E298C47919ED866100C76821 /* XLFacility_Tests.m */; };
 		E298C47B19ED890500C76821 /* XLASLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A019EA425700A1B39F /* XLASLLogger.m */; };
 		E298C47C19ED890500C76821 /* XLCallbackLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = E29DC8A219EA425700A1B39F /* XLCallbackLogger.m */; };
@@ -206,6 +210,7 @@
 		E280BF0E19E9F3DF00D85595 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E280BF1319E9FF5000D85595 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		E280BF1519E9FF5500D85595 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
+		E295AF931E6B4DEF00EAC2FF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		E298C46C19ED859F00C76821 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E298C47919ED866100C76821 /* XLFacility_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLFacility_Tests.m; sourceTree = "<group>"; };
 		E29DC89F19EA425700A1B39F /* XLASLLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLASLLogger.h; sourceTree = "<group>"; };
@@ -267,6 +272,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E295AF961E6B4E0E00EAC2FF /* SystemConfiguration.framework in Frameworks */,
 				E2168F9019EE033100865350 /* CFNetwork.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -276,6 +282,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E26ABC3D19ECA04F00654D9F /* Cocoa.framework in Frameworks */,
+				E295AF971E6B4E2000EAC2FF /* SystemConfiguration.framework in Frameworks */,
 				E26ABC3B19ECA04600654D9F /* CFNetwork.framework in Frameworks */,
 				E26ABC3A19ECA02500654D9F /* libsqlite3.dylib in Frameworks */,
 			);
@@ -285,6 +292,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E295AF941E6B4DEF00EAC2FF /* SystemConfiguration.framework in Frameworks */,
 				E280BF1419E9FF5000D85595 /* CFNetwork.framework in Frameworks */,
 				E26DC19D19E883C600C68DDC /* libsqlite3.dylib in Frameworks */,
 			);
@@ -294,8 +302,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E298C48719ED892700C76821 /* libsqlite3.dylib in Frameworks */,
+				E295AF951E6B4E0200EAC2FF /* SystemConfiguration.framework in Frameworks */,
 				E298C48619ED892500C76821 /* CFNetwork.framework in Frameworks */,
+				E298C48719ED892700C76821 /* libsqlite3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,6 +387,7 @@
 			isa = PBXGroup;
 			children = (
 				E26ABC3C19ECA04F00654D9F /* Cocoa.framework */,
+				E295AF931E6B4DEF00EAC2FF /* SystemConfiguration.framework */,
 				E280BF1319E9FF5000D85595 /* CFNetwork.framework */,
 				E26DC19C19E883C600C68DDC /* libsqlite3.dylib */,
 			);

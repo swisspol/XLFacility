@@ -68,7 +68,7 @@ int main(int argc, const char* argv[]) {
       abort();
     }
 
-    fprintf(stdout, "Server is running...\n\n");
+    fprintf(stdout, "Server is running on %s...\n\n", GCDTCPServerGetPrimaryIPAddress(false).UTF8String);
     CFRunLoopRun();
   }
   return 0;
