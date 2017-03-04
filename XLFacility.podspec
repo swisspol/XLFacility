@@ -7,7 +7,7 @@
 
 Pod::Spec.new do |s|
   s.name     = 'XLFacility'
-  s.version  = '1.5.8'
+  s.version  = '1.5.9'
   s.author   =  { 'Pierre-Olivier Latour' => 'info@pol-online.net' }
   s.license  = { :type => 'BSD', :file => 'LICENSE' }
   s.homepage = 'https://github.com/swisspol/XLFacility'
