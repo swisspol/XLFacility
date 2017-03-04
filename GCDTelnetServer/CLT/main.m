@@ -51,6 +51,7 @@ int main(int argc, const char* argv[]) {
     if (![server start]) {
       abort();
     }
+    NSLog(@"Telnet server running on %@", GCDTCPServerGetPrimaryIPAddress(false));
     CFRunLoopRun();
   }
   return 0;

@@ -73,6 +73,7 @@
   if (![server start]) {
     abort();
   }
+  NSLog(@"Telnet server running on %@", GCDTCPServerGetPrimaryIPAddress(false));
 
   return YES;
 }

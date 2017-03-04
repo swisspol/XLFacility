@@ -50,6 +50,7 @@ int main(int argc, const char* argv[]) {
     if (![server start]) {
       abort();
     }
+    NSLog(@"TCP server running on %@", GCDTCPServerGetPrimaryIPAddress(false));
 
     CFRunLoopRun();
   }
