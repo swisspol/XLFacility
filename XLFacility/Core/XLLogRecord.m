@@ -36,7 +36,7 @@
 @implementation XLLogRecord
 
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                 tag:(NSString*)tag
+                       tag:(NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
              capturedErrno:(int)capturedErrno
@@ -82,7 +82,7 @@
                       capturedErrno:errno
                    capturedThreadID:(int)threadID
                  capturedQueueLabel:(label ? [NSString stringWithUTF8String:label] : nil)
-                          callstack:callstack];
+                 callstack:callstack];
 }
 
 - (BOOL)isEqual:(id)object {

@@ -68,7 +68,7 @@
   if ((self = [super init])) {
     _databasePath = [path copy];
     _appVersion = appVersion;
-    
+
     _databaseQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
   }
   return self;
@@ -92,7 +92,7 @@
     }
     if (result == SQLITE_OK) {
       NSString* statement = [NSString stringWithFormat:@"INSERT INTO " kTableName " (version, time, tag, level, message, errno, thread, queue, callstack) VALUES (%i, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-                             (int)_appVersion];
+                                                       (int)_appVersion];
       result = sqlite3_prepare_v2(_database, [statement UTF8String], -1, &_statement, NULL);
     }
     if (result != SQLITE_OK) {
@@ -190,7 +190,7 @@
         if (result != SQLITE_ROW) {
           break;
         }
-        
+
         int version = sqlite3_column_int(statement, 0);
         double absoluteTime = sqlite3_column_double(statement, 1);
         const unsigned char* tagUTF8 = sqlite3_column_text(statement, 2);
@@ -200,14 +200,14 @@
         int capturedThreadID = sqlite3_column_int(statement, 6);
         const unsigned char* capturedQueueLabelUTF8 = sqlite3_column_text(statement, 7);
         const unsigned char* callstackUTF8 = sqlite3_column_text(statement, 8);
-        
+
         NSString* tag = tagUTF8 ? [NSString stringWithUTF8String:(const char*)tagUTF8] : nil;
         NSString* message = messageUTF8 ? [NSString stringWithUTF8String:(const char*)messageUTF8] : nil;
         NSString* capturedQueueLabel = capturedQueueLabelUTF8 ? [NSString stringWithUTF8String:(const char*)capturedQueueLabelUTF8] : nil;
         NSArray* callstack = [(callstackUTF8 ? [NSString stringWithUTF8String:(const char*)callstackUTF8] : nil) componentsSeparatedByString:@"\n"];
         if (message) {
           XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:absoluteTime
-                                                                tag:tag
+                                                                      tag:tag
                                                                     level:level
                                                                   message:message
                                                             capturedErrno:capturedErrno

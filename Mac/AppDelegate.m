@@ -43,7 +43,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
   [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
   [XLSharedFacility addLogger:[XLAppKitOverlayLogger sharedLogger]];
-  
+
   XLOG_INFO(@"%s", __FUNCTION__);
 }
 

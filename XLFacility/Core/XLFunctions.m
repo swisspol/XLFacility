@@ -44,13 +44,19 @@ void XLLogCMessage(const char* tag, int level, const char* format, ...) {
   va_start(arguments, format);
   NSString* message = [[NSString alloc] initWithFormat:(id)[NSString stringWithUTF8String:format] arguments:arguments];
   va_end(arguments);
-  [XLSharedFacility logMessage:message withTag:(tag ? [NSString stringWithUTF8String:tag] : nil) level:level];
+  [XLSharedFacility logMessage:message withTag:(tag ? [NSString stringWithUTF8String:tag] : nil)level:level];
 }
 
 #pragma clang diagnostic pop
 
 NSString* XLStringFromLogLevelName(XLLogLevel level) {
-  static NSString* names[] = {@"DEBUG", @"VERBOSE", @"INFO", @"WARNING", @"ERROR", @"EXCEPTION", @"ABORT"};
+  static NSString* names[] = { @"DEBUG",
+                               @"VERBOSE",
+                               @"INFO",
+                               @"WARNING",
+                               @"ERROR",
+                               @"EXCEPTION",
+                               @"ABORT" };
   if ((level >= kXLMinLogLevel) && (level <= kXLMaxLogLevel)) {
     return names[level];
   }
@@ -59,7 +65,13 @@ NSString* XLStringFromLogLevelName(XLLogLevel level) {
 }
 
 NSString* XLPaddedStringFromLogLevelName(XLLogLevel level) {
-  static NSString* names[] = {@"DEBUG    ", @"VERBOSE  ", @"INFO     ", @"WARNING  ", @"ERROR    ", @"EXCEPTION", @"ABORT    "};
+  static NSString* names[] = { @"DEBUG    ",
+                               @"VERBOSE  ",
+                               @"INFO     ",
+                               @"WARNING  ",
+                               @"ERROR    ",
+                               @"EXCEPTION",
+                               @"ABORT    " };
   if ((level >= kXLMinLogLevel) && (level <= kXLMaxLogLevel)) {
     return names[level];
   }

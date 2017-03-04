@@ -46,27 +46,27 @@
   _window.rootViewController = [[UIViewController alloc] init];
   _window.rootViewController.view = [[UIView alloc] init];
   [_window makeKeyAndVisible];
-  
+
   UIButton* button1 = [UIButton buttonWithType:UIButtonTypeSystem];
   [button1 setTitle:@"Test Log" forState:UIControlStateNormal];
   [button1 addTarget:self action:@selector(_testLog:) forControlEvents:UIControlEventTouchDown];
   button1.frame = CGRectMake(100, 100, 100, 50);
   [button1 sizeToFit];
   [_window.rootViewController.view addSubview:button1];
-  
+
   UIButton* button2 = [UIButton buttonWithType:UIButtonTypeSystem];
   [button2 setTitle:@"Test Abort" forState:UIControlStateNormal];
   [button2 addTarget:self action:@selector(_testAbort:) forControlEvents:UIControlEventTouchDown];
   button2.frame = CGRectMake(300, 100, 100, 50);
   [button2 sizeToFit];
   [_window.rootViewController.view addSubview:button2];
-  
+
   [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
   [XLSharedFacility addLogger:[XLUIKitOverlayLogger sharedLogger]];
   [[XLUIKitOverlayLogger sharedLogger] setOverlayOpacity:0.66];
-  
+
   XLOG_INFO(@"%s", __FUNCTION__);
-  
+
   return YES;
 }
 

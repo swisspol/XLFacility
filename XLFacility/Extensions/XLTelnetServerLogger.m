@@ -50,21 +50,24 @@
 
 - (NSString*)start {
   NSMutableString* string = [[NSMutableString alloc] init];
-  
+
   if ([(XLTelnetServerLogger*)self.logger shouldColorize]) {
     [string appendANSIStringWithColor:kANSIColor_Green bold:NO format:@"You are connected to %s[%i] (in color!)", getprogname(), getpid()];
     [string appendString:@"\n\n"];
   } else {
     [string appendFormat:@"You are connected to %s[%i]\n\n", getprogname(), getpid()];
   }
-  
+
   XLTelnetServerLogger* logger = (XLTelnetServerLogger*)self.logger;
   if (logger.databaseLogger) {
-    [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
-      [string appendString:[logger formatRecord:record]];
-    }];
+    [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0
+                                                    backward:NO
+                                                  maxRecords:0
+                                                  usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+                                                    [string appendString:[logger formatRecord:record]];
+                                                  }];
   }
-  
+
   return [self sanitizeStringForTerminal:string];
 }
 
@@ -116,16 +119,17 @@
 
 - (void)logRecord:(XLLogRecord*)record {
   [super logRecord:record];
-  
+
   NSString* formattedMessage = [self formatRecord:record];
   [self.TCPServer enumerateConnectionsUsingBlock:^(GCDTCPPeerConnection* connection, BOOL* stop) {
     NSString* string = [(GCDTelnetConnection*)connection sanitizeStringForTerminal:formattedMessage];
     if (_sendTimeout < 0.0) {
-      [(GCDTelnetConnection*)connection writeASCIIStringAsynchronously:string completion:^(BOOL success) {
-        if (!success) {
-          [connection close];
-        }
-      }];
+      [(GCDTelnetConnection*)connection writeASCIIStringAsynchronously:string
+                                                            completion:^(BOOL success) {
+                                                              if (!success) {
+                                                                [connection close];
+                                                              }
+                                                            }];
     } else {
       if (![(GCDTelnetConnection*)connection writeASCIIString:string withTimeout:_sendTimeout]) {
         [connection close];

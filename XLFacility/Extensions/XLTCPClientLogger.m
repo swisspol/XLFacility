@@ -53,9 +53,12 @@ static void* _associatedObjectKey = &_associatedObjectKey;
   XLTCPClientLogger* logger = (XLTCPClientLogger*)self.logger;
   if (logger.databaseLogger) {
     NSMutableString* string = [[NSMutableString alloc] init];
-    [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0 backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
-      [string appendString:[logger formatRecord:record]];
-    }];
+    [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:0.0
+                                                    backward:NO
+                                                  maxRecords:0
+                                                  usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+                                                    [string appendString:[logger formatRecord:record]];
+                                                  }];
     if (string.length) {
       [self writeLogString:string withTimeout:logger.sendTimeout];
     }
@@ -65,11 +68,12 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 - (void)writeLogString:(NSString*)string withTimeout:(NSTimeInterval)timeout {
   NSData* data = XLConvertNSStringToUTF8String(string);
   if (timeout < 0.0) {
-    [self writeDataAsynchronously:data completion:^(BOOL success) {
-      if (!success) {
-        [self close];
-      }
-    }];
+    [self writeDataAsynchronously:data
+                       completion:^(BOOL success) {
+                         if (!success) {
+                           [self close];
+                         }
+                       }];
   } else {
     if (![self writeData:data withTimeout:timeout]) {
       [self close];
@@ -114,14 +118,14 @@ static void* _associatedObjectKey = &_associatedObjectKey;
       return NO;
     }
   }
-  
+
   if (![_TCPClient start]) {
     [_databaseLogger close];
     [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
     _databaseLogger = nil;
     return NO;
   }
-  
+
   return YES;
 }
 
@@ -129,13 +133,13 @@ static void* _associatedObjectKey = &_associatedObjectKey;
   if (_databaseLogger) {
     [_databaseLogger logRecord:record];
   }
-  
+
   [_TCPClient.connection writeLogString:[self formatRecord:record] withTimeout:_sendTimeout];
 }
 
 - (void)close {
   [_TCPClient stop];
-  
+
   if (_databaseLogger) {
     [_databaseLogger close];
     [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];

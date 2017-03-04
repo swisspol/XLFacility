@@ -49,16 +49,16 @@ int main(int argc, const char* argv[]) {
     [[XLStandardLogger sharedErrorLogger] setFormat:@"%t (%g) %l > %m%c"];
     [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
     [XLSharedFacility addLogger:[[XLHTTPServerLogger alloc] init]];
-    
+
 #if 0
     [XLSharedFacility addLogger:[[XLTCPClientLogger alloc] initWithHost:@"localhost" port:8888 preserveHistory:YES]];
 #endif
-    
+
     c_test();
-    
+
     CFRunLoopTimerRef timer = CFRunLoopTimerCreate(kCFAllocatorDefault, 0.0, 1.0, 0, 0, _RunLoopTimerCallBack, NULL);
     CFRunLoopAddTimer(CFRunLoopGetMain(), timer, kCFRunLoopCommonModes);
-    
+
     CFRunLoopRun();
   }
   return 0;

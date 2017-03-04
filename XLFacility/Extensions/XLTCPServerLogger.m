@@ -76,14 +76,14 @@ static void* _associatedObjectKey = &_associatedObjectKey;
       return NO;
     }
   }
-  
+
   if (![_TCPServer start]) {
     [_databaseLogger close];
     [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
     _databaseLogger = nil;
     return NO;
   }
-  
+
   return YES;
 }
 
@@ -95,7 +95,7 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 
 - (void)close {
   [_TCPServer stop];
-  
+
   if (_databaseLogger) {
     [_databaseLogger close];
     [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
