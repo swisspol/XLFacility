@@ -14,8 +14,8 @@ Pod::Spec.new do |s|
   s.summary  = 'Elegant and extensive logging facility for OS X & iOS (includes database, Telnet and HTTP servers)'
 
   s.source   = { :git => 'https://github.com/swisspol/XLFacility.git', :tag => s.version.to_s }
-  s.ios.deployment_target = '5.0'
-  s.osx.deployment_target = '10.7'
+  s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.8'
   s.requires_arc = true
 
   s.subspec 'Core' do |cs|

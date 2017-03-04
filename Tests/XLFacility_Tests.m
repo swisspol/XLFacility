@@ -294,7 +294,7 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
   XLOG_WARNING(@"Hello World!");
   usleep(kLoggingDelay);
   
-  XCTestExpectation* expectation = [self expectationWithDescription:nil];
+  XCTestExpectation* expectation = [self expectationWithDescription:@""];
   [GCDTCPConnection connectAsynchronouslyToHost:@"localhost" port:3333 timeout:1.0 completion:^(GCDTCPConnection* connection) {
     XCTAssertNotNil(connection);
     [connection open];
@@ -367,7 +367,7 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
   NSRange range2 = [string1 rangeOfString:@"Hello World!"];
   XCTAssertNotEqual(range2.location, NSNotFound);
   
-  XCTestExpectation* expectation = [self expectationWithDescription:nil];
+  XCTestExpectation* expectation = [self expectationWithDescription:@""];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     NSHTTPURLResponse* response2 = nil;
     NSURL* url2 = [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:8888/log?after=%f", time]];
@@ -407,7 +407,7 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
   XLOG_WARNING(@"Hello World!");
   usleep(kLoggingDelay);
   
-  XCTestExpectation* expectation1 = [self expectationWithDescription:nil];
+  XCTestExpectation* expectation1 = [self expectationWithDescription:@""];
   [connection readDataAsynchronously:^(NSData* data) {
     XCTAssertNotNil(data);
     NSString* string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -438,7 +438,7 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
   XLOG_ERROR(@"Hello again!");
   usleep(kLoggingDelay);
   
-  XCTestExpectation* expectation2 = [self expectationWithDescription:nil];
+  XCTestExpectation* expectation2 = [self expectationWithDescription:@""];
   [connection readDataAsynchronously:^(NSData* data) {
     XCTAssertNotNil(data);
     NSString* string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];

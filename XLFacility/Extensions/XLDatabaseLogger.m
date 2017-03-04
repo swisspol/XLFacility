@@ -201,10 +201,10 @@
         const unsigned char* capturedQueueLabelUTF8 = sqlite3_column_text(statement, 7);
         const unsigned char* callstackUTF8 = sqlite3_column_text(statement, 8);
         
-        NSString* tag = tagUTF8 ? [NSString stringWithUTF8String:(char*)tagUTF8] : nil;
-        NSString* message = messageUTF8 ? [NSString stringWithUTF8String:(char*)messageUTF8] : nil;
-        NSString* capturedQueueLabel = capturedQueueLabelUTF8 ? [NSString stringWithUTF8String:(char*)capturedQueueLabelUTF8] : nil;
-        NSArray* callstack = [(callstackUTF8 ? [NSString stringWithUTF8String:(char*)callstackUTF8] : nil) componentsSeparatedByString:@"\n"];
+        NSString* tag = tagUTF8 ? [NSString stringWithUTF8String:(const char*)tagUTF8] : nil;
+        NSString* message = messageUTF8 ? [NSString stringWithUTF8String:(const char*)messageUTF8] : nil;
+        NSString* capturedQueueLabel = capturedQueueLabelUTF8 ? [NSString stringWithUTF8String:(const char*)capturedQueueLabelUTF8] : nil;
+        NSArray* callstack = [(callstackUTF8 ? [NSString stringWithUTF8String:(const char*)callstackUTF8] : nil) componentsSeparatedByString:@"\n"];
         if (message) {
           XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:absoluteTime
                                                                 tag:tag

@@ -249,7 +249,7 @@ static void _ExitHandler() {
     if (frameStrings) {
       callstack = [[NSMutableArray alloc] init];
       for (int i = 0; i < frameCount; ++i) {
-        [(NSMutableArray*)callstack addObject:[NSString stringWithUTF8String:frameStrings[i]]];
+        [(NSMutableArray*)callstack addObject:(id)[NSString stringWithUTF8String:frameStrings[i]]];
       }
       free(frameStrings);  // No need to free individual strings
     }

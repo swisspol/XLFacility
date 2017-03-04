@@ -251,7 +251,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
   };
   NSMutableData* data = [NSMutableData dataWithBytes:buffer length:sizeof(buffer)];
   if (_prompt) {
-    [data appendData:[_prompt dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES]];
+    [data appendData:(id)[_prompt dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES]];
   }
   return data;
 }
@@ -259,7 +259,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
 - (NSData*)_stringLineData:(NSString*)string {
   [_lineBuffer setString:string];
   NSMutableData* data = [self _emptyLineData];
-  [data appendData:[string dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES]];
+  [data appendData:(id)[string dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES]];
   return data;
 }
 
@@ -323,7 +323,7 @@ static NSString* _StringFromIACBuffer(const unsigned char* buffer, NSUInteger le
   NSString* result = [self processLine:line];
   if (result) {
     if (_maxHistorySize && line.length) {
-      if (!_historyLines.count || ![line isEqualToString:[_historyLines lastObject]]) {
+      if (!_historyLines.count || ![line isEqualToString:(id)[_historyLines lastObject]]) {
         [_historyLines addObject:line];
         if (_historyLines.count > _maxHistorySize) {
           [_historyLines removeObjectsInRange:NSMakeRange(0, _historyLines.count - _maxHistorySize)];

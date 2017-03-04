@@ -297,7 +297,7 @@ static NSString* _uid = nil;
 - (NSString*)formatRecord:(XLLogRecord*)record {
   NSMutableString* string = [[NSMutableString alloc] initWithCapacity:(2 * record.message.length)];  // Should be quite enough
   
-  FormatToken* token = (FormatToken*)_tokens.bytes;
+  const FormatToken* token = (const FormatToken*)_tokens.bytes;
   for (int i = 0; i < (int)(_tokens.length / sizeof(FormatToken)); ++i, ++token) {
     switch (*token) {
       
