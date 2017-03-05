@@ -21,6 +21,7 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |cs|
     cs.source_files = 'XLFacility/Core/*.{h,m}'
     cs.private_header_files = "XLFacility/Core/*Private.h"
+    cs.exclude_files = "XLFacility/Core/XLFacilityCMacros.h"
     cs.requires_arc = true
   end
 
