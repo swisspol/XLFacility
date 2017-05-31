@@ -27,6 +27,8 @@
 
 #import "XLLogger.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLFileLogger class writes logs records to a file.
  *
@@ -39,7 +41,7 @@
  *  Returns the file path as specified when the logger was initialized or nil
  *  if it was initialized with a file descriptor.
  */
-@property(nonatomic, readonly) NSString* filePath;
+@property(nonatomic, readonly, nullable) NSString* filePath;
 
 /**
  *  Returns the file descriptor as specified when the logger was initialized
@@ -60,3 +62,5 @@
 - (instancetype)initWithFileDescriptor:(int)fd closeOnDealloc:(BOOL)close;
 
 @end
+
+NS_ASSUME_NONNULL_END

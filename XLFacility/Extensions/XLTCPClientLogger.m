@@ -120,9 +120,11 @@ static void* _associatedObjectKey = &_associatedObjectKey;
   }
 
   if (![_TCPClient start]) {
-    [_databaseLogger close];
-    [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
-    _databaseLogger = nil;
+    if (_databaseLogger) {
+      [_databaseLogger close];
+      [[NSFileManager defaultManager] removeItemAtPath:(id)_databaseLogger.databasePath error:NULL];
+      _databaseLogger = nil;
+    }
     return NO;
   }
 
@@ -142,7 +144,7 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 
   if (_databaseLogger) {
     [_databaseLogger close];
-    [[NSFileManager defaultManager] removeItemAtPath:_databaseLogger.databasePath error:NULL];
+    [[NSFileManager defaultManager] removeItemAtPath:(id)_databaseLogger.databasePath error:NULL];
     _databaseLogger = nil;
   }
 }

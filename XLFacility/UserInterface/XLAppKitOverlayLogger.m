@@ -56,7 +56,7 @@
   if ((self = [super init])) {
     _overlayOpacity = 0.75;
     _overlayDuration = 5.0;
-    _textFont = [NSFont fontWithName:@"Monaco" size:11];
+    _textFont = (id)[NSFont fontWithName:@"Monaco" size:11];
   }
   return self;
 }

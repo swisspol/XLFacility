@@ -27,6 +27,8 @@
 
 #import "XLTCPServerLogger.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLTelnetServerLogger class runs a Telnet-like server you can connect to
  *  using "$ telnet IP_ADDRESS PORT" from a terminal. Log records received by
@@ -72,3 +74,5 @@
 - (instancetype)initWithPort:(NSUInteger)port preserveHistory:(BOOL)preserveHistory;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -27,6 +27,8 @@
 
 #import "XLLogger.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class XLCallbackLogger;
 
 /**
@@ -64,8 +66,10 @@ typedef void (^XLCallbackLoggerCloseBlock)(XLCallbackLogger* logger);
 /**
  *  This method is the designated initializer for the class.
  */
-- (instancetype)initWithOpenCallback:(XLCallbackLoggerOpenBlock)openCallback
+- (instancetype)initWithOpenCallback:(nullable XLCallbackLoggerOpenBlock)openCallback
                    logRecordCallback:(XLCallbackLoggerLogRecordBlock)logRecordCallback
-                       closeCallback:(XLCallbackLoggerCloseBlock)closeCallback;
+                       closeCallback:(nullable XLCallbackLoggerCloseBlock)closeCallback;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -367,7 +367,7 @@ static NSString* _uid = nil;
 
       case kFormatToken_Tag: {
         if (record.tag) {
-          [string appendString:record.tag];
+          [string appendString:(id)record.tag];
         } else if (_tagPlaceholder) {
           [string appendString:_tagPlaceholder];
         }
@@ -416,7 +416,7 @@ static NSString* _uid = nil;
 
       case kFormatToken_QueueLabel: {
         if (record.capturedQueueLabel) {
-          [string appendString:record.capturedQueueLabel];
+          [string appendString:(id)record.capturedQueueLabel];
         } else if (_queueLabelPlaceholder) {
           [string appendString:_queueLabelPlaceholder];
         }
@@ -514,7 +514,7 @@ static NSString* _uid = nil;
       if (i > 1) {
         [string appendString:@"\n"];
       }
-      [string appendString:record.callstack[i]];
+      [string appendString:(id)record.callstack[i]];
     }
     if (_callstackFooter) {
       [string appendString:_callstackFooter];

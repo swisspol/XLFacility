@@ -91,7 +91,7 @@
     if (fabs(other->_absoluteTime - _absoluteTime) >= 0.001) {  // 1ms
       return NO;
     }
-    if ((_tag && !other->_tag) || (!_tag && other->_tag) || (_tag && other->_tag && ![_tag isEqualToString:other->_tag])) {
+    if ((_tag && !other->_tag) || (!_tag && other->_tag) || (_tag && other->_tag && ![_tag isEqualToString:(id)other->_tag])) {
       return NO;
     }
     if (_level != other->_level) {
@@ -106,10 +106,10 @@
     if (_capturedThreadID != other->_capturedThreadID) {
       return NO;
     }
-    if ((_capturedQueueLabel && !other->_capturedQueueLabel) || (!_capturedQueueLabel && other->_capturedQueueLabel) || (_capturedQueueLabel && other->_capturedQueueLabel && ![_capturedQueueLabel isEqualToString:other->_capturedQueueLabel])) {
+    if ((_capturedQueueLabel && !other->_capturedQueueLabel) || (!_capturedQueueLabel && other->_capturedQueueLabel) || (_capturedQueueLabel && other->_capturedQueueLabel && ![_capturedQueueLabel isEqualToString:(id)other->_capturedQueueLabel])) {
       return NO;
     }
-    if ((_callstack && !other->_callstack) || (!_callstack && other->_callstack) || (_callstack && other->_callstack && ![_callstack isEqualToArray:other->_callstack])) {
+    if ((_callstack && !other->_callstack) || (!_callstack && other->_callstack) || (_callstack && other->_callstack && ![_callstack isEqualToArray:(id)other->_callstack])) {
       return NO;
     }
   }

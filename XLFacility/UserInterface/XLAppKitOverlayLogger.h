@@ -28,6 +28,8 @@
 #import <AppKit/AppKit.h>
 #import "XLLogger.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLAppKitOverlayLogger class displays an overlay window on top of the
  *  entire app user interface whenever log records are received.
@@ -63,3 +65,5 @@
 + (XLAppKitOverlayLogger*)sharedLogger;
 
 @end
+
+NS_ASSUME_NONNULL_END

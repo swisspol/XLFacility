@@ -59,7 +59,7 @@
   if ((self = [super init])) {
     _overlayOpacity = 0.75;
     _overlayDuration = 5.0;
-    _textFont = [UIFont fontWithName:@"Courier" size:13.0];
+    _textFont = (id)[UIFont fontWithName:@"Courier" size:13.0];
   }
   return self;
 }

@@ -27,6 +27,8 @@
 
 #import "XLTCPServerLogger.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLHTTPServerLogger runs a simple HTTP server you can connect to in your
  *  web browser by visiting "http://IP_ADDRESS:PORT/". Log records received by
@@ -54,3 +56,5 @@
 - (instancetype)initWithPort:(NSUInteger)port;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -27,6 +27,8 @@
 
 #import "XLLogRecord.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLLogRecordFilterBlock is called by the logger for every log record received.
  *  It should return YES if the logger can proceed with the log record or NO if it
@@ -77,7 +79,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *
  *  The default value is NULL.
  */
-@property(nonatomic, copy) XLLogRecordFilterBlock logRecordFilter;
+@property(nonatomic, copy, nullable) XLLogRecordFilterBlock logRecordFilter;
 
 @end
 
@@ -176,14 +178,14 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *
  *  The default value is "(none)".
  */
-@property(nonatomic, copy) NSString* tagPlaceholder;
+@property(nonatomic, copy, nullable) NSString* tagPlaceholder;
 
 /**
  *  Sets the placeholder string used by the "%q" format specifier.
  *
  *  The default value is "(none)".
  */
-@property(nonatomic, copy) NSString* queueLabelPlaceholder;
+@property(nonatomic, copy, nullable) NSString* queueLabelPlaceholder;
 
 /**
  *  Sets the header string used by -formatCallstackFromRecord: to be inserted
@@ -191,7 +193,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *
  *  The default value is "\n\n>>> Captured call stack:\n".
  */
-@property(nonatomic, copy) NSString* callstackHeader;
+@property(nonatomic, copy, nullable) NSString* callstackHeader;
 
 /**
  *  Sets the footer string used by -formatCallstackFromRecord: to be inserted
@@ -199,7 +201,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *
  *  The default value is nil.
  */
-@property(nonatomic, copy) NSString* callstackFooter;  // Default is nil
+@property(nonatomic, copy, nullable) NSString* callstackFooter;
 
 /**
  *  Sets the prefix string used by -formatRecord: to be inserted before each
@@ -207,7 +209,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *
  *  The default value is nil.
  */
-@property(nonatomic, copy) NSString* multilinesPrefix;
+@property(nonatomic, copy, nullable) NSString* multilinesPrefix;
 
 /**
  *  Converts a log record into a string using the format set for the logger.
@@ -219,7 +221,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *
  *  This method returns nil if the log record has no callstack.
  */
-- (NSString*)formatCallstackFromRecord:(XLLogRecord*)record;
+- (nullable NSString*)formatCallstackFromRecord:(XLLogRecord*)record;
 
 /**
  *  Returns a sanitized version of the message from a log record.
@@ -230,3 +232,5 @@ extern NSString* const XLLoggerFormatString_NSLog;
 - (NSString*)sanitizeMessageFromRecord:(XLLogRecord*)record;
 
 @end
+
+NS_ASSUME_NONNULL_END

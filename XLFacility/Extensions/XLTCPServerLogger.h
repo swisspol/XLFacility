@@ -28,6 +28,8 @@
 #import "XLDatabaseLogger.h"
 #import "GCDTCPServer.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLTCPServerLogger class is an abstract class for loggers that
  *  implement TCP servers: it cannot be used directly.
@@ -46,7 +48,7 @@
 /**
  *  Returns the XLDatabaseLogger used internally if any.
  */
-@property(nonatomic, readonly) XLDatabaseLogger* databaseLogger;
+@property(nonatomic, readonly, nullable) XLDatabaseLogger* databaseLogger;
 
 /**
  *  Returns the class to use to instantiate the server.
@@ -78,6 +80,8 @@
  *
  *  @warning This returns nil after the connection has been closed.
  */
-@property(nonatomic, assign, readonly) XLTCPServerLogger* logger;
+@property(nonatomic, assign, readonly, nullable) XLTCPServerLogger* logger;
 
 @end
+
+NS_ASSUME_NONNULL_END

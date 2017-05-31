@@ -29,6 +29,8 @@
 
 #import "XLLogger.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLUIKitOverlayLogger class displays an overlay window on top of the
  *  entire app user interface whenever log records are received.
@@ -64,3 +66,5 @@
 + (XLUIKitOverlayLogger*)sharedLogger;
 
 @end
+
+NS_ASSUME_NONNULL_END
