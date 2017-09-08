@@ -30,7 +30,7 @@
  */
 
 #import "GCDTelnetServer.h"
-#import "_LoggingBridgePrivate.h"
+#import "GCDTelnetLoggingBridgePrivate.h"
 
 /**
  *  GCDTelnetServer internal constants and APIs.

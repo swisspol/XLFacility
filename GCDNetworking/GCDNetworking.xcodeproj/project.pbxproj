@@ -90,7 +90,7 @@
 		E295AF8B1E6B4B1F00EAC2FF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		E298C46C19ED859F00C76821 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E298C47919ED866100C76821 /* GCDNetworking_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDNetworking_Tests.m; sourceTree = "<group>"; };
-		E2B03E3A19F493A500D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
+		E2B03E3A19F493A500D56CA6 /* GCDNetworkingLoggingBridgePrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDNetworkingLoggingBridgePrivate.h; sourceTree = "<group>"; };
 		E2B3CEF019E917BB003ED065 /* GCDNetworking.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GCDNetworking.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2B3CF1719E91825003ED065 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E2B3CF1819E91825003ED065 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -176,9 +176,9 @@
 		E2812BB019F2E9780046DDC1 /* GCDNetworking */ = {
 			isa = PBXGroup;
 			children = (
-				E2B03E3A19F493A500D56CA6 /* _LoggingBridgePrivate.h */,
 				E22E917F19F2F0850043457E /* GCDNetworking.h */,
 				E22E917A19F2EBD40043457E /* GCDNetworkingPrivate.h */,
+				E2B03E3A19F493A500D56CA6 /* GCDNetworkingLoggingBridgePrivate.h */,
 				E2812BB119F2E9780046DDC1 /* GCDTCPClient.h */,
 				E2812BB219F2E9780046DDC1 /* GCDTCPClient.m */,
 				E2812BB319F2E9780046DDC1 /* GCDTCPConnection.h */,
@@ -277,7 +277,7 @@
 		E26DC15F19E8494700C68DDC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					E26DC16619E8494700C68DDC = {
