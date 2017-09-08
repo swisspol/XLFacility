@@ -235,7 +235,7 @@
 		E29DC8B319EA425700A1B39F /* XLHTTPServerLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLHTTPServerLogger.m; sourceTree = "<group>"; };
 		E29DC8B419EA425700A1B39F /* XLTelnetServerLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLTelnetServerLogger.h; sourceTree = "<group>"; };
 		E29DC8B519EA425700A1B39F /* XLTelnetServerLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLTelnetServerLogger.m; sourceTree = "<group>"; };
-		E2B03E9419F4C27D00D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
+		E2B03E9419F4C27D00D56CA6 /* GCDTelnetLoggingBridgePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTelnetLoggingBridgePrivate.h; sourceTree = "<group>"; };
 		E2B03E9519F4C27D00D56CA6 /* GCDTelnetConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTelnetConnection.h; sourceTree = "<group>"; };
 		E2B03E9619F4C27D00D56CA6 /* GCDTelnetConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTelnetConnection.m; sourceTree = "<group>"; };
 		E2B03E9719F4C27D00D56CA6 /* GCDTelnetLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTelnetLogging.h; sourceTree = "<group>"; };
@@ -244,7 +244,7 @@
 		E2B03E9A19F4C27D00D56CA6 /* GCDTelnetServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDTelnetServer.m; sourceTree = "<group>"; };
 		E2B03E9B19F4C27D00D56CA6 /* NSMutableString+ANSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableString+ANSI.h"; sourceTree = "<group>"; };
 		E2B03E9C19F4C27D00D56CA6 /* NSMutableString+ANSI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableString+ANSI.m"; sourceTree = "<group>"; };
-		E2B03EAD19F4C28A00D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
+		E2B03EAD19F4C28A00D56CA6 /* GCDNetworkingLoggingBridgePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDNetworkingLoggingBridgePrivate.h; sourceTree = "<group>"; };
 		E2B03EAE19F4C28A00D56CA6 /* GCDNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDNetworking.h; sourceTree = "<group>"; };
 		E2B03EAF19F4C28A00D56CA6 /* GCDNetworkingPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDNetworkingPrivate.h; sourceTree = "<group>"; };
 		E2B03EB019F4C28A00D56CA6 /* GCDTCPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPClient.h; sourceTree = "<group>"; };
@@ -458,11 +458,11 @@
 		E2B03E9319F4C27D00D56CA6 /* GCDTelnetServer */ = {
 			isa = PBXGroup;
 			children = (
-				E2B03E9419F4C27D00D56CA6 /* _LoggingBridgePrivate.h */,
 				E2B03E9519F4C27D00D56CA6 /* GCDTelnetConnection.h */,
 				E2B03E9619F4C27D00D56CA6 /* GCDTelnetConnection.m */,
 				E2B03E9719F4C27D00D56CA6 /* GCDTelnetLogging.h */,
 				E2B03E9819F4C27D00D56CA6 /* GCDTelnetPrivate.h */,
+				E2B03E9419F4C27D00D56CA6 /* GCDTelnetLoggingBridgePrivate.h */,
 				E2B03E9919F4C27D00D56CA6 /* GCDTelnetServer.h */,
 				E2B03E9A19F4C27D00D56CA6 /* GCDTelnetServer.m */,
 				E2B03E9B19F4C27D00D56CA6 /* NSMutableString+ANSI.h */,
@@ -475,9 +475,9 @@
 		E2B03EAC19F4C28A00D56CA6 /* GCDNetworking */ = {
 			isa = PBXGroup;
 			children = (
-				E2B03EAD19F4C28A00D56CA6 /* _LoggingBridgePrivate.h */,
 				E2B03EAE19F4C28A00D56CA6 /* GCDNetworking.h */,
 				E2B03EAF19F4C28A00D56CA6 /* GCDNetworkingPrivate.h */,
+				E2B03EAD19F4C28A00D56CA6 /* GCDNetworkingLoggingBridgePrivate.h */,
 				E2B03EB019F4C28A00D56CA6 /* GCDTCPClient.h */,
 				E2B03EB119F4C28A00D56CA6 /* GCDTCPClient.m */,
 				E2B03EB219F4C28A00D56CA6 /* GCDTCPConnection.h */,
