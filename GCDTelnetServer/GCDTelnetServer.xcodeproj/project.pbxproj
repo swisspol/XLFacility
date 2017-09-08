@@ -97,8 +97,8 @@
 		E2B03E0C19F46B1C00D56CA6 /* GCDTelnetConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTelnetConnection.h; sourceTree = "<group>"; };
 		E2B03E0D19F46B1C00D56CA6 /* GCDTelnetConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = GCDTelnetConnection.m; sourceTree = "<group>"; tabWidth = 2; };
 		E2B03E1119F46BBB00D56CA6 /* GCDTelnetPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDTelnetPrivate.h; sourceTree = "<group>"; };
-		E2B03E3919F4939000D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
-		E2B03E7C19F49EAD00D56CA6 /* _LoggingBridgePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _LoggingBridgePrivate.h; sourceTree = "<group>"; };
+		E2B03E3919F4939000D56CA6 /* GCDTelnetLoggingBridgePrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDTelnetLoggingBridgePrivate.h; sourceTree = "<group>"; };
+		E2B03E7C19F49EAD00D56CA6 /* GCDNetworkingLoggingBridgePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDNetworkingLoggingBridgePrivate.h; sourceTree = "<group>"; };
 		E2B03E7D19F49EAD00D56CA6 /* GCDNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDNetworking.h; sourceTree = "<group>"; };
 		E2B03E7E19F49EAD00D56CA6 /* GCDNetworkingPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDNetworkingPrivate.h; sourceTree = "<group>"; };
 		E2B03E7F19F49EAD00D56CA6 /* GCDTCPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDTCPClient.h; sourceTree = "<group>"; };
@@ -204,10 +204,10 @@
 		E2B03DCA19F4659F00D56CA6 /* GCDTelnetServer */ = {
 			isa = PBXGroup;
 			children = (
-				E2B03E3919F4939000D56CA6 /* _LoggingBridgePrivate.h */,
 				E2B03E0C19F46B1C00D56CA6 /* GCDTelnetConnection.h */,
 				E2B03E0D19F46B1C00D56CA6 /* GCDTelnetConnection.m */,
 				E2B03E1119F46BBB00D56CA6 /* GCDTelnetPrivate.h */,
+				E2B03E3919F4939000D56CA6 /* GCDTelnetLoggingBridgePrivate.h */,
 				E2B03DCB19F4659F00D56CA6 /* GCDTelnetServer.h */,
 				E2B03DCC19F4659F00D56CA6 /* GCDTelnetServer.m */,
 				E2B03E0719F46A7300D56CA6 /* NSMutableString+ANSI.h */,
@@ -219,9 +219,9 @@
 		E2B03E7B19F49EAD00D56CA6 /* GCDNetworking */ = {
 			isa = PBXGroup;
 			children = (
-				E2B03E7C19F49EAD00D56CA6 /* _LoggingBridgePrivate.h */,
 				E2B03E7D19F49EAD00D56CA6 /* GCDNetworking.h */,
 				E2B03E7E19F49EAD00D56CA6 /* GCDNetworkingPrivate.h */,
+				E2B03E7C19F49EAD00D56CA6 /* GCDNetworkingLoggingBridgePrivate.h */,
 				E2B03E7F19F49EAD00D56CA6 /* GCDTCPClient.h */,
 				E2B03E8019F49EAD00D56CA6 /* GCDTCPClient.m */,
 				E2B03E8119F49EAD00D56CA6 /* GCDTCPConnection.h */,
@@ -313,7 +313,7 @@
 		E26DC15F19E8494700C68DDC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					E26DC16619E8494700C68DDC = {

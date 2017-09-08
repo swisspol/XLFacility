@@ -30,7 +30,7 @@
  */
 
 #import "GCDNetworking.h"
-#import "_LoggingBridgePrivate.h"
+#import "GCDNetworkingLoggingBridgePrivate.h"
 
 /**
  *  GCDNetworking internal constants and APIs.
