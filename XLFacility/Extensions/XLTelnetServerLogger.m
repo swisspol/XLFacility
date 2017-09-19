@@ -71,6 +71,18 @@
   return [self sanitizeStringForTerminal:string];
 }
 
+- (NSString*)processLine:(NSString*)line {
+  XLTelnetServerLogger* logger = (XLTelnetServerLogger*)self.logger;
+  XLTelnetUserInputBlock block = logger.userInputBlock;
+  if (block) {
+    NSArray* array = [self parseLineAsCommandAndArguments:line];
+    NSString* command = array.count ? array[0] : @"";
+    NSArray* arguments = array.count ? [array subarrayWithRange:NSMakeRange(1, array.count - 1)] : @[];
+    return [self sanitizeStringForTerminal:block(line, command, arguments)];
+  }
+  return nil;
+}
+
 @end
 
 @implementation XLTelnetServerLogger

@@ -30,6 +30,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ *  The XLTelnetUserInputBlock is called by the Telnet logger whenever the user enters text followed by [Return].
+ *
+ *  You may return nil from it or a string to be displayed back to the user (which would typically end with a newline).
+ *
+ *  @warning This block will be executed on arbitrary threads.
+ */
+typedef NSString* _Nullable (^XLTelnetUserInputBlock)(NSString* rawText, NSString* parsedCommand, NSArray* parsedArguments);
+
+/**
  *  The XLTelnetServerLogger class runs a Telnet-like server you can connect to
  *  using "$ telnet IP_ADDRESS PORT" from a terminal. Log records received by
  *  the logger are then printed directly in the connected terminal.
@@ -60,6 +69,11 @@ NS_ASSUME_NONNULL_BEGIN
  *  The default value is -1.0.
  */
 @property(nonatomic) NSTimeInterval sendTimeout;
+
+/**
+ *  Sets a block to be called whenever the user inputs text.
+ */
+@property(nonatomic, nullable) XLTelnetUserInputBlock userInputBlock;
 
 /**
  *  Initializes a Telnet server on port 2323 that preserves history.
