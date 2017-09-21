@@ -30,6 +30,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ *  The XLLoggerFenceBlock is used to execute arbitrary code on the logger's internal
+ *  GCD serial queue.
+ *
+ *  @warning This block will be executed on arbitrary threads.
+ */
+typedef void (^XLLoggerFenceBlock)();
+
+/**
  *  The XLLogRecordFilterBlock is called by the logger for every log record received.
  *  It should return YES if the logger can proceed with the log record or NO if it
  *  should ignore it.
@@ -80,6 +88,12 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  The default value is NULL.
  */
 @property(nonatomic, copy, nullable) XLLogRecordFilterBlock logRecordFilter;
+
+/**
+ *  Executes a "fence" block on the logger's internal CGD serial queue
+ *  after all the pending log records have been processed.
+ */
+- (void)executeFenceBlock:(XLLoggerFenceBlock)block;
 
 @end
 

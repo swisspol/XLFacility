@@ -155,6 +155,10 @@ static NSString* _uid = nil;
   }
 }
 
+- (void)executeFenceBlock:(XLLoggerFenceBlock)block {
+  dispatch_async(_serialQueue, block);
+}
+
 @end
 
 @implementation XLLogger (Subclassing)
