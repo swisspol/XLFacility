@@ -117,7 +117,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
 /**
  *  Called whenever a log record is received from XLFacility.
  *
- *  @warning This method must be implemented by subclasseses.
+ *  @warning This method must be implemented by subclasses.
  */
 - (void)logRecord:(XLLogRecord*)record;
 
