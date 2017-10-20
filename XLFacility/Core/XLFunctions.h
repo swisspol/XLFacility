@@ -44,7 +44,7 @@ NSString* XLStringFromLogLevelName(XLLogLevel level);
  *  Contrary to -[NSString dataUsingEncoding:] this function is guaranteed
  *  to return a non-nil result as long as the input string is not nil.
  */
-NSData* XLConvertNSStringToUTF8String(NSString* _Nullable string);
+NSData* _Nullable XLConvertNSStringToUTF8String(NSString* _Nullable string);
 
 /**
  *  Converts a NSString to an UTF-8 NULL terminated C string.
@@ -52,7 +52,7 @@ NSData* XLConvertNSStringToUTF8String(NSString* _Nullable string);
  *  Contrary to -[NSString UTF8String] this function is guaranteed to return
  *  a non-NULL result as long as the input string is not nil.
  */
-const char* XLConvertNSStringToUTF8CString(NSString* _Nullable string);
+const char* _Nullable XLConvertNSStringToUTF8CString(NSString* _Nullable string);
 
 /**
  *  Check if a debugger is currently attached to the process.

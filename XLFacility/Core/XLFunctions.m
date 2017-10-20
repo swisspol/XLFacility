@@ -61,7 +61,7 @@ NSString* XLStringFromLogLevelName(XLLogLevel level) {
     return names[level];
   }
   XLOG_DEBUG_UNREACHABLE();
-  return nil;
+  return @"";
 }
 
 NSString* XLPaddedStringFromLogLevelName(XLLogLevel level) {
@@ -76,7 +76,7 @@ NSString* XLPaddedStringFromLogLevelName(XLLogLevel level) {
     return names[level];
   }
   XLOG_DEBUG_UNREACHABLE();
-  return nil;
+  return @"";
 }
 
 NSData* XLConvertNSStringToUTF8String(NSString* string) {
