@@ -54,7 +54,6 @@
 - (instancetype)initWithOpenCallback:(XLCallbackLoggerOpenBlock)openCallback
                    logRecordCallback:(XLCallbackLoggerLogRecordBlock)logRecordCallback
                        closeCallback:(XLCallbackLoggerCloseBlock)closeCallback {
-  XLOG_DEBUG_CHECK(logRecordCallback);
   if ((self = [super init])) {
     _openBlock = openCallback;
     _logRecordBlock = logRecordCallback;

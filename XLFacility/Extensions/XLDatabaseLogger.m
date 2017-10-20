@@ -64,7 +64,6 @@
 }
 
 - (instancetype)initWithDatabasePath:(NSString*)path appVersion:(int)appVersion {
-  XLOG_DEBUG_CHECK(path);
   if ((self = [super init])) {
     _databasePath = [path copy];
     _appVersion = appVersion;
