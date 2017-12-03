@@ -48,6 +48,7 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_PaddedLevelName,
   kFormatToken_Message,
   kFormatToken_SanitizedMessage,
+  kFormatToken_Metadata,
   kFormatToken_UserID,
   kFormatToken_ProcessID,
   kFormatToken_ProcessName,
@@ -70,9 +71,11 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   NSMutableData* _tokens;
   NSMutableArray* _strings;
   NSDateFormatter* _datetimeFormatter;
-  NSString* _tagPlaceholder;
-  NSString* _queueLabelPlaceholder;
 
+  NSString* _tagPlaceholder;
+  NSString* _metadataPrefix;
+  NSString* _metadataSuffix;
+  NSString* _queueLabelPlaceholder;
   NSString* _callstackHeader;
   NSString* _callstackFooter;
   NSString* _multilinesPrefix;
@@ -246,6 +249,9 @@ static NSString* _uid = nil;
           case 'M':
             token = kFormatToken_SanitizedMessage;
             break;
+          case 'D':
+            token = kFormatToken_Metadata;
+            break;
           case 'u':
             token = kFormatToken_UserID;
             break;
@@ -306,6 +312,22 @@ static NSString* _uid = nil;
   return _tagPlaceholder;
 }
 
+- (void)setMetadataPrefix:(NSString*)string {
+  _metadataPrefix = [string copy];
+}
+
+- (NSString*)metadataPrefix {
+  return _metadataPrefix;
+}
+
+- (void)setMetadataSuffix:(NSString*)string {
+  _metadataSuffix = [string copy];
+}
+
+- (NSString*)metadataSuffix {
+  return _metadataSuffix;
+}
+
 - (void)setQueueLabelPlaceholder:(NSString*)string {
   _queueLabelPlaceholder = [string copy];
 }
@@ -336,6 +358,15 @@ static NSString* _uid = nil;
 
 - (NSString*)multilinesPrefix {
   return _multilinesPrefix;
+}
+
+static void _MetadataApplier(const void* key, const void* value, void* context) {
+  NSMutableString* string = (__bridge NSMutableString*)context;
+  [string appendString:@"  "];
+  [string appendString:(__bridge NSString*)key];
+  [string appendString:@": "];
+  [string appendString:(__bridge NSString*)value];
+  [string appendString:@"\n"];
 }
 
 - (NSString*)formatRecord:(XLLogRecord*)record {
@@ -395,6 +426,21 @@ static NSString* _uid = nil;
 
       case kFormatToken_SanitizedMessage: {
         [string appendString:[self sanitizeMessageFromRecord:record]];
+        break;
+      }
+
+      case kFormatToken_Metadata: {
+        if (record.metadata) {
+          if (_metadataPrefix) {
+            [string appendString:_metadataPrefix];
+          }
+          [string appendString:@"{\n"];
+          CFDictionaryApplyFunction((CFDictionaryRef)record.metadata, _MetadataApplier, (__bridge void*)string);
+          [string appendString:@"}"];
+          if (_metadataSuffix) {
+            [string appendString:_metadataSuffix];
+          }
+        }
         break;
       }
 

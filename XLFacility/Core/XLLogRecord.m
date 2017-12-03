@@ -39,6 +39,7 @@
                        tag:(NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
+                  metadata:(NSDictionary<NSString*, NSString*>*)metadata
              capturedErrno:(int)capturedErrno
           capturedThreadID:(int)capturedThreadID
         capturedQueueLabel:(NSString*)capturedQueueLabel
@@ -48,6 +49,7 @@
     _tag = tag;
     _level = level;
     _message = message;
+    _metadata = metadata;
     _capturedErrno = capturedErrno;
     _capturedThreadID = capturedThreadID;
     _capturedQueueLabel = capturedQueueLabel;
@@ -60,6 +62,7 @@
                        tag:(NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
+                  metadata:(NSDictionary<NSString*, NSString*>*)metadata
                  callstack:(NSArray*)callstack {
   const char* label = NULL;
 #if TARGET_OS_IPHONE
@@ -79,6 +82,7 @@
                                 tag:tag
                               level:level
                             message:message
+                           metadata:metadata
                       capturedErrno:errno
                    capturedThreadID:(int)threadID
                  capturedQueueLabel:(label ? [NSString stringWithUTF8String:label] : nil)
@@ -98,6 +102,9 @@
       return NO;
     }
     if ((_message && !other->_message) || (!_message && other->_message) || (_message && other->_message && ![_message isEqualToString:other->_message])) {
+      return NO;
+    }
+    if ((_metadata && !other->_metadata) || (!_metadata && other->_metadata) || (_metadata && other->_metadata && ![_metadata isEqualToDictionary:(id)other->_metadata])) {
       return NO;
     }
     if (_capturedErrno != other->_capturedErrno) {

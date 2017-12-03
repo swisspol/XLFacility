@@ -222,7 +222,12 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
   [XLSharedFacility addLogger:logger];
 
   for (int i = 0; i < 10; ++i) {
-    [XLSharedFacility logMessageWithTag:XLOG_TAG level:(i % 5) format:@"Hello World #%i!", i + 1];
+    NSDictionary* metadata = nil;
+    if (i % 2) {
+      metadata = @{ @"a" : @"1",
+                    @"b" : @2 };
+    }
+    [XLSharedFacility logMessageWithTag:XLOG_TAG level:(i % 5) metadata:metadata format:@"Hello World #%i!", i + 1];
   }
   usleep(kLoggingDelay);
 
@@ -469,6 +474,42 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
   XLOG_ERROR(@"Hello World!");
 
   [XLSharedFacility removeLogger:logger];
+}
+
+- (void)testMetadataLogging {
+  NSString* filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
+  XLFileLogger* logger = [[XLFileLogger alloc] initWithFilePath:filePath append:NO];
+  logger.format = @"%m%D";
+  logger.metadataPrefix = @"\n";
+  [XLSharedFacility addLogger:logger];
+
+  [XLSharedFacility logMessage:@"Hello World!" withTag:nil level:kXLLogLevel_Verbose metadata:nil];
+  [XLSharedFacility logMessage:@"Hello World!" withTag:nil level:kXLLogLevel_Verbose metadata:@{}];
+  [XLSharedFacility logMessage:@"Hello World!" withTag:nil level:kXLLogLevel_Verbose metadata:@{ @"a" : @"1" }];
+  [XLSharedFacility logMessage:@"Hello World!"
+                       withTag:nil
+                         level:kXLLogLevel_Verbose
+                      metadata:@{ @"a" : @"1",
+                                  @"b" : @2 }];
+  usleep(kLoggingDelay);
+
+  NSString* contents = [[NSString alloc] initWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:NULL];
+  XCTAssertEqualObjects(contents, @"\
+Hello World!\n\
+Hello World!\n\
+Hello World!\n\
+{\n\
+  a: 1\n\
+}\n\
+Hello World!\n\
+{\n\
+  a: 1\n\
+  b: 2\n\
+}\n\
+");
+
+  [XLSharedFacility removeLogger:logger];
+  [[NSFileManager defaultManager] removeItemAtPath:filePath error:NULL];
 }
 
 @end

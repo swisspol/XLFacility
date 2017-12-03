@@ -56,6 +56,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) NSString* message;
 
 /**
+ *  Returns the log metadata (may be nil).
+ */
+@property(nonatomic, readonly, nullable) NSDictionary<NSString*, NSString*>* metadata;
+
+/**
  *  Returns the errno value when the message was logged.
  */
 @property(nonatomic, readonly) int capturedErrno;

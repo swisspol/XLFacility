@@ -35,7 +35,7 @@
 #import "XLFunctions.h"
 #import "XLFacilityPrivate.h"
 
-#define kTableName "records_v2"
+#define kTableName "records_v3"
 
 @interface XLDatabaseLogger () {
 @private
@@ -86,11 +86,11 @@
   dispatch_sync(_databaseQueue, ^() {
     int result = sqlite3_open([_databasePath fileSystemRepresentation], &_database);
     if (result == SQLITE_OK) {
-      result = sqlite3_exec(_database, "CREATE TABLE IF NOT EXISTS " kTableName " (version INTEGER, time REAL, tag TEXT, level INTEGER, message TEXT, errno INTEGER, thread INTEGER, queue TEXT, callstack TEXT)",
+      result = sqlite3_exec(_database, "CREATE TABLE IF NOT EXISTS " kTableName " (version INTEGER, time REAL, tag TEXT, level INTEGER, message TEXT, metadata BLOB, errno INTEGER, thread INTEGER, queue TEXT, callstack TEXT)",
                             NULL, NULL, NULL);
     }
     if (result == SQLITE_OK) {
-      NSString* statement = [NSString stringWithFormat:@"INSERT INTO " kTableName " (version, time, tag, level, message, errno, thread, queue, callstack) VALUES (%i, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+      NSString* statement = [NSString stringWithFormat:@"INSERT INTO " kTableName " (version, time, tag, level, message, metadata, errno, thread, queue, callstack) VALUES (%i, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
                                                        (int)_appVersion];
       result = sqlite3_prepare_v2(_database, [statement UTF8String], -1, &_statement, NULL);
     }
@@ -115,19 +115,27 @@
     }
     sqlite3_bind_int(_statement, 3, record.level);
     sqlite3_bind_text(_statement, 4, XLConvertNSStringToUTF8CString(record.message), -1, SQLITE_STATIC);
-    sqlite3_bind_int(_statement, 5, record.capturedErrno);
-    sqlite3_bind_int(_statement, 6, record.capturedThreadID);
+    if (record.metadata) {
+      NSData* data = [NSJSONSerialization dataWithJSONObject:(id)record.metadata options:0 error:NULL];
+      if (data) {
+        sqlite3_bind_blob(_statement, 5, data.bytes, (int)data.length, SQLITE_STATIC);
+      } else {
+        XLOG_DEBUG_UNREACHABLE();
+      }
+    }
+    sqlite3_bind_int(_statement, 6, record.capturedErrno);
+    sqlite3_bind_int(_statement, 7, record.capturedThreadID);
     const char* label = XLConvertNSStringToUTF8CString(record.capturedQueueLabel);
     if (label) {
-      sqlite3_bind_text(_statement, 7, label, -1, SQLITE_STATIC);
+      sqlite3_bind_text(_statement, 8, label, -1, SQLITE_STATIC);
     } else {
-      sqlite3_bind_null(_statement, 7);
+      sqlite3_bind_null(_statement, 8);
     }
     const char* callstack = XLConvertNSStringToUTF8CString([record.callstack componentsJoinedByString:@"\n"]);
     if (callstack) {
-      sqlite3_bind_text(_statement, 8, callstack, -1, SQLITE_STATIC);
+      sqlite3_bind_text(_statement, 9, callstack, -1, SQLITE_STATIC);
     } else {
-      sqlite3_bind_null(_statement, 8);
+      sqlite3_bind_null(_statement, 9);
     }
     if (sqlite3_step(_statement) != SQLITE_DONE) {
       XLOG_ERROR(@"Failed writing to database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
@@ -174,7 +182,7 @@
                                usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block {
   __block BOOL success = YES;
   dispatch_sync(_databaseQueue, ^() {
-    NSString* string = [NSString stringWithFormat:@"SELECT version, time, tag, level, message, errno, thread, queue, callstack FROM " kTableName " WHERE %@ ORDER BY time %@",
+    NSString* string = [NSString stringWithFormat:@"SELECT version, time, tag, level, message, metadata, errno, thread, queue, callstack FROM " kTableName " WHERE %@ ORDER BY time %@",
                                                   time > 0.0 ? [NSString stringWithFormat:@"time > %f", time] : @"1",
                                                   backward ? @"DESC" : @"ASC"];
     if (limit > 0) {
@@ -195,13 +203,27 @@
         const unsigned char* tagUTF8 = sqlite3_column_text(statement, 2);
         int level = sqlite3_column_int(statement, 3);
         const unsigned char* messageUTF8 = sqlite3_column_text(statement, 4);
-        int capturedErrno = sqlite3_column_int(statement, 5);
-        int capturedThreadID = sqlite3_column_int(statement, 6);
-        const unsigned char* capturedQueueLabelUTF8 = sqlite3_column_text(statement, 7);
-        const unsigned char* callstackUTF8 = sqlite3_column_text(statement, 8);
+        const void* metadataBytes = sqlite3_column_blob(statement, 5);
+        int metadataSize = sqlite3_column_bytes(statement, 5);
+        int capturedErrno = sqlite3_column_int(statement, 6);
+        int capturedThreadID = sqlite3_column_int(statement, 7);
+        const unsigned char* capturedQueueLabelUTF8 = sqlite3_column_text(statement, 8);
+        const unsigned char* callstackUTF8 = sqlite3_column_text(statement, 9);
 
         NSString* tag = tagUTF8 ? [NSString stringWithUTF8String:(const char*)tagUTF8] : nil;
         NSString* message = messageUTF8 ? [NSString stringWithUTF8String:(const char*)messageUTF8] : nil;
+        NSDictionary<NSString*, NSString*>* metadata = nil;
+        if (metadataBytes && metadataSize) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-qual"
+          NSData* data = [[NSData alloc] initWithBytesNoCopy:(void*)metadataBytes length:metadataSize freeWhenDone:NO];
+#pragma clang diagnostic pop
+          metadata = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+          if (![metadata isKindOfClass:[NSDictionary class]]) {
+            XLOG_DEBUG_UNREACHABLE();
+            metadata = nil;
+          }
+        }
         NSString* capturedQueueLabel = capturedQueueLabelUTF8 ? [NSString stringWithUTF8String:(const char*)capturedQueueLabelUTF8] : nil;
         NSArray* callstack = [(callstackUTF8 ? [NSString stringWithUTF8String:(const char*)callstackUTF8] : nil) componentsSeparatedByString:@"\n"];
         if (message) {
@@ -209,6 +231,7 @@
                                                                       tag:tag
                                                                     level:level
                                                                   message:message
+                                                                 metadata:metadata
                                                             capturedErrno:capturedErrno
                                                          capturedThreadID:capturedThreadID
                                                        capturedQueueLabel:capturedQueueLabel

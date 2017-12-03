@@ -56,6 +56,7 @@ extern NSString* XLPaddedStringFromLogLevelName(XLLogLevel level);
                        tag:(nullable NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
+                  metadata:(nullable NSDictionary<NSString*, NSString*>*)metadata
              capturedErrno:(int)capturedErrno
           capturedThreadID:(int)capturedThreadID
         capturedQueueLabel:(nullable NSString*)capturedQueueLabel
@@ -64,6 +65,7 @@ extern NSString* XLPaddedStringFromLogLevelName(XLLogLevel level);
                        tag:(nullable NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
+                  metadata:(nullable NSDictionary<NSString*, NSString*>*)metadata
                  callstack:(nullable NSArray*)callstack;
 @end
 

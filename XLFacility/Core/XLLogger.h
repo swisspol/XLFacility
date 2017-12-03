@@ -141,6 +141,7 @@ extern NSString* const XLLoggerFormatString_NSLog;
  *  %L: level name padded to constant width with trailing spaces
  *  %m: message
  *  %M: sanitized message (uses -sanitizeMessageFromRecord:)
+ *  %D: metadata (or the value of "metadataPlaceholder" property if not set)
  *  %u: user ID
  *  %p: process ID
  *  %P: process name
@@ -190,14 +191,28 @@ extern NSString* const XLLoggerFormatString_NSLog;
 /**
  *  Sets the placeholder string used by the "%g" format specifier.
  *
- *  The default value is "(none)".
+ *  The default value is nil.
  */
 @property(nonatomic, copy, nullable) NSString* tagPlaceholder;
 
 /**
+ *  Sets the prefix string used by the "%D" format specifier.
+ *
+ *  The default value is nil.
+ */
+@property(nonatomic, copy, nullable) NSString* metadataPrefix;
+
+/**
+ *  Sets the suffix string used by the "%D" format specifier.
+ *
+ *  The default value is nil.
+ */
+@property(nonatomic, copy, nullable) NSString* metadataSuffix;
+
+/**
  *  Sets the placeholder string used by the "%q" format specifier.
  *
- *  The default value is "(none)".
+ *  The default value is nil.
  */
 @property(nonatomic, copy, nullable) NSString* queueLabelPlaceholder;
 

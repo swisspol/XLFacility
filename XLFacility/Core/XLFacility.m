@@ -216,7 +216,7 @@ static void _ExitHandler() {
   }
 }
 
-- (void)_logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level callstack:(NSArray*)callstack {
+- (void)_logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level callstack:(NSArray*)callstack metadata:(NSDictionary<NSString*, NSString*>*)metadata {
   if (message == nil) {
     XLOG_DEBUG_UNREACHABLE();
     return;
@@ -273,7 +273,7 @@ static void _ExitHandler() {
 #endif
 
   // Create the log record and send to loggers
-  XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time tag:tag level:level message:message callstack:callstack];
+  XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time tag:tag level:level message:message metadata:metadata callstack:callstack];
   if (pthread_getspecific(_pthreadKey)) {  // Avoid deadlock in in case of reentrancy on the same thread by exceptionally making the logging asynchronous
     dispatch_async(_lockQueue, ^{
       [self _logRecord:record];
@@ -285,9 +285,29 @@ static void _ExitHandler() {
   }
 }
 
+static void _MetadataApplier(const void* key, const void* value, void* context) {
+  NSMutableDictionary<NSString*, NSString*>* output = (__bridge NSMutableDictionary<NSString*, NSString*>*)context;
+  [output setObject:[(__bridge NSString*)value description] forKey:(__bridge NSString*)key];
+}
+
+static NSDictionary<NSString*, NSString*>* _SanitizeMetadata(NSDictionary<NSString*, id>* input) {
+  NSMutableDictionary<NSString*, NSString*>* output = nil;
+  if (input.count) {
+    output = [[NSMutableDictionary alloc] initWithCapacity:input.count];
+    CFDictionaryApplyFunction((CFDictionaryRef)input, _MetadataApplier, (__bridge void*)output);
+  }
+  return output;
+}
+
 - (void)logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level {
   if (level >= XLMinLogLevel) {
-    [self _logMessage:message withTag:tag level:level callstack:nil];
+    [self _logMessage:[message copy] withTag:tag level:level callstack:nil metadata:nil];
+  }
+}
+
+- (void)logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level metadata:(NSDictionary<NSString*, id>*)metadata {
+  if (level >= XLMinLogLevel) {
+    [self _logMessage:[message copy] withTag:tag level:level callstack:nil metadata:_SanitizeMetadata(metadata)];
   }
 }
 
@@ -297,14 +317,28 @@ static void _ExitHandler() {
     va_start(arguments, format);
     NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments];
     va_end(arguments);
-    [self _logMessage:message withTag:tag level:level callstack:nil];
+    [self _logMessage:message withTag:tag level:level callstack:nil metadata:nil];
+  }
+}
+
+- (void)logMessageWithTag:(NSString*)tag level:(XLLogLevel)level metadata:(NSDictionary<NSString*, id>*)metadata format:(NSString*)format, ... {
+  if (level >= XLMinLogLevel) {
+    va_list arguments;
+    va_start(arguments, format);
+    NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments];
+    va_end(arguments);
+    [self _logMessage:message withTag:tag level:level callstack:nil metadata:_SanitizeMetadata(metadata)];
   }
 }
 
 - (void)logException:(NSException*)exception withTag:(NSString*)tag {
+  [self logException:exception withTag:tag metadata:nil];
+}
+
+- (void)logException:(NSException*)exception withTag:(NSString*)tag metadata:(NSDictionary<NSString*, id>*)metadata {
   if (kXLLogLevel_Exception >= XLMinLogLevel) {
     NSString* message = [NSString stringWithFormat:@"%@ %@", exception.name, exception.reason];
-    [self _logMessage:message withTag:tag level:kXLLogLevel_Exception callstack:exception.callStackSymbols];
+    [self _logMessage:message withTag:tag level:kXLLogLevel_Exception callstack:exception.callStackSymbols metadata:_SanitizeMetadata(metadata)];
   }
 }
 
