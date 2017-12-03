@@ -63,16 +63,12 @@ static dispatch_source_t _stdOutCaptureSource = NULL;
 static dispatch_source_t _stdErrCaptureSource = NULL;
 static NSData* _newlineData = nil;
 
-@interface XLFacility () {
-@private
+@implementation XLFacility {
   dispatch_queue_t _lockQueue;
   dispatch_group_t _syncGroup;
   NSMutableSet* _loggers;
   pthread_key_t _pthreadKey;
 }
-@end
-
-@implementation XLFacility
 
 static void _ExitHandler() {
   @autoreleasepool {

@@ -36,13 +36,9 @@
 
 static void* _associatedObjectKey = &_associatedObjectKey;
 
-@interface XLTCPServerLogger () {
-@private
+@implementation XLTCPServerLogger {
   BOOL _useDatabase;
 }
-@end
-
-@implementation XLTCPServerLogger
 
 + (Class)serverClass {
   return [GCDTCPServer class];

@@ -33,15 +33,11 @@
 
 #define kOverlayFadeDuration 0.3
 
-@interface XLAppKitOverlayLogger () {
-@private
+@implementation XLAppKitOverlayLogger {
   NSWindow* _logWindow;
   NSTextView* _textView;
   NSTimer* _overlayTimer;
 }
-@end
-
-@implementation XLAppKitOverlayLogger
 
 + (XLAppKitOverlayLogger*)sharedLogger {
   static XLAppKitOverlayLogger* logger = nil;

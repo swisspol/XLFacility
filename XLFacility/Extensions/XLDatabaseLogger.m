@@ -37,15 +37,11 @@
 
 #define kTableName "records_v3"
 
-@interface XLDatabaseLogger () {
-@private
+@implementation XLDatabaseLogger {
   sqlite3* _database;
   sqlite3_stmt* _statement;
   dispatch_queue_t _databaseQueue;
 }
-@end
-
-@implementation XLDatabaseLogger
 
 + (void)initialize {
   XLOG_DEBUG_CHECK(sqlite3_threadsafe());

@@ -43,14 +43,10 @@
 @interface XLHTTPServerConnection : GCDTCPServerConnection
 @end
 
-@interface XLHTTPServerConnection () {
-@private
+@implementation XLHTTPServerConnection {
   dispatch_semaphore_t _pollingSemaphore;
   NSMutableData* _headerData;
 }
-@end
-
-@implementation XLHTTPServerConnection
 
 - (void)didReceiveLogRecord {
   if (_pollingSemaphore) {

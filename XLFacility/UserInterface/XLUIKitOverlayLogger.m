@@ -36,15 +36,11 @@
 #define kOverlayCornerRadius 6.0
 #define kOverlayFadeDuration 0.3
 
-@interface XLUIKitOverlayLogger () {
-@private
+@implementation XLUIKitOverlayLogger {
   UIWindow* _overlayWindow;
   UITextView* _textView;
   NSTimer* _overlayTimer;
 }
-@end
-
-@implementation XLUIKitOverlayLogger
 
 + (XLUIKitOverlayLogger*)sharedLogger {
   static XLUIKitOverlayLogger* logger = nil;

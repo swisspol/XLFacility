@@ -63,8 +63,15 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_StringLUT  // Must be last token
 };
 
-@interface XLLogger () {
-@private
+NSString* const XLLoggerFormatString_Default = @"%t [%L]> %m%c";
+NSString* const XLLoggerFormatString_NSLog = @"%d %P[%p:%r] %m";
+
+static CFTimeInterval _startTime = 0.0;
+static NSString* _pid = nil;
+static NSString* _pname = nil;
+static NSString* _uid = nil;
+
+@implementation XLLogger {
   dispatch_queue_t _lockQueue;
   NSString* _format;
   BOOL _appendNewlineToFormat;
@@ -80,17 +87,6 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   NSString* _callstackFooter;
   NSString* _multilinesPrefix;
 }
-@end
-
-NSString* const XLLoggerFormatString_Default = @"%t [%L]> %m%c";
-NSString* const XLLoggerFormatString_NSLog = @"%d %P[%p:%r] %m";
-
-static CFTimeInterval _startTime = 0.0;
-static NSString* _pid = nil;
-static NSString* _pname = nil;
-static NSString* _uid = nil;
-
-@implementation XLLogger
 
 + (void)load {
   @autoreleasepool {

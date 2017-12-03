@@ -37,12 +37,6 @@
 
 static void* _associatedObjectKey = &_associatedObjectKey;
 
-@interface XLTCPClientLogger () {
-@private
-  BOOL _useDatabase;
-}
-@end
-
 @implementation GCDTCPClientConnection (XLTCPClientLogger)
 
 - (XLTCPClientLogger*)logger {
@@ -83,7 +77,9 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 
 @end
 
-@implementation XLTCPClientLogger
+@implementation XLTCPClientLogger {
+  BOOL _useDatabase;
+}
 
 + (Class)clientClass {
   return [GCDTCPClient class];
