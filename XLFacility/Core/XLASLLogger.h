@@ -27,6 +27,8 @@
 
 #import "XLLogger.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLASLLogger sends log records to the Apple System Logger.
  *
@@ -41,3 +43,5 @@
 + (XLASLLogger*)sharedLogger;
 
 @end
+
+NS_ASSUME_NONNULL_END

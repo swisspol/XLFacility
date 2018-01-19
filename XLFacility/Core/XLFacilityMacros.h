@@ -72,23 +72,44 @@
 #define XLOG_STRINGIFY(x) #x
 #define XLOG_STRINGIFY_(x) XLOG_STRINGIFY(x)
 #define XLOG_LINE XLOG_STRINGIFY_(__LINE__)
-#define XLOG_TAG (@ __FILE__ ":" XLOG_LINE)
+#define XLOG_TAG (@__FILE__ ":" XLOG_LINE)
 #else
 #define XLOG_TAG nil
 #endif
 #endif
 
 #if DEBUG
-#define XLOG_DEBUG(...) do { if (XLMinLogLevel <= kXLLogLevel_Debug) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Debug format:__VA_ARGS__]; } while (0)
+#define XLOG_DEBUG(...)                                                                                                               \
+  do {                                                                                                                                \
+    if (XLMinLogLevel <= kXLLogLevel_Debug) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Debug format:__VA_ARGS__]; \
+  } while (0)
 #else
 #define XLOG_DEBUG(...)
 #endif
-#define XLOG_VERBOSE(...) do { if (XLMinLogLevel <= kXLLogLevel_Verbose) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Verbose format:__VA_ARGS__]; } while (0)
-#define XLOG_INFO(...) do { if (XLMinLogLevel <= kXLLogLevel_Info) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Info format:__VA_ARGS__]; } while (0)
-#define XLOG_WARNING(...) do { if (XLMinLogLevel <= kXLLogLevel_Warning) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Warning format:__VA_ARGS__]; } while (0)
-#define XLOG_ERROR(...) do { if (XLMinLogLevel <= kXLLogLevel_Error) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Error format:__VA_ARGS__]; } while (0)
-#define XLOG_EXCEPTION(__EXCEPTION__) do { if (XLMinLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:__EXCEPTION__ withTag:XLOG_TAG]; } while (0)
-#define XLOG_ABORT(...) do { if (XLMinLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Abort format:__VA_ARGS__]; } while (0)
+#define XLOG_VERBOSE(...)                                                                                                                 \
+  do {                                                                                                                                    \
+    if (XLMinLogLevel <= kXLLogLevel_Verbose) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Verbose format:__VA_ARGS__]; \
+  } while (0)
+#define XLOG_INFO(...)                                                                                                              \
+  do {                                                                                                                              \
+    if (XLMinLogLevel <= kXLLogLevel_Info) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Info format:__VA_ARGS__]; \
+  } while (0)
+#define XLOG_WARNING(...)                                                                                                                 \
+  do {                                                                                                                                    \
+    if (XLMinLogLevel <= kXLLogLevel_Warning) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Warning format:__VA_ARGS__]; \
+  } while (0)
+#define XLOG_ERROR(...)                                                                                                               \
+  do {                                                                                                                                \
+    if (XLMinLogLevel <= kXLLogLevel_Error) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Error format:__VA_ARGS__]; \
+  } while (0)
+#define XLOG_EXCEPTION(__EXCEPTION__)                                                                           \
+  do {                                                                                                          \
+    if (XLMinLogLevel <= kXLLogLevel_Exception) [XLSharedFacility logException:__EXCEPTION__ withTag:XLOG_TAG]; \
+  } while (0)
+#define XLOG_ABORT(...)                                                                                                               \
+  do {                                                                                                                                \
+    if (XLMinLogLevel <= kXLLogLevel_Abort) [XLSharedFacility logMessageWithTag:XLOG_TAG level:kXLLogLevel_Abort format:__VA_ARGS__]; \
+  } while (0)
 
 /**
  *  These other macros let you easily check conditions inside your code and
@@ -97,17 +118,17 @@
  *  You can use them instead of assert() or NSAssert().
  */
 
-#define XLOG_CHECK(__CONDITION__) \
-do { \
-  if (!(__CONDITION__)) { \
-    XLOG_ABORT(@"Condition failed: \"%s\"", #__CONDITION__); \
-  } \
-} while (0)
+#define XLOG_CHECK(__CONDITION__)                              \
+  do {                                                         \
+    if (!(__CONDITION__)) {                                    \
+      XLOG_ABORT(@"Condition failed: \"%s\"", #__CONDITION__); \
+    }                                                          \
+  } while (0)
 
-#define XLOG_UNREACHABLE() \
-do { \
-  XLOG_ABORT(@"Unreachable code executed in '%s': %s:%i", __FUNCTION__, __FILE__, (int)__LINE__); \
-} while (0)
+#define XLOG_UNREACHABLE()                                                                          \
+  do {                                                                                              \
+    XLOG_ABORT(@"Unreachable code executed in '%s': %s:%i", __FUNCTION__, __FILE__, (int)__LINE__); \
+  } while (0)
 
 #if DEBUG
 #define XLOG_DEBUG_CHECK(__CONDITION__) XLOG_CHECK(__CONDITION__)

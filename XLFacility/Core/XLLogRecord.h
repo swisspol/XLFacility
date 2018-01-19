@@ -27,6 +27,8 @@
 
 #import "XLFacility.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLLogRecord class encapsulates information about messages logged
  *  through XLFacility.
@@ -39,9 +41,9 @@
 @property(nonatomic, readonly) CFAbsoluteTime absoluteTime;
 
 /**
- *  Returns the tag used when logging the message.
+ *  Returns the tag used when logging the message (may be nil).
  */
-@property(nonatomic, readonly) NSString* tag;
+@property(nonatomic, readonly, nullable) NSString* tag;
 
 /**
  *  Returns the log level used when logging the message.
@@ -52,6 +54,11 @@
  *  Returns the log message.
  */
 @property(nonatomic, readonly) NSString* message;
+
+/**
+ *  Returns the log metadata (may be nil).
+ */
+@property(nonatomic, readonly, nullable) NSDictionary<NSString*, NSString*>* metadata;
 
 /**
  *  Returns the errno value when the message was logged.
@@ -66,11 +73,13 @@
 /**
  *  Returns the GCD queue label when the message was logged (may be nil).
  */
-@property(nonatomic, readonly) NSString* capturedQueueLabel;
+@property(nonatomic, readonly, nullable) NSString* capturedQueueLabel;
 
 /**
  *  Returns the callstack when the message was logged (may be nil).
  */
-@property(nonatomic, readonly) NSArray* callstack;
+@property(nonatomic, readonly, nullable) NSArray* callstack;
 
 @end
+
+NS_ASSUME_NONNULL_END

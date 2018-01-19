@@ -36,6 +36,8 @@
 
 #import "XLFacilityMacros.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  XLFacility internal constants and APIs.
  */
@@ -51,18 +53,20 @@ extern NSString* XLPaddedStringFromLogLevelName(XLLogLevel level);
 
 @interface XLLogRecord ()
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                       tag:(NSString*)tag
+                       tag:(nullable NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
+                  metadata:(nullable NSDictionary<NSString*, NSString*>*)metadata
              capturedErrno:(int)capturedErrno
           capturedThreadID:(int)capturedThreadID
-        capturedQueueLabel:(NSString*)capturedQueueLabel
-                 callstack:(NSArray*)callstack;
+        capturedQueueLabel:(nullable NSString*)capturedQueueLabel
+                 callstack:(nullable NSArray*)callstack;
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                       tag:(NSString*)tag
+                       tag:(nullable NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
-                 callstack:(NSArray*)callstack;
+                  metadata:(nullable NSDictionary<NSString*, NSString*>*)metadata
+                 callstack:(nullable NSArray*)callstack;
 @end
 
 @interface XLLogger ()
@@ -73,3 +77,5 @@ extern NSString* XLPaddedStringFromLogLevelName(XLLogLevel level);
 - (void)performLogRecord:(XLLogRecord*)record;
 - (void)performClose;
 @end
+
+NS_ASSUME_NONNULL_END

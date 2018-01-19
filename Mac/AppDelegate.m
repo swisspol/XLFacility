@@ -41,9 +41,19 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
-  [XLSharedFacility addLogger:[[XLTelnetServerLogger alloc] init]];
+  XLTelnetServerLogger* telnetLogger = [[XLTelnetServerLogger alloc] init];
+  telnetLogger.userInputBlock = ^NSString* _Nullable(NSString* rawText, NSString* parsedCommand, NSArray* parsedArguments) {
+    if (parsedCommand.length) {
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        XLOG_WARNING(@"Executing command \"%@\" on main thread with arguments:\n  %@", parsedCommand, [parsedArguments componentsJoinedByString:@"\n  "]);
+      });
+    }
+    return nil;
+  };
+  [XLSharedFacility addLogger:telnetLogger];
   [XLSharedFacility addLogger:[XLAppKitOverlayLogger sharedLogger]];
-  
+  XLOG_VERBOSE(@"XLFacility servers running on %@", GCDTCPServerGetPrimaryIPAddress(false));
+
   XLOG_INFO(@"%s", __FUNCTION__);
 }
 

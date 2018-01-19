@@ -1,0 +1,14 @@
+---
+BasedOnStyle: Google
+ColumnLimit: 0
+AlignTrailingComments: false
+DerivePointerAlignment: false
+AlwaysBreakBeforeMultilineStrings: false
+AccessModifierOffset: -2
+SortIncludes: false
+ObjCSpaceBeforeProtocolList: true
+---
+Language: Cpp
+---
+Language: ObjC
+...

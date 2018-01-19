@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  Constants representing the supported log levels in XLFacility.
  */
@@ -138,7 +140,14 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
  *
  *  Pass nil for "tag" if you don't need one.
  */
-- (void)logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level;
+- (void)logMessage:(NSString*)message withTag:(nullable NSString*)tag level:(XLLogLevel)level;
+
+/**
+ *  Logs a message with an optional tag, metadata and specific log level.
+ *
+ *  Pass nil for "tag" if you don't need one.
+ */
+- (void)logMessage:(NSString*)message withTag:(nullable NSString*)tag level:(XLLogLevel)level metadata:(nullable NSDictionary<NSString*, id>*)metadata;
 
 /**
  *  Logs a message as a format string with an optional tag and specific log
@@ -146,7 +155,15 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
  *
  *  Pass nil for "tag" if you don't need one.
  */
-- (void)logMessageWithTag:(NSString*)tag level:(XLLogLevel)level format:(NSString*)format, ... NS_FORMAT_FUNCTION(3, 4);
+- (void)logMessageWithTag:(nullable NSString*)tag level:(XLLogLevel)level format:(NSString*)format, ... NS_FORMAT_FUNCTION(3, 4);
+
+/**
+ *  Logs a message as a format string with an optional tag, metadata and specific
+ *  log level.
+ *
+ *  Pass nil for "tag" if you don't need one.
+ */
+- (void)logMessageWithTag:(nullable NSString*)tag level:(XLLogLevel)level metadata:(nullable NSDictionary<NSString*, id>*)metadata format:(NSString*)format, ... NS_FORMAT_FUNCTION(4, 5);
 
 /**
  *  Logs an exception with an optional tag and EXCEPTION log level.
@@ -156,7 +173,17 @@ extern NSString* const XLFacilityTag_InitializedExceptions;
  *
  *  Pass nil for "tag" if you don't need one.
  */
-- (void)logException:(NSException*)exception withTag:(NSString*)tag;
+- (void)logException:(NSException*)exception withTag:(nullable NSString*)tag;
+
+/**
+ *  Logs an exception with an optional tag, metadata and EXCEPTION log level.
+ *
+ *  The log message is automatically generated and the exception callstack is
+ *  extracted.
+ *
+ *  Pass nil for "tag" if you don't need one.
+ */
+- (void)logException:(NSException*)exception withTag:(nullable NSString*)tag metadata:(nullable NSDictionary<NSString*, id>*)metadata;
 
 @end
 
@@ -214,3 +241,5 @@ extern XLLogLevel XLMinLogLevel;
  *  Convenience global variable to access the shared XLFacility instance.
  */
 extern XLFacility* XLSharedFacility;
+
+NS_ASSUME_NONNULL_END

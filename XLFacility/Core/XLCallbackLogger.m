@@ -32,15 +32,11 @@
 #import "XLCallbackLogger.h"
 #import "XLFacilityPrivate.h"
 
-@interface XLCallbackLogger () {
-@private
+@implementation XLCallbackLogger {
   XLCallbackLoggerOpenBlock _openBlock;
   XLCallbackLoggerLogRecordBlock _logRecordBlock;
   XLCallbackLoggerCloseBlock _closeBlock;
 }
-@end
-
-@implementation XLCallbackLogger
 
 + (instancetype)loggerWithCallback:(XLCallbackLoggerLogRecordBlock)callback {
   return [[[self class] alloc] initWithOpenCallback:NULL logRecordCallback:callback closeCallback:NULL];
@@ -54,8 +50,6 @@
 - (instancetype)initWithOpenCallback:(XLCallbackLoggerOpenBlock)openCallback
                    logRecordCallback:(XLCallbackLoggerLogRecordBlock)logRecordCallback
                        closeCallback:(XLCallbackLoggerCloseBlock)closeCallback {
-  
-  XLOG_DEBUG_CHECK(logRecordCallback);
   if ((self = [super init])) {
     _openBlock = openCallback;
     _logRecordBlock = logRecordCallback;

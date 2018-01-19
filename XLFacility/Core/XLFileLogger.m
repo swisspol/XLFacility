@@ -33,15 +33,11 @@
 #import "XLFunctions.h"
 #import "XLFacilityPrivate.h"
 
-@interface XLFileLogger () {
-@private
+@implementation XLFileLogger {
   int _fd;
   BOOL _close;
   BOOL _append;
 }
-@end
-
-@implementation XLFileLogger
 
 - (id)init {
   [self doesNotRecognizeSelector:_cmd];
@@ -49,7 +45,6 @@
 }
 
 - (instancetype)initWithFilePath:(NSString*)path append:(BOOL)append {
-  XLOG_DEBUG_CHECK(path);
   if ((self = [super init])) {
     _filePath = [path copy];
     _append = append;

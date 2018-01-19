@@ -43,14 +43,10 @@
 @interface XLHTTPServerConnection : GCDTCPServerConnection
 @end
 
-@interface XLHTTPServerConnection () {
-@private
+@implementation XLHTTPServerConnection {
   dispatch_semaphore_t _pollingSemaphore;
   NSMutableData* _headerData;
 }
-@end
-
-@implementation XLHTTPServerConnection
 
 - (void)didReceiveLogRecord {
   if (_pollingSemaphore) {
@@ -72,9 +68,10 @@
   }
   NSData* data = CFBridgingRelease(CFHTTPMessageCopySerializedMessage(response));
   if (data) {
-    [self writeDataAsynchronously:data completion:^(BOOL ok) {
-      [self close];
-    }];
+    [self writeDataAsynchronously:data
+                       completion:^(BOOL ok) {
+                         [self close];
+                       }];
     success = YES;
   } else {
     XLOG_ERROR(@"Failed serializing HTTP response");
@@ -86,21 +83,26 @@
 - (void)_appendLogRecordsToString:(NSMutableString*)string afterAbsoluteTime:(CFAbsoluteTime)time {
   XLHTTPServerLogger* logger = (XLHTTPServerLogger*)self.logger;
   __block CFAbsoluteTime maxTime = time;
-  [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:time backward:NO maxRecords:0 usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
-    const char* style = "color: dimgray;";
-    if (record.level == kXLLogLevel_Warning) {
-      style = "color: orange;";
-    } else if (record.level == kXLLogLevel_Error) {
-      style = "color: red;";
-    } else if (record.level >= kXLLogLevel_Exception) {
-      style = "color: red; font-weight: bold;";
-    }
-    NSString* formattedMessage = [logger formatRecord:record];
-    [string appendFormat:@"<tr style=\"%s\">%@</tr>", style, formattedMessage];
-    if (record.absoluteTime > maxTime) {
-      maxTime = record.absoluteTime;
-    }
-  }];
+  [logger.databaseLogger enumerateRecordsAfterAbsoluteTime:time
+                                                  backward:NO
+                                                maxRecords:0
+                                                usingBlock:^(int appVersion, XLLogRecord* record, BOOL* stop) {
+                                                  const char* style = "color: dimgray;";
+                                                  if (record.level == kXLLogLevel_Info) {
+                                                    style = "color: green;";
+                                                  } else if (record.level == kXLLogLevel_Warning) {
+                                                    style = "color: orange;";
+                                                  } else if (record.level == kXLLogLevel_Error) {
+                                                    style = "color: red;";
+                                                  } else if (record.level >= kXLLogLevel_Exception) {
+                                                    style = "color: red; font-weight: bold;";
+                                                  }
+                                                  NSString* formattedMessage = [logger formatRecord:record];
+                                                  [string appendFormat:@"<tr style=\"%s\">%@</tr>", style, formattedMessage];
+                                                  if (record.absoluteTime > maxTime) {
+                                                    maxTime = record.absoluteTime;
+                                                  }
+                                                }];
   [string appendFormat:@"<tr id=\"maxTime\" data-value=\"%f\"></tr>", maxTime];
 }
 
@@ -111,10 +113,10 @@
     NSURL* url = CFBridgingRelease(CFHTTPMessageCopyRequestURL(request));
     NSString* path = url.path;
     NSString* query = url.query;
-    
+
     if ([path isEqualToString:@"/"]) {
       NSMutableString* string = [[NSMutableString alloc] init];
-      
+
       [string appendString:@"<!DOCTYPE html><html lang=\"en\">"];
       [string appendString:@"<head><meta charset=\"utf-8\"></head>"];
       [string appendFormat:@"<title>%s[%i]</title>", getprogname(), getpid()];
@@ -180,7 +182,8 @@
           updateTimestamp();\n\
           setTimeout(refresh, refreshDelay);\n\
         }\n\
-      </script>", kMinRefreshDelay];
+      </script>",
+                           kMinRefreshDelay];
       [string appendString:@"</head>"];
       [string appendString:@"<body>"];
       [string appendString:@"<table><tbody id=\"content\">"];
@@ -189,12 +192,12 @@
       [string appendString:@"<div id=\"footer\"></div>"];
       [string appendString:@"</body>"];
       [string appendString:@"</html>"];
-      
+
       success = [self _writeHTTPResponseWithStatusCode:200 htmlBody:string];
     } else if ([path isEqualToString:@"/log"] && [query hasPrefix:@"after="]) {
       NSMutableString* string = [[NSMutableString alloc] init];
       CFAbsoluteTime time = [[query substringFromIndex:6] doubleValue];
-      
+
       _pollingSemaphore = dispatch_semaphore_create(0);
       dispatch_semaphore_wait(_pollingSemaphore, dispatch_time(DISPATCH_TIME_NOW, kMaxLongPollDuration * NSEC_PER_SEC));
       if (self.peer) {  // Check for race-condition if the connection was closed while waiting
@@ -205,7 +208,7 @@
       XLOG_WARNING(@"Unsupported path in HTTP request: %@", path);
       success = [self _writeHTTPResponseWithStatusCode:404 htmlBody:nil];
     }
-    
+
   } else {
     XLOG_WARNING(@"Unsupported method in HTTP request: %@", method);
     success = [self _writeHTTPResponseWithStatusCode:405 htmlBody:nil];
@@ -219,7 +222,6 @@
       [_headerData appendData:data];
       NSRange range = [_headerData rangeOfData:[NSData dataWithBytes:"\r\n\r\n" length:4] options:0 range:NSMakeRange(0, _headerData.length)];
       if (range.location != NSNotFound) {
-        
         BOOL success = NO;
         CFHTTPMessageRef message = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true);
         CFHTTPMessageAppendBytes(message, data.bytes, data.length);
@@ -232,7 +234,7 @@
         if (!success) {
           [self close];
         }
-        
+
       } else {
         [self _readHeaders];
       }
@@ -244,14 +246,14 @@
 
 - (void)didOpen {
   [super didOpen];
-  
+
   _headerData = [[NSMutableData alloc] init];
   [self _readHeaders];
 }
 
 - (void)didClose {
   [super didClose];
-  
+
   if (_pollingSemaphore) {
     dispatch_semaphore_signal(_pollingSemaphore);
   }
@@ -285,7 +287,7 @@
     _dateFormatterRFC822.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
     _dateFormatterRFC822.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
     _dateFormatterRFC822.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
-    
+
     self.format = @"<td>%t</td><td>%l</td><td>%M%c</td>";
     self.appendNewlineToFormat = NO;
   }
@@ -309,7 +311,7 @@
 
 - (void)logRecord:(XLLogRecord*)record {
   [super logRecord:record];
-  
+
   [self.TCPServer enumerateConnectionsUsingBlock:^(GCDTCPPeerConnection* connection, BOOL* stop) {
     [(XLHTTPServerConnection*)connection didReceiveLogRecord];
   }];

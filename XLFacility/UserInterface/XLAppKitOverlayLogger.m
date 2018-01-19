@@ -33,15 +33,11 @@
 
 #define kOverlayFadeDuration 0.3
 
-@interface XLAppKitOverlayLogger () {
-@private
+@implementation XLAppKitOverlayLogger {
   NSWindow* _logWindow;
   NSTextView* _textView;
   NSTimer* _overlayTimer;
 }
-@end
-
-@implementation XLAppKitOverlayLogger
 
 + (XLAppKitOverlayLogger*)sharedLogger {
   static XLAppKitOverlayLogger* logger = nil;
@@ -56,7 +52,7 @@
   if ((self = [super init])) {
     _overlayOpacity = 0.75;
     _overlayDuration = 5.0;
-    _textFont = [NSFont fontWithName:@"Monaco" size:11];
+    _textFont = (id)[NSFont fontWithName:@"Monaco" size:11];
   }
   return self;
 }
@@ -64,15 +60,16 @@
 - (BOOL)open {
   _logWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(100, 100, 800, 200)
                                            styleMask:(NSBorderlessWindowMask | NSResizableWindowMask)
-                                             backing:NSBackingStoreBuffered defer:YES];
+                                             backing:NSBackingStoreBuffered
+                                               defer:YES];
   _logWindow.level = NSFloatingWindowLevel;
   _logWindow.excludedFromWindowsMenu = YES;
   _logWindow.movableByWindowBackground = YES;
   _logWindow.backgroundColor = [NSColor blackColor];
-  _logWindow.hasShadow  = NO;
+  _logWindow.hasShadow = NO;
   [_logWindow setFrameUsingName:NSStringFromClass([self class])];
   _logWindow.frameAutosaveName = NSStringFromClass([self class]);
-  
+
   NSRect bounds = [(NSView*)_logWindow.contentView bounds];
   NSScrollView* scrollView = [[NSScrollView alloc] initWithFrame:NSInsetRect(bounds, 4, 4)];
   scrollView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
@@ -80,7 +77,7 @@
   scrollView.hasHorizontalScroller = NO;
   scrollView.hasVerticalScroller = YES;
   [_logWindow.contentView addSubview:scrollView];
-  
+
   _textView = [[NSTextView alloc] initWithFrame:scrollView.bounds];
   _textView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
   _textView.richText = NO;
@@ -89,16 +86,16 @@
   _textView.drawsBackground = NO;
   _textView.string = @"";
   [scrollView setDocumentView:_textView];
-  
+
   _overlayTimer = [[NSTimer alloc] initWithFireDate:[NSDate distantFuture] interval:HUGE_VALF target:self selector:@selector(_overlayTimer:) userInfo:nil repeats:YES];
   [[NSRunLoop mainRunLoop] addTimer:_overlayTimer forMode:NSRunLoopCommonModes];
-  
+
   if (_overlayDuration <= 0.0) {
     [_logWindow orderFront:nil];
   } else {
     _logWindow.alphaValue = 0.0;
   }
-  
+
   return YES;
 }
 
@@ -116,11 +113,11 @@
 - (void)logRecord:(XLLogRecord*)record {
   NSString* formattedMessage = [self formatRecord:record];
   dispatch_async(dispatch_get_main_queue(), ^{
-    NSDictionary* attributes = @{NSFontAttributeName: _textFont, NSForegroundColorAttributeName:[NSColor whiteColor]};
+    NSDictionary* attributes = @{NSFontAttributeName : _textFont, NSForegroundColorAttributeName : [NSColor whiteColor]};
     NSAttributedString* string = [[NSAttributedString alloc] initWithString:formattedMessage attributes:attributes];
     [_textView.textStorage appendAttributedString:string];
     [_textView scrollRangeToVisible:NSMakeRange(_textView.textStorage.length, 0)];
-    
+
     [_logWindow orderFront:nil];
     if (_overlayDuration > 0.0) {
       if (_logWindow.alphaValue < _overlayOpacity) {

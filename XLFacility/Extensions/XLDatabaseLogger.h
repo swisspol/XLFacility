@@ -27,6 +27,8 @@
 
 #import "XLLogger.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLDatabaseLogger class saves logs records to a SQLite database which
  *  can be queried afterwards.
@@ -103,3 +105,5 @@
 - (BOOL)enumerateAllRecordsBackward:(BOOL)backward usingBlock:(void (^)(int appVersion, XLLogRecord* record, BOOL* stop))block;
 
 @end
+
+NS_ASSUME_NONNULL_END

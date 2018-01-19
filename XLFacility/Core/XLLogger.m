@@ -36,18 +36,19 @@
 
 typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_Unknown = 0,
-  
+
   kFormatToken_Newline,
   kFormatToken_Return,
   kFormatToken_Tab,
   kFormatToken_Percent,
   kFormatToken_Backslash,
-  
+
   kFormatToken_Tag,
   kFormatToken_LevelName,
   kFormatToken_PaddedLevelName,
   kFormatToken_Message,
   kFormatToken_SanitizedMessage,
+  kFormatToken_Metadata,
   kFormatToken_UserID,
   kFormatToken_ProcessID,
   kFormatToken_ProcessName,
@@ -58,26 +59,9 @@ typedef NS_ENUM(unsigned char, FormatToken) {
   kFormatToken_ErrnoValue,
   kFormatToken_ErrnoString,
   kFormatToken_Callstack,
-  
+
   kFormatToken_StringLUT  // Must be last token
 };
-
-@interface XLLogger () {
-@private
-  dispatch_queue_t _lockQueue;
-  NSString* _format;
-  BOOL _appendNewlineToFormat;
-  NSMutableData* _tokens;
-  NSMutableArray* _strings;
-  NSDateFormatter* _datetimeFormatter;
-  NSString* _tagPlaceholder;
-  NSString* _queueLabelPlaceholder;
-  
-  NSString* _callstackHeader;
-  NSString* _callstackFooter;
-  NSString* _multilinesPrefix;
-}
-@end
 
 NSString* const XLLoggerFormatString_Default = @"%t [%L]> %m%c";
 NSString* const XLLoggerFormatString_NSLog = @"%d %P[%p:%r] %m";
@@ -87,7 +71,22 @@ static NSString* _pid = nil;
 static NSString* _pname = nil;
 static NSString* _uid = nil;
 
-@implementation XLLogger
+@implementation XLLogger {
+  dispatch_queue_t _lockQueue;
+  NSString* _format;
+  BOOL _appendNewlineToFormat;
+  NSMutableData* _tokens;
+  NSMutableArray* _strings;
+  NSDateFormatter* _datetimeFormatter;
+
+  NSString* _tagPlaceholder;
+  NSString* _metadataPrefix;
+  NSString* _metadataSuffix;
+  NSString* _queueLabelPlaceholder;
+  NSString* _callstackHeader;
+  NSString* _callstackFooter;
+  NSString* _multilinesPrefix;
+}
 
 + (void)load {
   @autoreleasepool {
@@ -110,7 +109,7 @@ static NSString* _uid = nil;
     _datetimeFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
     _datetimeFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     _callstackHeader = @"\n\n>>> Captured call stack:\n";
-    
+
     self.format = XLLoggerFormatString_Default;
   }
   return self;
@@ -155,6 +154,10 @@ static NSString* _uid = nil;
   }
 }
 
+- (void)executeFenceBlock:(XLLoggerFenceBlock)block {
+  dispatch_async(_serialQueue, block);
+}
+
 @end
 
 @implementation XLLogger (Subclassing)
@@ -181,7 +184,7 @@ static NSString* _uid = nil;
 
 - (void)setFormat:(NSString*)format {
   _format = [format copy];
-  
+
   _tokens = [[NSMutableData alloc] init];
   _strings = [[NSMutableArray alloc] init];
   if (_format.length) {
@@ -209,29 +212,72 @@ static NSString* _uid = nil;
       FormatToken token = kFormatToken_Unknown;
       if (escapeMode) {
         switch (character) {
-          case 'n': token = kFormatToken_Newline; break;
-          case 'r': token = kFormatToken_Return; break;
-          case 't': token = kFormatToken_Tab; break;
-          case '%': token = kFormatToken_Percent; break;
-          case '\\': token = kFormatToken_Backslash; break;
+          case 'n':
+            token = kFormatToken_Newline;
+            break;
+          case 'r':
+            token = kFormatToken_Return;
+            break;
+          case 't':
+            token = kFormatToken_Tab;
+            break;
+          case '%':
+            token = kFormatToken_Percent;
+            break;
+          case '\\':
+            token = kFormatToken_Backslash;
+            break;
         }
       } else {
         switch (character) {
-          case 'g': token = kFormatToken_Tag; break;
-          case 'l': token = kFormatToken_LevelName; break;
-          case 'L': token = kFormatToken_PaddedLevelName; break;
-          case 'm': token = kFormatToken_Message; break;
-          case 'M': token = kFormatToken_SanitizedMessage; break;
-          case 'u': token = kFormatToken_UserID; break;
-          case 'p': token = kFormatToken_ProcessID; break;
-          case 'P': token = kFormatToken_ProcessName; break;
-          case 'r': token = kFormatToken_ThreadID; break;
-          case 'q': token = kFormatToken_QueueLabel; break;
-          case 't': token = kFormatToken_Timestamp; break;
-          case 'd': token = kFormatToken_DateTime; break;
-          case 'e': token = kFormatToken_ErrnoValue; break;
-          case 'E': token = kFormatToken_ErrnoString; break;
-          case 'c': token = kFormatToken_Callstack; break;
+          case 'g':
+            token = kFormatToken_Tag;
+            break;
+          case 'l':
+            token = kFormatToken_LevelName;
+            break;
+          case 'L':
+            token = kFormatToken_PaddedLevelName;
+            break;
+          case 'm':
+            token = kFormatToken_Message;
+            break;
+          case 'M':
+            token = kFormatToken_SanitizedMessage;
+            break;
+          case 'D':
+            token = kFormatToken_Metadata;
+            break;
+          case 'u':
+            token = kFormatToken_UserID;
+            break;
+          case 'p':
+            token = kFormatToken_ProcessID;
+            break;
+          case 'P':
+            token = kFormatToken_ProcessName;
+            break;
+          case 'r':
+            token = kFormatToken_ThreadID;
+            break;
+          case 'q':
+            token = kFormatToken_QueueLabel;
+            break;
+          case 't':
+            token = kFormatToken_Timestamp;
+            break;
+          case 'd':
+            token = kFormatToken_DateTime;
+            break;
+          case 'e':
+            token = kFormatToken_ErrnoValue;
+            break;
+          case 'E':
+            token = kFormatToken_ErrnoString;
+            break;
+          case 'c':
+            token = kFormatToken_Callstack;
+            break;
         }
       }
       if (token != kFormatToken_Unknown) {
@@ -260,6 +306,22 @@ static NSString* _uid = nil;
 
 - (NSString*)tagPlaceholder {
   return _tagPlaceholder;
+}
+
+- (void)setMetadataPrefix:(NSString*)string {
+  _metadataPrefix = [string copy];
+}
+
+- (NSString*)metadataPrefix {
+  return _metadataPrefix;
+}
+
+- (void)setMetadataSuffix:(NSString*)string {
+  _metadataSuffix = [string copy];
+}
+
+- (NSString*)metadataSuffix {
+  return _metadataSuffix;
 }
 
 - (void)setQueueLabelPlaceholder:(NSString*)string {
@@ -294,96 +356,119 @@ static NSString* _uid = nil;
   return _multilinesPrefix;
 }
 
+static void _MetadataApplier(const void* key, const void* value, void* context) {
+  NSMutableString* string = (__bridge NSMutableString*)context;
+  [string appendString:@"  "];
+  [string appendString:(__bridge NSString*)key];
+  [string appendString:@": "];
+  [string appendString:(__bridge NSString*)value];
+  [string appendString:@"\n"];
+}
+
 - (NSString*)formatRecord:(XLLogRecord*)record {
   NSMutableString* string = [[NSMutableString alloc] initWithCapacity:(2 * record.message.length)];  // Should be quite enough
-  
-  FormatToken* token = (FormatToken*)_tokens.bytes;
+
+  const FormatToken* token = (const FormatToken*)_tokens.bytes;
   for (int i = 0; i < (int)(_tokens.length / sizeof(FormatToken)); ++i, ++token) {
     switch (*token) {
-      
       case kFormatToken_Newline: {
         [string appendString:@"\n"];
         break;
       }
-      
+
       case kFormatToken_Return: {
         [string appendString:@"\r"];
         break;
       }
-      
+
       case kFormatToken_Tab: {
         [string appendString:@"\t"];
         break;
       }
-      
+
       case kFormatToken_Percent: {
         [string appendString:@"%"];
         break;
       }
-      
+
       case kFormatToken_Backslash: {
         [string appendString:@"\\"];
         break;
       }
-      
+
       case kFormatToken_Tag: {
         if (record.tag) {
-          [string appendString:record.tag];
+          [string appendString:(id)record.tag];
         } else if (_tagPlaceholder) {
           [string appendString:_tagPlaceholder];
         }
         break;
       }
-      
+
       case kFormatToken_LevelName: {
         [string appendString:XLStringFromLogLevelName(record.level)];
         break;
       }
-      
+
       case kFormatToken_PaddedLevelName: {
         [string appendString:XLPaddedStringFromLogLevelName(record.level)];
         break;
       }
-      
+
       case kFormatToken_Message: {
         [string appendString:record.message];
         break;
       }
-      
+
       case kFormatToken_SanitizedMessage: {
         [string appendString:[self sanitizeMessageFromRecord:record]];
         break;
       }
-      
+
+      case kFormatToken_Metadata: {
+        if (record.metadata) {
+          if (_metadataPrefix) {
+            [string appendString:_metadataPrefix];
+          }
+          [string appendString:@"{\n"];
+          CFDictionaryApplyFunction((CFDictionaryRef)record.metadata, _MetadataApplier, (__bridge void*)string);
+          [string appendString:@"}"];
+          if (_metadataSuffix) {
+            [string appendString:_metadataSuffix];
+          }
+        }
+        break;
+      }
+
       case kFormatToken_UserID: {
         [string appendString:_uid];
         break;
       }
-      
+
       case kFormatToken_ProcessID: {
         [string appendString:_pid];
         break;
       }
-      
+
       case kFormatToken_ProcessName: {
         [string appendString:_pname];
         break;
       }
-      
+
       case kFormatToken_ThreadID: {
         [string appendFormat:@"%lu", (unsigned long)record.capturedThreadID];
         break;
       }
-      
+
       case kFormatToken_QueueLabel: {
         if (record.capturedQueueLabel) {
-          [string appendString:record.capturedQueueLabel];
+          [string appendString:(id)record.capturedQueueLabel];
         } else if (_queueLabelPlaceholder) {
           [string appendString:_queueLabelPlaceholder];
         }
         break;
       }
-      
+
       case kFormatToken_Timestamp: {
         CFTimeInterval timestamp = record.absoluteTime - _startTime;
         int milliseconds = fmod(timestamp, 1.0) * 1000.0;
@@ -395,7 +480,7 @@ static NSString* _uid = nil;
         [string appendFormat:@"%02i:%02i:%02i.%03i", hours, minutes, seconds, milliseconds];
         break;
       }
-      
+
       case kFormatToken_DateTime: {
         __block NSString* datetime;
         dispatch_sync(_lockQueue, ^{
@@ -406,17 +491,17 @@ static NSString* _uid = nil;
         }
         break;
       }
-      
+
       case kFormatToken_ErrnoValue: {
         [string appendFormat:@"%i", record.capturedErrno];
         break;
       }
-      
+
       case kFormatToken_ErrnoString: {
         [string appendFormat:@"%s", strerror(record.capturedErrno)];
         break;
       }
-      
+
       case kFormatToken_Callstack: {
         NSString* callstack = [self formatCallstackFromRecord:record];
         if (callstack) {
@@ -424,17 +509,16 @@ static NSString* _uid = nil;
         }
         break;
       }
-      
+
       default: {
         if (*token >= kFormatToken_StringLUT) {
           [string appendString:_strings[*token - kFormatToken_StringLUT]];
         }
         break;
       }
-      
     }
   }
-  
+
   if (_multilinesPrefix.length) {
     NSArray* components = [string componentsSeparatedByString:@"\n"];
     if (components.count != 1) {
@@ -452,11 +536,11 @@ static NSString* _uid = nil;
       }];
     }
   }
-  
+
   if (_appendNewlineToFormat) {
     [string appendString:@"\n"];
   }
-  
+
   return string;
 }
 
@@ -476,7 +560,7 @@ static NSString* _uid = nil;
       if (i > 1) {
         [string appendString:@"\n"];
       }
-      [string appendString:record.callstack[i]];
+      [string appendString:(id)record.callstack[i]];
     }
     if (_callstackFooter) {
       [string appendString:_callstackFooter];

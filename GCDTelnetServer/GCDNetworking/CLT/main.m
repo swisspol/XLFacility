@@ -34,11 +34,12 @@
 
 - (void)didOpen {
   [super didOpen];
-  
+
   NSString* welcome = @"Hello World!\n";
-  [self writeDataAsynchronously:[welcome dataUsingEncoding:NSUTF8StringEncoding] completion:^(BOOL success) {
-    [self close];
-  }];
+  [self writeDataAsynchronously:[welcome dataUsingEncoding:NSUTF8StringEncoding]
+                     completion:^(BOOL success) {
+                       [self close];
+                     }];
 }
 
 @end
@@ -49,7 +50,8 @@ int main(int argc, const char* argv[]) {
     if (![server start]) {
       abort();
     }
-    
+    NSLog(@"TCP server running on %@", GCDTCPServerGetPrimaryIPAddress(false));
+
     CFRunLoopRun();
   }
   return 0;

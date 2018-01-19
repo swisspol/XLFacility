@@ -36,15 +36,11 @@
 #define kOverlayCornerRadius 6.0
 #define kOverlayFadeDuration 0.3
 
-@interface XLUIKitOverlayLogger () {
-@private
+@implementation XLUIKitOverlayLogger {
   UIWindow* _overlayWindow;
   UITextView* _textView;
   NSTimer* _overlayTimer;
 }
-@end
-
-@implementation XLUIKitOverlayLogger
 
 + (XLUIKitOverlayLogger*)sharedLogger {
   static XLUIKitOverlayLogger* logger = nil;
@@ -59,20 +55,20 @@
   if ((self = [super init])) {
     _overlayOpacity = 0.75;
     _overlayDuration = 5.0;
-    _textFont = [UIFont fontWithName:@"Courier" size:13.0];
+    _textFont = (id)[UIFont fontWithName:@"Courier" size:13.0];
   }
   return self;
 }
 
 - (void)setOverlayOpacity:(float)opacity {
   _overlayOpacity = opacity;
-  
+
   _textView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:_overlayOpacity];
 }
 
 - (void)setTextFont:(UIFont*)font {
   _textFont = font;
-  
+
   _textView.font = font;
 }
 
@@ -83,7 +79,7 @@
   _overlayWindow.userInteractionEnabled = NO;
   _overlayWindow.rootViewController = [[UIViewController alloc] init];
   _overlayWindow.rootViewController.view = [[UIView alloc] initWithFrame:_overlayWindow.bounds];
-  
+
   CGRect bounds = _overlayWindow.rootViewController.view.frame;
   bounds.origin.x += kOverlayMargin;
   bounds.origin.y += kOverlayMargin;
@@ -98,26 +94,28 @@
   _textView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [_overlayWindow.rootViewController.view addSubview:_textView];
   _textView.text = @"";
-  
+
   _overlayTimer = [[NSTimer alloc] initWithFireDate:[NSDate distantFuture] interval:HUGE_VALF target:self selector:@selector(_overlayTimer:) userInfo:nil repeats:YES];
   [[NSRunLoop mainRunLoop] addTimer:_overlayTimer forMode:NSRunLoopCommonModes];
-  
+
   if (_overlayDuration <= 0.0) {
     _overlayWindow.hidden = NO;
   } else {
     _textView.alpha = 0.0;
   }
-  
+
   return YES;
 }
 
 - (void)_overlayTimer:(NSTimer*)timer {
-  [UIView animateWithDuration:kOverlayFadeDuration animations:^{
-    _textView.alpha = 0.0;
-  } completion:^(BOOL finished) {
-    _overlayWindow.hidden = YES;
-    _textView.text = @"";
-  }];
+  [UIView animateWithDuration:kOverlayFadeDuration
+      animations:^{
+        _textView.alpha = 0.0;
+      }
+      completion:^(BOOL finished) {
+        _overlayWindow.hidden = YES;
+        _textView.text = @"";
+      }];
 }
 
 - (void)logRecord:(XLLogRecord*)record {
@@ -127,13 +125,14 @@
     if (_textView.text.length > 2) {
       [_textView scrollRangeToVisible:NSMakeRange(_textView.text.length - 2, 2)];
     }
-    
+
     _overlayWindow.hidden = NO;
     if (_overlayDuration > 0.0) {
       if (_textView.alpha < 1.0) {
-        [UIView animateWithDuration:kOverlayFadeDuration animations:^{
-          _textView.alpha = 1.0;
-        }];
+        [UIView animateWithDuration:kOverlayFadeDuration
+                         animations:^{
+                           _textView.alpha = 1.0;
+                         }];
       }
       [_overlayTimer setFireDate:[NSDate dateWithTimeIntervalSinceNow:_overlayDuration]];
     } else {

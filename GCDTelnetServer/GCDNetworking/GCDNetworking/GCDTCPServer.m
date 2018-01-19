@@ -29,12 +29,74 @@
 #error GCDNetworking requires ARC
 #endif
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IPHONE
+#import <MobileCoreServices/MobileCoreServices.h>
+#else
+#import <SystemConfiguration/SystemConfiguration.h>
+#endif
+#import <ifaddrs.h>
 #import <net/if.h>
 #import <netdb.h>
 
 #import "GCDNetworkingPrivate.h"
 
 #define kMaxPendingConnections 4
+
+static NSString* _StringFromSockAddr(const struct sockaddr* addr, BOOL includeService) {
+  NSString* string = nil;
+  char hostBuffer[NI_MAXHOST];
+  char serviceBuffer[NI_MAXSERV];
+  if (getnameinfo(addr, addr->sa_len, hostBuffer, sizeof(hostBuffer), serviceBuffer, sizeof(serviceBuffer), NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN) >= 0) {
+    string = includeService ? [NSString stringWithFormat:@"%s:%s", hostBuffer, serviceBuffer] : [NSString stringWithUTF8String:hostBuffer];
+  } else {
+    _LOG_DEBUG_UNREACHABLE();
+  }
+  return string;
+}
+
+NSString* GCDTCPServerGetPrimaryIPAddress(BOOL useIPv6) {
+  NSString* address = nil;
+#if TARGET_OS_IPHONE
+#if !TARGET_IPHONE_SIMULATOR
+  const char* primaryInterface = "en0";  // WiFi interface on iOS
+#endif
+#else
+  const char* primaryInterface = NULL;
+  SCDynamicStoreRef store = SCDynamicStoreCreate(kCFAllocatorDefault, CFSTR("XLTCPServer"), NULL, NULL);
+  if (store) {
+    CFPropertyListRef info = SCDynamicStoreCopyValue(store, CFSTR("State:/Network/Global/IPv4"));  // There is no equivalent for IPv6 but the primary interface should be the same
+    if (info) {
+      primaryInterface = [[NSString stringWithString:(id)[(__bridge NSDictionary*)info objectForKey:@"PrimaryInterface"]] UTF8String];
+      CFRelease(info);
+    }
+    CFRelease(store);
+  }
+  if (primaryInterface == NULL) {
+    primaryInterface = "lo0";
+  }
+#endif
+  struct ifaddrs* list;
+  if (getifaddrs(&list) >= 0) {
+    for (struct ifaddrs* ifap = list; ifap; ifap = ifap->ifa_next) {
+#if TARGET_IPHONE_SIMULATOR
+      // Assume en0 is Ethernet and en1 is WiFi since there is no way to use SystemConfiguration framework in iOS Simulator
+      if (strcmp(ifap->ifa_name, "en0") && strcmp(ifap->ifa_name, "en1"))
+#else
+      if (strcmp(ifap->ifa_name, primaryInterface))
+#endif
+      {
+        continue;
+      }
+      if ((ifap->ifa_flags & IFF_UP) && ((!useIPv6 && (ifap->ifa_addr->sa_family == AF_INET)) || (useIPv6 && (ifap->ifa_addr->sa_family == AF_INET6)))) {
+        address = _StringFromSockAddr(ifap->ifa_addr, NO);
+        break;
+      }
+    }
+    freeifaddrs(list);
+  }
+  return address;
+}
 
 @implementation GCDTCPServerConnection
 @end
@@ -53,7 +115,7 @@
   _LOG_DEBUG_CHECK([connectionClass isSubclassOfClass:[GCDTCPServerConnection class]]);
   if ((self = [super initWithConnectionClass:connectionClass])) {
     _port = port;
-    
+
     _sourceGroup = dispatch_group_create();
   }
   return self;
@@ -72,7 +134,7 @@
   if (listeningSocket >= 0) {
     int yes = 1;
     setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-    
+
     if (bind(listeningSocket, address, length) == 0) {
       if (listen(listeningSocket, kMaxPendingConnections) == 0) {
         return listeningSocket;
@@ -99,7 +161,6 @@
   });
   dispatch_source_set_event_handler(source, ^{
     @autoreleasepool {
-      
       struct sockaddr remoteSockAddr;
       socklen_t remoteAddrLen = sizeof(remoteSockAddr);
       int socket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen);
@@ -114,7 +175,6 @@
       } else {
         _LOG_ERROR(@"Failed accepting %s socket: %s", isIPv6 ? "IPv6" : "IPv4", strerror(errno));
       }
-      
     }
   });
   return source;
@@ -128,7 +188,7 @@
   addr4.sin_port = htons(_port);
   addr4.sin_addr.s_addr = htonl(INADDR_ANY);
   int listeningSocket4 = [self _createListeningSocket:NO localAddress:&addr4 length:sizeof(addr4)];
-  
+
   struct sockaddr_in6 addr6;
   bzero(&addr6, sizeof(addr6));
   addr6.sin6_len = sizeof(addr6);
@@ -136,19 +196,19 @@
   addr6.sin6_port = htons(_port);
   addr6.sin6_addr = in6addr_any;
   int listeningSocket6 = [self _createListeningSocket:YES localAddress:&addr6 length:sizeof(addr6)];
-  
+
   if ((listeningSocket4 < 0) || (listeningSocket6 < 0)) {
     close(listeningSocket4);
     close(listeningSocket6);
     return NO;
   }
-  
+
   _source4 = [self _createDispatchSourceWithListeningSocket:listeningSocket4 isIPv6:NO];
   dispatch_resume(_source4);
-  
+
   _source6 = [self _createDispatchSourceWithListeningSocket:listeningSocket6 isIPv6:YES];
   dispatch_resume(_source6);
-  
+
   return YES;
 }
 

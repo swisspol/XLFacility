@@ -48,14 +48,14 @@
 
 - (void)didOpen {
   [super didOpen];
-  
+
   fprintf(stdout, "\n=== CONNECTION OPENED ===\n\n");
   [self _readForever];
 }
 
 - (void)didClose {
   [super didClose];
-  
+
   fprintf(stdout, "\n=== CONNECTION CLOSED ===\n\n");
 }
 
@@ -67,8 +67,8 @@ int main(int argc, const char* argv[]) {
     if (![server start]) {
       abort();
     }
-    
-    fprintf(stdout, "Server is running...\n\n");
+
+    fprintf(stdout, "Server is running on %s...\n\n", GCDTCPServerGetPrimaryIPAddress(false).UTF8String);
     CFRunLoopRun();
   }
   return 0;

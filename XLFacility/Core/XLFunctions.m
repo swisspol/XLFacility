@@ -42,9 +42,9 @@
 void XLLogCMessage(const char* tag, int level, const char* format, ...) {
   va_list arguments;
   va_start(arguments, format);
-  NSString* message = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:format] arguments:arguments];
+  NSString* message = [[NSString alloc] initWithFormat:(id)[NSString stringWithUTF8String:format] arguments:arguments];
   va_end(arguments);
-  [XLSharedFacility logMessage:message withTag:(tag ? [NSString stringWithUTF8String:tag] : nil) level:level];
+  [XLSharedFacility logMessage:message withTag:(tag ? [NSString stringWithUTF8String:tag] : nil)level:level];
 }
 
 #pragma clang diagnostic pop
@@ -55,7 +55,7 @@ NSString* XLStringFromLogLevelName(XLLogLevel level) {
     return names[level];
   }
   XLOG_DEBUG_UNREACHABLE();
-  return nil;
+  return @"";
 }
 
 NSString* XLPaddedStringFromLogLevelName(XLLogLevel level) {
@@ -64,7 +64,7 @@ static NSString* names[] = {@"DEBUG👀    ", @"VERBOSE🌀  ", @"INFO🔵     "
     return names[level];
   }
   XLOG_DEBUG_UNREACHABLE();
-  return nil;
+  return @"";
 }
 
 NSData* XLConvertNSStringToUTF8String(NSString* string) {

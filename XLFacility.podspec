@@ -7,20 +7,21 @@
 
 Pod::Spec.new do |s|
   s.name     = 'XLFacility'
-  s.version  = '1.5.6'
+  s.version  = '1.5.16'
   s.author   =  { 'Pierre-Olivier Latour' => 'info@pol-online.net' }
   s.license  = { :type => 'BSD', :file => 'LICENSE' }
   s.homepage = 'https://github.com/swisspol/XLFacility'
   s.summary  = 'Elegant and extensive logging facility for OS X & iOS (includes database, Telnet and HTTP servers)'
 
   s.source   = { :git => 'https://github.com/swisspol/XLFacility.git', :tag => s.version.to_s }
-  s.ios.deployment_target = '5.0'
-  s.osx.deployment_target = '10.7'
+  s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.8'
   s.requires_arc = true
 
   s.subspec 'Core' do |cs|
     cs.source_files = 'XLFacility/Core/*.{h,m}'
     cs.private_header_files = "XLFacility/Core/*Private.h"
+    cs.exclude_files = "XLFacility/Core/XLFacilityCMacros.h"
     cs.requires_arc = true
   end
 
@@ -28,6 +29,7 @@ Pod::Spec.new do |s|
     cs.source_files = 'GCDTelnetServer/GCDNetworking/GCDNetworking/*.{h,m}'
     cs.private_header_files = "GCDTelnetServer/GCDNetworking/GCDNetworking/*Private.h"
     cs.requires_arc = true
+    cs.osx.frameworks = 'SystemConfiguration'
     cs.ios.frameworks = 'CFNetwork'
   end
 
@@ -36,6 +38,7 @@ Pod::Spec.new do |s|
     cs.source_files = 'GCDTelnetServer/GCDTelnetServer/*.{h,m}'
     cs.private_header_files = "GCDTelnetServer/GCDTelnetServer/*Private.h"
     cs.requires_arc = true
+    cs.osx.frameworks = 'SystemConfiguration'
     cs.ios.frameworks = 'CFNetwork'
   end
 

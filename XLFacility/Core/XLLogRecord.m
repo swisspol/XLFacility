@@ -36,9 +36,10 @@
 @implementation XLLogRecord
 
 - (id)initWithAbsoluteTime:(CFAbsoluteTime)absoluteTime
-                 tag:(NSString*)tag
+                       tag:(NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
+                  metadata:(NSDictionary<NSString*, NSString*>*)metadata
              capturedErrno:(int)capturedErrno
           capturedThreadID:(int)capturedThreadID
         capturedQueueLabel:(NSString*)capturedQueueLabel
@@ -48,6 +49,7 @@
     _tag = tag;
     _level = level;
     _message = message;
+    _metadata = metadata;
     _capturedErrno = capturedErrno;
     _capturedThreadID = capturedThreadID;
     _capturedQueueLabel = capturedQueueLabel;
@@ -60,15 +62,16 @@
                        tag:(NSString*)tag
                      level:(XLLogLevel)level
                    message:(NSString*)message
+                  metadata:(NSDictionary<NSString*, NSString*>*)metadata
                  callstack:(NSArray*)callstack {
   const char* label = NULL;
 #if TARGET_OS_IPHONE
-  if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+  if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
 #else
   if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber10_9)
 #endif
   {
-    label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);  // This returns garbage on iOS 5 and OS X 10.8 (e.g. an non-accessible string)
+    label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);  // This returns garbage before iOS 7 and OS X 10.9 (e.g. an non-accessible string)
     if (!label[0]) {
       label = NULL;
     }
@@ -79,10 +82,11 @@
                                 tag:tag
                               level:level
                             message:message
+                           metadata:metadata
                       capturedErrno:errno
                    capturedThreadID:(int)threadID
                  capturedQueueLabel:(label ? [NSString stringWithUTF8String:label] : nil)
-                          callstack:callstack];
+                 callstack:callstack];
 }
 
 - (BOOL)isEqual:(id)object {
@@ -91,7 +95,7 @@
     if (fabs(other->_absoluteTime - _absoluteTime) >= 0.001) {  // 1ms
       return NO;
     }
-    if ((_tag && !other->_tag) || (!_tag && other->_tag) || (_tag && other->_tag && ![_tag isEqualToString:other->_tag])) {
+    if ((_tag && !other->_tag) || (!_tag && other->_tag) || (_tag && other->_tag && ![_tag isEqualToString:(id)other->_tag])) {
       return NO;
     }
     if (_level != other->_level) {
@@ -100,16 +104,19 @@
     if ((_message && !other->_message) || (!_message && other->_message) || (_message && other->_message && ![_message isEqualToString:other->_message])) {
       return NO;
     }
+    if ((_metadata && !other->_metadata) || (!_metadata && other->_metadata) || (_metadata && other->_metadata && ![_metadata isEqualToDictionary:(id)other->_metadata])) {
+      return NO;
+    }
     if (_capturedErrno != other->_capturedErrno) {
       return NO;
     }
     if (_capturedThreadID != other->_capturedThreadID) {
       return NO;
     }
-    if ((_capturedQueueLabel && !other->_capturedQueueLabel) || (!_capturedQueueLabel && other->_capturedQueueLabel) || (_capturedQueueLabel && other->_capturedQueueLabel && ![_capturedQueueLabel isEqualToString:other->_capturedQueueLabel])) {
+    if ((_capturedQueueLabel && !other->_capturedQueueLabel) || (!_capturedQueueLabel && other->_capturedQueueLabel) || (_capturedQueueLabel && other->_capturedQueueLabel && ![_capturedQueueLabel isEqualToString:(id)other->_capturedQueueLabel])) {
       return NO;
     }
-    if ((_callstack && !other->_callstack) || (!_callstack && other->_callstack) || (_callstack && other->_callstack && ![_callstack isEqualToArray:other->_callstack])) {
+    if ((_callstack && !other->_callstack) || (!_callstack && other->_callstack) || (_callstack && other->_callstack && ![_callstack isEqualToArray:(id)other->_callstack])) {
       return NO;
     }
   }

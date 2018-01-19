@@ -35,13 +35,9 @@
 #import "XLFunctions.h"
 #import "XLFacilityPrivate.h"
 
-@interface XLASLLogger () {
-@private
+@implementation XLASLLogger {
   aslclient _client;
 }
-@end
-
-@implementation XLASLLogger
 
 + (XLASLLogger*)sharedLogger {
   static XLASLLogger* logger = nil;

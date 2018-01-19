@@ -27,6 +27,23 @@
 
 #import "GCDTCPPeer.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ *  On OS X, returns the IPv4 or IPv6 address as a string of the primary
+ *  connected service or nil if not available.
+ *  
+ *  On iOS, returns the IPv4 or IPv6 address as a string of the WiFi
+ *  interface if connected or nil otherwise.
+ */
+NSString* GCDTCPServerGetPrimaryIPAddress(BOOL useIPv6);
+
+#ifdef __cplusplus
+}
+#endif
+
 @class GCDTCPServer;
 
 /**

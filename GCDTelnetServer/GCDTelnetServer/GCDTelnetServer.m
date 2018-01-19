@@ -126,12 +126,17 @@
 }
 
 - (instancetype)initWithPort:(NSUInteger)port startHandler:(GCDTelnetStartHandler)startHandler commandHandler:(GCDTelnetCommandHandler)commandHandler {
-  return [self initWithPort:port startHandler:startHandler lineHandler:^NSString*(GCDTelnetConnection* connection, NSString* line) {
-    NSArray* array = [connection parseLineAsCommandAndArguments:line];
-    NSString* command = array[0];
-    NSArray* arguments = [array subarrayWithRange:NSMakeRange(1, array.count - 1)];
-    return commandHandler(connection, command, arguments);
-  }];
+  return [self initWithPort:port
+               startHandler:startHandler
+                lineHandler:^NSString*(GCDTelnetConnection* connection, NSString* line) {
+                  NSArray* array = [connection parseLineAsCommandAndArguments:line];
+                  if (array.count) {
+                    NSString* command = array[0];
+                    NSArray* arguments = [array subarrayWithRange:NSMakeRange(1, array.count - 1)];
+                    return commandHandler(connection, command, arguments);
+                  }
+                  return nil;
+                }];
 }
 
 - (instancetype)initWithConnectionClass:(Class)connectionClass

@@ -63,16 +63,12 @@ static dispatch_source_t _stdOutCaptureSource = NULL;
 static dispatch_source_t _stdErrCaptureSource = NULL;
 static NSData* _newlineData = nil;
 
-@interface XLFacility () {
-@private
+@implementation XLFacility {
   dispatch_queue_t _lockQueue;
   dispatch_group_t _syncGroup;
   NSMutableSet* _loggers;
   pthread_key_t _pthreadKey;
 }
-@end
-
-@implementation XLFacility
 
 static void _ExitHandler() {
   @autoreleasepool {
@@ -85,19 +81,19 @@ static void _ExitHandler() {
   @autoreleasepool {
     XLOriginalStdOut = dup(STDOUT_FILENO);
     XLOriginalStdErr = dup(STDERR_FILENO);
-    
+
 #if DEBUG
     XLMinLogLevel = kXLLogLevel_Debug;
 #else
-    XLMinLogLevel= kXLLogLevel_Info;
+    XLMinLogLevel = kXLLogLevel_Info;
 #endif
     const char* logLevel = getenv(kMinLogLevelEnvironmentVariable);
     if (logLevel) {
       XLMinLogLevel = atoi(logLevel);
     }
-    
+
     XLSharedFacility = [[XLFacility alloc] init];
-    
+
     atexit(_ExitHandler);
   }
 }
@@ -110,12 +106,12 @@ static void _ExitHandler() {
   if ((self = [super init])) {
     _minCaptureCallstackLevel = kXLLogLevel_Exception;
     _minInternalLogLevel = XLMinLogLevel;
-    
+
     _lockQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _syncGroup = dispatch_group_create();
     _loggers = [[NSMutableSet alloc] init];
     pthread_key_create(&_pthreadKey, NULL);
-    
+
     if (isatty(XLOriginalStdErr)) {
       [self addLogger:[XLStandardLogger sharedErrorLogger]];
     }
@@ -145,7 +141,7 @@ static void _ExitHandler() {
     dispatch_sync(logger.serialQueue, ^{
       success = [logger performOpen];
     });
-    
+
     if (success) {
       dispatch_sync(_lockQueue, ^{
         [_loggers addObject:logger];
@@ -162,7 +158,7 @@ static void _ExitHandler() {
     dispatch_sync(_lockQueue, ^{
       [_loggers removeObject:logger];
     });
-    
+
     dispatch_sync(logger.serialQueue, ^{
       [logger performClose];
     });
@@ -183,7 +179,7 @@ static void _ExitHandler() {
   dispatch_sync(_lockQueue, ^{
     [_loggers removeAllObjects];
   });
-  
+
   [self _closeAllLoggers];
 }
 
@@ -203,12 +199,12 @@ static void _ExitHandler() {
       });
     }
   }
-  
+
   // If the log record is at ERROR level or above, block XLFacility entirely until all loggers are done
   if (record.level >= kXLLogLevel_Error) {
     dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER);
   }
-  
+
   // If the log record is at ABORT level, close all loggers and kill the process
   if (record.level >= kXLLogLevel_Abort) {
     [self _closeAllLoggers];
@@ -216,7 +212,7 @@ static void _ExitHandler() {
   }
 }
 
-- (void)_logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level callstack:(NSArray*)callstack {
+- (void)_logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level callstack:(NSArray*)callstack metadata:(NSDictionary<NSString*, NSString*>*)metadata {
   if (message == nil) {
     XLOG_DEBUG_UNREACHABLE();
     return;
@@ -225,22 +221,22 @@ static void _ExitHandler() {
     XLOG_DEBUG_UNREACHABLE();
     return;
   }
-  
+
   // Ignore internal log messages if necessary
   if ((tag == XLFacilityTag_Internal) && (level < _minInternalLogLevel)) {
     return;
   }
-  
+
 #if DEBUG
   // If the log record is at ABORT level and we are being debugged, kill the process immediately
   if ((level >= kXLLogLevel_Abort) && XLIsDebuggerAttached()) {
     abort();
   }
 #endif
-  
+
   // Save current absolute time
   CFAbsoluteTime time = CFAbsoluteTimeGetCurrent();
-  
+
   // Capture current callstack if necessary (using the same format as -[NSException callStackSymbols])
   if ((level >= _minCaptureCallstackLevel) && !callstack) {
     void* backtraceFrames[128];
@@ -249,12 +245,12 @@ static void _ExitHandler() {
     if (frameStrings) {
       callstack = [[NSMutableArray alloc] init];
       for (int i = 0; i < frameCount; ++i) {
-        [(NSMutableArray*)callstack addObject:[NSString stringWithUTF8String:frameStrings[i]]];
+        [(NSMutableArray*)callstack addObject:(id)[NSString stringWithUTF8String:frameStrings[i]]];
       }
       free(frameStrings);  // No need to free individual strings
     }
   }
-  
+
 #if DEBUG
   // Clean up the tag if it looks like it was generated from the __FILE__ preprocessor macro
   if (tag.length && ([tag characterAtIndex:0] == '/')) {
@@ -271,9 +267,9 @@ static void _ExitHandler() {
     tag = [NSString stringWithUTF8String:tagPtr];  // Strip the common prefix between the tag and __FILE__ for this very file
   }
 #endif
-  
+
   // Create the log record and send to loggers
-  XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time tag:tag level:level message:message callstack:callstack];
+  XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time tag:tag level:level message:message metadata:metadata callstack:callstack];
   if (pthread_getspecific(_pthreadKey)) {  // Avoid deadlock in in case of reentrancy on the same thread by exceptionally making the logging asynchronous
     dispatch_async(_lockQueue, ^{
       [self _logRecord:record];
@@ -285,9 +281,29 @@ static void _ExitHandler() {
   }
 }
 
+static void _MetadataApplier(const void* key, const void* value, void* context) {
+  NSMutableDictionary<NSString*, NSString*>* output = (__bridge NSMutableDictionary<NSString*, NSString*>*)context;
+  [output setObject:[(__bridge NSString*)value description] forKey:(__bridge NSString*)key];
+}
+
+static NSDictionary<NSString*, NSString*>* _SanitizeMetadata(NSDictionary<NSString*, id>* input) {
+  NSMutableDictionary<NSString*, NSString*>* output = nil;
+  if (input.count) {
+    output = [[NSMutableDictionary alloc] initWithCapacity:input.count];
+    CFDictionaryApplyFunction((CFDictionaryRef)input, _MetadataApplier, (__bridge void*)output);
+  }
+  return output;
+}
+
 - (void)logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level {
   if (level >= XLMinLogLevel) {
-    [self _logMessage:message withTag:tag level:level callstack:nil];
+    [self _logMessage:[message copy] withTag:tag level:level callstack:nil metadata:nil];
+  }
+}
+
+- (void)logMessage:(NSString*)message withTag:(NSString*)tag level:(XLLogLevel)level metadata:(NSDictionary<NSString*, id>*)metadata {
+  if (level >= XLMinLogLevel) {
+    [self _logMessage:[message copy] withTag:tag level:level callstack:nil metadata:_SanitizeMetadata(metadata)];
   }
 }
 
@@ -297,14 +313,28 @@ static void _ExitHandler() {
     va_start(arguments, format);
     NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments];
     va_end(arguments);
-    [self _logMessage:message withTag:tag level:level callstack:nil];
+    [self _logMessage:message withTag:tag level:level callstack:nil metadata:nil];
+  }
+}
+
+- (void)logMessageWithTag:(NSString*)tag level:(XLLogLevel)level metadata:(NSDictionary<NSString*, id>*)metadata format:(NSString*)format, ... {
+  if (level >= XLMinLogLevel) {
+    va_list arguments;
+    va_start(arguments, format);
+    NSString* message = [[NSString alloc] initWithFormat:format arguments:arguments];
+    va_end(arguments);
+    [self _logMessage:message withTag:tag level:level callstack:nil metadata:_SanitizeMetadata(metadata)];
   }
 }
 
 - (void)logException:(NSException*)exception withTag:(NSString*)tag {
+  [self logException:exception withTag:tag metadata:nil];
+}
+
+- (void)logException:(NSException*)exception withTag:(NSString*)tag metadata:(NSDictionary<NSString*, id>*)metadata {
   if (kXLLogLevel_Exception >= XLMinLogLevel) {
     NSString* message = [NSString stringWithFormat:@"%@ %@", exception.name, exception.reason];
-    [self _logMessage:message withTag:tag level:kXLLogLevel_Exception callstack:exception.callStackSymbols];
+    [self _logMessage:message withTag:tag level:kXLLogLevel_Exception callstack:exception.callStackSymbols metadata:_SanitizeMetadata(metadata)];
   }
 }
 
@@ -361,13 +391,13 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
     _newlineData = [[NSData alloc] initWithBytes:"\n" length:1];
   }
   size_t prognameLength = strlen(getprogname());
-  
+
   int fildes[2];
   pipe(fildes);  // [0] is read end of pipe while [1] is write end
   dup2(fildes[1], fd);  // Duplicate write end of pipe "onto" fd (this closes fd)
   close(fildes[1]);  // Close original write end of pipe
   fd = fildes[0];  // We can now monitor the read end of the pipe
-  
+
   char* buffer = malloc(kFileDescriptorCaptureBufferSize);
   NSMutableData* data = [[NSMutableData alloc] init];
   fcntl(fd, F_SETFL, O_NONBLOCK);
@@ -377,7 +407,6 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
   });
   dispatch_source_set_event_handler(source, ^{
     @autoreleasepool {
-      
       while (1) {
         ssize_t size = read(fd, buffer, kFileDescriptorCaptureBufferSize);
         if (size <= 0) {
@@ -388,7 +417,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
           break;
         }
       }
-      
+
       while (1) {
         NSRange range = [data rangeOfData:_newlineData options:0 range:NSMakeRange(0, data.length)];
         if (range.location == NSNotFound) {
@@ -396,7 +425,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
         }
         @try {
           NSUInteger offset = 0;
-          
+
           if (nsLog && (range.location > 24 + prognameLength + 4)) {  // "yyyy-mm-dd HH:MM:ss.SSS progname[:] "
             const char* bytes = (const char*)data.bytes;
             if ((bytes[4] == '-') && (bytes[7] == '-') && (bytes[10] == ' ') && (bytes[13] == ':') && (bytes[16] == ':') && (bytes[19] == '.')) {
@@ -408,10 +437,10 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
               }
             }
           }
-          
+
           NSString* message = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(offset, range.location - offset)] encoding:NSUTF8StringEncoding];
           if (message) {
-            [XLSharedFacility logMessage:(offset ? [kCapturedNSLogPrefix stringByAppendingString:message] : message) withTag:tag level:level];
+            [XLSharedFacility logMessage:(offset ? [kCapturedNSLogPrefix stringByAppendingString:message] : message)withTag:tag level:level];
           } else {
             XLOG_ERROR(@"%@", @"Failed interpreting captured content from standard file descriptor as UTF8");
           }
@@ -421,7 +450,6 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
         }
         [data replaceBytesInRange:NSMakeRange(0, range.location + range.length) withBytes:NULL length:0];
       }
-      
     }
   });
   dispatch_resume(source);
@@ -433,7 +461,7 @@ static id _ExceptionInitializer(id self, SEL cmd, NSString* name, NSString* reas
 #if !OS_OBJECT_USE_OBJC_RETAIN_RELEASE
   dispatch_release(source);
 #endif
-  
+
   dup2(originalFD, fd);  // Duplicate original file descriptor "onto" fd (this closes fd)
 }
 

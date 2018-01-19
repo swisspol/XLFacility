@@ -28,6 +28,8 @@
 #import "XLDatabaseLogger.h"
 #import "GCDTCPClient.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  The XLTCPClientLogger class is a base class for loggers that connect to TCP
  *  servers.
@@ -49,7 +51,7 @@
 /**
  *  Returns the XLDatabaseLogger used internally if any.
  */
-@property(nonatomic, readonly) XLDatabaseLogger* databaseLogger;
+@property(nonatomic, readonly, nullable) XLDatabaseLogger* databaseLogger;
 
 /**
  *  Configures how long the TCP client should wait (and therefore potentially
@@ -93,6 +95,8 @@
  *
  *  @warning This returns nil after the connection has been closed.
  */
-@property(nonatomic, assign, readonly) XLTCPClientLogger* logger;
+@property(nonatomic, assign, readonly, nullable) XLTCPClientLogger* logger;
 
 @end
+
+NS_ASSUME_NONNULL_END
