@@ -240,6 +240,8 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
                                    ++index;
                                  }];
 
+  XCTAssertTrue([logger purgeRecordsBeforeAbsoluteTime:(CFAbsoluteTimeGetCurrent() - 3600.0)]);
+
   [XLSharedFacility removeLogger:logger];
   [[NSFileManager defaultManager] removeItemAtPath:databasePath error:NULL];
 }
