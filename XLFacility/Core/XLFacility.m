@@ -176,6 +176,8 @@ static void _ExitHandler() {
 }
 
 - (void)removeAllLoggers {
+  [self _closeAllLoggers];
+
   dispatch_sync(_lockQueue, ^{
     [self _closeAllLoggers];
     [_loggers removeAllObjects];
