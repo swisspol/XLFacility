@@ -136,7 +136,10 @@
 - (void)close {
   [_overlayTimer invalidate];
   _overlayTimer = nil;
-  [_logWindow close];
+  NSWindow* window = _logWindow;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [window close];
+  });
   _logWindow = nil;
   _textView = nil;
 }
