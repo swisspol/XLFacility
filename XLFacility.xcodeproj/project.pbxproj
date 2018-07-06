@@ -370,6 +370,7 @@
 			indentWidth = 2;
 			sourceTree = "<group>";
 			tabWidth = 2;
+			usesTabs = 0;
 		};
 		E26DC16819E8494700C68DDC /* Products */ = {
 			isa = PBXGroup;
