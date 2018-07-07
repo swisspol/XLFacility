@@ -69,6 +69,37 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
 
 @end
 
+// A logger which post a notification
+@interface NotificationLogger : XLLogger
+- (instancetype) initWithNotificationName:(NSNotificationName)notificationName;
+@property (readonly) NSNotificationName notificationName;
+@end
+
+@implementation NotificationLogger
+
+- (instancetype) initWithNotificationName:(NSNotificationName)notificationName
+{
+  if (!(self = [super init]))
+    return nil;
+  
+  _notificationName = notificationName;
+  
+  return self;
+}
+
+- (BOOL)open {
+  return YES;
+}
+
+- (void)logRecord:(XLLogRecord*)record {
+  [NSNotificationCenter.defaultCenter postNotificationName:self.notificationName object:self userInfo:nil];
+}
+
+- (void)close {
+}
+
+@end
+
 @interface TestServer : GCDTCPServer
 @end
 
@@ -534,6 +565,27 @@ Hello World!\n\
 
   [XLSharedFacility removeLogger:logger];
   [[NSFileManager defaultManager] removeItemAtPath:filePath error:NULL];
+}
+
+- (void)testNoDeadlock
+{
+  NSString * const notificationName = @"testNoDeadlock.Notification";
+  NotificationLogger *logger = [[NotificationLogger alloc] initWithNotificationName:notificationName];
+  [XLSharedFacility addLogger:logger];
+  
+  XCTestExpectation *expectation = [self expectationWithDescription:@"No deadlock"];
+  // Observer of the notification **on the main queue**. May cause deadlocks if _logRecord: is called by dispatch_sync on the _lockQueue from the main thread
+  id<NSObject> observationToken = [NSNotificationCenter.defaultCenter addObserverForName:notificationName object:nil queue:NSOperationQueue.mainQueue usingBlock:^(NSNotification * _Nonnull notification) {
+    [expectation fulfill];
+  }];
+  
+  // Using kXLLogLevel_Error because of `dispatch_group_wait(_syncGroup, DISPATCH_TIME_FOREVER)` when `record.level >= kXLLogLevel_Error`
+  [XLSharedFacility logMessage:@"A message" withTag:@"Tag" level:kXLLogLevel_Error];
+  
+  [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable error) {
+    [XLSharedFacility removeLogger:logger];
+    [NSNotificationCenter.defaultCenter removeObserver:observationToken];
+  }];
 }
 
 @end
