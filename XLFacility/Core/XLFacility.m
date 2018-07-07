@@ -67,7 +67,6 @@ static NSData* _newlineData = nil;
   dispatch_queue_t _lockQueue;
   dispatch_group_t _syncGroup;
   NSMutableSet* _loggers;
-  pthread_key_t _pthreadKey;
 }
 
 static void _ExitHandler() {
@@ -110,7 +109,6 @@ static void _ExitHandler() {
     _lockQueue = dispatch_queue_create(XL_DISPATCH_QUEUE_LABEL, DISPATCH_QUEUE_SERIAL);
     _syncGroup = dispatch_group_create();
     _loggers = [[NSMutableSet alloc] init];
-    pthread_key_create(&_pthreadKey, NULL);
 
     if (isatty(XLOriginalStdErr)) {
       [self addLogger:[XLStandardLogger sharedErrorLogger]];
@@ -192,9 +190,7 @@ static void _ExitHandler() {
   for (XLLogger* logger in _loggers) {
     if ([logger shouldLogRecord:record]) {
       dispatch_group_async(_syncGroup, logger.serialQueue, ^{
-        pthread_setspecific(_pthreadKey, &XLSharedFacility);
         [logger performLogRecord:record];
-        pthread_setspecific(_pthreadKey, NULL);
       });
     }
   }
@@ -269,15 +265,9 @@ static void _ExitHandler() {
 
   // Create the log record and send to loggers
   XLLogRecord* record = [[XLLogRecord alloc] initWithAbsoluteTime:time tag:tag level:level message:message metadata:metadata callstack:callstack];
-  if (pthread_getspecific(_pthreadKey)) {  // Avoid deadlock in in case of reentrancy on the same thread by exceptionally making the logging asynchronous
-    dispatch_async(_lockQueue, ^{
-      [self _logRecord:record];
-    });
-  } else {
-    dispatch_sync(_lockQueue, ^{
-      [self _logRecord:record];
-    });
-  }
+  dispatch_async(_lockQueue, ^{
+    [self _logRecord:record];
+  });
 }
 
 static void _MetadataApplier(const void* key, const void* value, void* context) {
