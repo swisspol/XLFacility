@@ -41,6 +41,7 @@
   sqlite3* _database;
   sqlite3_stmt* _statement;
   dispatch_queue_t _databaseQueue;
+  BOOL _disableWrites;
 }
 
 + (void)initialize {
@@ -102,6 +103,9 @@
 
 - (void)logRecord:(XLLogRecord*)record {
   dispatch_sync(_databaseQueue, ^() {
+    if (_disableWrites) {
+      return;
+    }
     sqlite3_bind_double(_statement, 1, record.absoluteTime);
     const char* tag = XLConvertNSStringToUTF8CString(record.tag);
     if (tag) {
@@ -135,6 +139,7 @@
     }
     if (sqlite3_step(_statement) != SQLITE_DONE) {
       XLOG_ERROR(@"Failed writing to database at path \"%@\": %s", _databasePath, sqlite3_errmsg(_database));
+      _disableWrites = YES; // Write errors to database are typically not recoverable and we want to avoid entering an infinite logging loop
     }
     sqlite3_reset(_statement);
     sqlite3_clear_bindings(_statement);
@@ -147,6 +152,7 @@
     _statement = NULL;
     sqlite3_close(_database);
     _database = NULL;
+    _disableWrites = NO;
   });
 }
 

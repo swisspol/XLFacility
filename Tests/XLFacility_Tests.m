@@ -218,7 +218,6 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
 - (void)testDatabaseLogger {
   NSString* databasePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
   XLDatabaseLogger* logger = [[XLDatabaseLogger alloc] initWithDatabasePath:databasePath appVersion:0];
-
   [XLSharedFacility addLogger:logger];
 
   for (int i = 0; i < 10; ++i) {
@@ -241,6 +240,29 @@ typedef void (^TCPServerConnectionBlock)(GCDTCPPeerConnection* connection);
                                  }];
 
   XCTAssertTrue([logger purgeRecordsBeforeAbsoluteTime:(CFAbsoluteTimeGetCurrent() - 3600.0)]);
+
+  [XLSharedFacility removeLogger:logger];
+  [[NSFileManager defaultManager] removeItemAtPath:databasePath error:NULL];
+}
+
+- (void)testCorruptedDatabaseLogger {
+  NSString* databasePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
+  XLDatabaseLogger* logger = [[XLDatabaseLogger alloc] initWithDatabasePath:databasePath appVersion:0];
+  [XLSharedFacility addLogger:logger];
+
+  for (int i = 0; i < 5; ++i) {
+    [XLSharedFacility logMessageWithTag:nil level:kXLLogLevel_Error metadata:nil format:@"Hello World #%i!", i + 1];
+  }
+  usleep(kLoggingDelay);
+  XCTAssertEqual(_capturedRecords.count, 5); // Only 5 error messages since no writes to SQLite database failed
+
+  XCTAssertTrue([[NSData data] writeToFile:databasePath atomically:YES]); // Intentionally corrupt SQLite database by wiping it out
+
+  for (int i = 0; i < 5; ++i) {
+    [XLSharedFacility logMessageWithTag:nil level:kXLLogLevel_Error metadata:nil format:@"Hello World #%i!", i + 1];
+  }
+  usleep(kLoggingDelay);
+  XCTAssertEqual(_capturedRecords.count, 11); // Another 5 error messages + a single extra error due to SQLite database write failure (and not 5 extra errors)
 
   [XLSharedFacility removeLogger:logger];
   [[NSFileManager defaultManager] removeItemAtPath:databasePath error:NULL];
