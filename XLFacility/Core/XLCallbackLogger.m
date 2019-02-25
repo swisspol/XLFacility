@@ -39,7 +39,7 @@
 }
 
 + (instancetype)loggerWithCallback:(XLCallbackLoggerLogRecordBlock)callback {
-  return [[[self class] alloc] initWithOpenCallback:NULL logRecordCallback:callback closeCallback:NULL];
+  return [(XLCallbackLogger*)[[self class] alloc] initWithOpenCallback:NULL logRecordCallback:callback closeCallback:NULL];
 }
 
 - (id)init {

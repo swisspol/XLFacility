@@ -90,7 +90,7 @@
 }
 
 - (BOOL)isEqual:(id)object {
-  if ([object isKindOfClass:[XLLogRecord class]]) {
+  if ([(XLLogRecord*)object isKindOfClass:[XLLogRecord class]]) {
     XLLogRecord* other = object;
     if (fabs(other->_absoluteTime - _absoluteTime) >= 0.001) {  // 1ms
       return NO;

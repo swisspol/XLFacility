@@ -53,7 +53,7 @@
   if (identifier == nil) {
     identifier = [[NSProcessInfo processInfo] processName];
   }
-  int version = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] intValue];  // This may be 0
+  int version = [(NSNumber*)[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] intValue];  // This may be 0
   NSString* cachesPath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
   NSString* databaseName = [NSString stringWithFormat:@"%@-%@.db", identifier, self.class];
   NSString* databasePath = [cachesPath stringByAppendingPathComponent:databaseName];

@@ -97,7 +97,7 @@ static void* _associatedObjectKey = &_associatedObjectKey;
 - (instancetype)initWithHost:(NSString*)hostname port:(NSUInteger)port preserveHistory:(BOOL)preserveHistory {
   XLOG_DEBUG_CHECK([[[self class] clientClass] isSubclassOfClass:[GCDTCPClient class]]);
   if ((self = [super init])) {
-    _TCPClient = [[[[self class] clientClass] alloc] initWithConnectionClass:[[self class] connectionClass] host:hostname port:port];
+    _TCPClient = [(GCDTCPClient*)[[[self class] clientClass] alloc] initWithConnectionClass:[[self class] connectionClass] host:hostname port:port];
     objc_setAssociatedObject(_TCPClient, _associatedObjectKey, self, OBJC_ASSOCIATION_ASSIGN);
     _useDatabase = preserveHistory;
     _sendTimeout = -1.0;
