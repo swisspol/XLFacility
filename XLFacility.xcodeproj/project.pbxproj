@@ -419,6 +419,8 @@
 				E29DC8A019EA425700A1B39F /* XLASLLogger.m */,
 				E29DC8A119EA425700A1B39F /* XLCallbackLogger.h */,
 				E29DC8A219EA425700A1B39F /* XLCallbackLogger.m */,
+				E29DC8B019EA425700A1B39F /* XLDatabaseLogger.h */,
+				E29DC8B119EA425700A1B39F /* XLDatabaseLogger.m */,
 				E29DC8A319EA425700A1B39F /* XLFacility.h */,
 				E29DC8A419EA425700A1B39F /* XLFacility.m */,
 				E25663D319EF284B0040CF5E /* XLFacilityCMacros.h */,
@@ -441,8 +443,6 @@
 		E29DC8AF19EA425700A1B39F /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				E29DC8B019EA425700A1B39F /* XLDatabaseLogger.h */,
-				E29DC8B119EA425700A1B39F /* XLDatabaseLogger.m */,
 				E29DC8B219EA425700A1B39F /* XLHTTPServerLogger.h */,
 				E29DC8B319EA425700A1B39F /* XLHTTPServerLogger.m */,
 				E2168F6E19EDC8FF00865350 /* XLTCPClientLogger.h */,

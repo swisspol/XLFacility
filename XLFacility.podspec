@@ -23,6 +23,8 @@ Pod::Spec.new do |s|
     cs.private_header_files = "XLFacility/Core/*Private.h"
     cs.exclude_files = "XLFacility/Core/XLFacilityCMacros.h"
     cs.requires_arc = true
+    cs.ios.library = 'sqlite3'
+    cs.osx.library = 'sqlite3'
   end
 
   s.subspec 'GCDNetworking' do |cs|
@@ -47,8 +49,6 @@ Pod::Spec.new do |s|
     cs.dependency 'XLFacility/GCDTelnetServer'
     cs.source_files = 'XLFacility/Extensions/*.{h,m}'
     cs.requires_arc = true
-    cs.ios.library = 'sqlite3'
-    cs.osx.library = 'sqlite3'
   end
 
   s.subspec 'UserInterface' do |cs|
