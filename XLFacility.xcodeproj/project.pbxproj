@@ -406,7 +406,7 @@
 			isa = PBXGroup;
 			children = (
 				E29DC89E19EA425700A1B39F /* Core */,
-				E29DC8AF19EA425700A1B39F /* Extensions */,
+				E29DC8AF19EA425700A1B39F /* Networking */,
 				E2BBC7FB19EAF0E90082CB48 /* UserInterface */,
 			);
 			path = XLFacility;
@@ -440,7 +440,7 @@
 			path = Core;
 			sourceTree = "<group>";
 		};
-		E29DC8AF19EA425700A1B39F /* Extensions */ = {
+		E29DC8AF19EA425700A1B39F /* Networking */ = {
 			isa = PBXGroup;
 			children = (
 				E29DC8B219EA425700A1B39F /* XLHTTPServerLogger.h */,
@@ -452,7 +452,7 @@
 				E29DC8B419EA425700A1B39F /* XLTelnetServerLogger.h */,
 				E29DC8B519EA425700A1B39F /* XLTelnetServerLogger.m */,
 			);
-			path = Extensions;
+			path = Networking;
 			sourceTree = "<group>";
 		};
 		E2B03E9319F4C27D00D56CA6 /* GCDTelnetServer */ = {

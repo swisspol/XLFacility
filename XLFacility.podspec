@@ -44,10 +44,10 @@ Pod::Spec.new do |s|
     cs.ios.frameworks = 'CFNetwork'
   end
 
-  s.subspec 'Extensions' do |cs|
+  s.subspec 'Networking' do |cs|
     cs.dependency 'XLFacility/Core'
     cs.dependency 'XLFacility/GCDTelnetServer'
-    cs.source_files = 'XLFacility/Extensions/*.{h,m}'
+    cs.source_files = 'XLFacility/Networking/*.{h,m}'
     cs.requires_arc = true
   end
 
