@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @warning This block will be executed on arbitrary threads.
  */
-typedef void (^XLLoggerFenceBlock)();
+typedef void (^XLLoggerFenceBlock)(void);
 
 /**
  *  The XLLogRecordFilterBlock is called by the logger for every log record received.

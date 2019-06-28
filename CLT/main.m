@@ -31,7 +31,7 @@
 #import "XLHTTPServerLogger.h"
 #import "XLTCPClientLogger.h"
 
-extern void c_test();
+extern void c_test(void);
 
 static int _counter = 0;
 
